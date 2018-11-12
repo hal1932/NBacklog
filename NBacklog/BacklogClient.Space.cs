@@ -5,46 +5,6 @@ using System.Threading.Tasks;
 
 namespace NBacklog
 {
-    public struct Space
-    {
-        public string Key;
-        public string Name;
-        public int OwnerId;
-        public string Language;
-        public string TimeZone;
-        public string ReportSendTime;
-        public string TextFormattingRule;
-        public DateTime Created;
-        public DateTime Updated;
-    }
-
-    public struct SpaceNotification
-    {
-        public string Content;
-        public DateTime Updated;
-    }
-
-    public struct SpaceDiskUsage
-    {
-        public int Capacity;
-        public int Issue;
-        public int Wiki;
-        public int File;
-        public int Subversion;
-        public int Git;
-        public IReadOnlyCollection<SpaceDiskUsageDetail> Details;
-    }
-
-    public struct SpaceDiskUsageDetail
-    {
-        public int ProjectId;
-        public int Issue;
-        public int Wiki;
-        public int File;
-        public int Subversion;
-        public int Git;
-    }
-
     public partial class BacklogClient
     {
         public async Task<BacklogResponse<Space>> GetSpaceAsync()
@@ -117,50 +77,8 @@ namespace NBacklog
                         File = x.file,
                         Subversion = x.subversion,
                         Git = x.git,
-                    }).ToList().AsReadOnly(),
+                    }).ToArray(),
                 });
         }
-
-        class _Space
-        {
-            public string spaceKey { get; set; }
-            public string name { get; set; }
-            public int ownerId { get; set; }
-            public string lang { get; set; }
-            public string timezone { get; set; }
-            public string reportSendTime { get; set; }
-            public string textFormattingRule { get; set; }
-            public DateTime created { get; set; }
-            public DateTime updated { get; set; }
-        }
-
-        class _SpaceNotification
-        {
-            public string content { get; set; }
-            public DateTime updated { get; set; }
-        }
-
-
-        class _SpaceDiskUsage
-        {
-            public int capacity { get; set; }
-            public int issue { get; set; }
-            public int wiki { get; set; }
-            public int file { get; set; }
-            public int subversion { get; set; }
-            public int git { get; set; }
-            public List<_SpaceDiskUsageDetail> details { get; set; }
-        }
-
-        class _SpaceDiskUsageDetail
-        {
-            public int projectId { get; set; }
-            public int issue { get; set; }
-            public int wiki { get; set; }
-            public int file { get; set; }
-            public int subversion { get; set; }
-            public int git { get; set; }
-        }
-
     }
 }

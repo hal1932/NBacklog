@@ -16,16 +16,15 @@ namespace NBacklog
         GuestViewer = 6,
     }
 
-    public class User
+    public class User : CacheItem
     {
-        public int Id { get; }
         public string UserId { get; set; }
         public string Name { get; set; }
         public UserRole Role { get; set; }
         public string Language { get; set; }
         public string MailAddress { get; set; }
 
-        internal User(_User data)
+        internal User(_User data, BacklogClient _)
         {
             Id = data.id;
             UserId = data.userId;

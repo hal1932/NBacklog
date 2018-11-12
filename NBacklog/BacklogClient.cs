@@ -1,5 +1,8 @@
 ﻿using NBacklog.OAuth2;
+using NBacklog.Query;
 using RestSharp;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -70,9 +73,19 @@ namespace NBacklog
 
                 if (parameters != null)
                 {
-                    foreach (var prop in parameters.GetType().GetProperties())
+                    if (parameters is List<(string, object)>)
                     {
-                        request.AddParameter(prop.Name, prop.GetValue(parameters));
+                        foreach ((string key, object value) in parameters as List<(string, object)>)
+                        {
+                            request.AddParameter(key, value);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var prop in parameters.GetType().GetProperties())
+                        {
+                            request.AddParameter(prop.Name, prop.GetValue(parameters));
+                        }
                     }
                 }
 

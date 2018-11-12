@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -14,7 +12,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User[]>.Create(
                 response,
-                data.Select(x => new User(x)).ToArray());
+                data.Select(x => ItemsCache.Get(x.id, () => new User(x, this))).ToArray());
         }
 
         public async Task<BacklogResponse<User>> GetUserAsync(int id)
@@ -23,7 +21,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
-                new User(data));
+                ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> GetMyUserAsync()
@@ -32,7 +30,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
-                new User(data));
+                ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user, string password)
@@ -50,7 +48,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
-                new User(data));
+                ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> UpdateUserAsync(User user, string password = null)
@@ -78,28 +76,16 @@ namespace NBacklog
 
             var response = await PatchAsync<_User>($"/api/v2/users/{user.Id}", parameters).ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<User>.Create(
-                response,
-                new User(data));
+            var updated = ItemsCache.Update(new User(data, this));
+            return BacklogResponse<User>.Create(response, updated);
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(int id)
         {
             var response = await DeleteAsync<_User>($"/api/v2/users/{id}").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<User>.Create(
-                response,
-                new User(data));
+            var deleted = ItemsCache.Delete(new User(data, this));
+            return BacklogResponse<User>.Create(response, deleted);
         }
-    }
-
-    class _User
-    {
-        public int id { get; set; }
-        public string userId { get; set; }
-        public string name { get; set; }
-        public int roleType { get; set; }
-        public string lang { get; set; }
-        public string mailAddress { get; set; }
     }
 }

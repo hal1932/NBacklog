@@ -5,18 +5,6 @@ using System.Threading.Tasks;
 
 namespace NBacklog
 {
-    public struct Group
-    {
-        public int Id;
-        public string Name;
-        public User[] Members;
-        public int DisplayOrder;
-        public User Creator;
-        public DateTime Created;
-        public User LastUpdater;
-        public DateTime LastUpdated;
-    }
-
     public partial class BacklogClient
     {
         public async Task<BacklogResponse<Group[]>> GetGroupsAsync(string order = "desc", int offset = 0, int count = 20)
@@ -32,17 +20,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group[]>.Create(
                 response,
-                data.Select(x => new Group()
-                {
-                    Id = x.id,
-                    Name = x.name,
-                    DisplayOrder = x.displayOrder,
-                    Members = x.members.Select(y => new User(y)).ToArray(),
-                    Creator = (x.createdUser != null) ? new User(x.createdUser) : null,
-                    Created = x.created,
-                    LastUpdater = (x.updatedUser != null) ? new User(x.updatedUser) : null,
-                    LastUpdated = x.updated,
-                }).ToArray());
+                data.Select(x => new Group(x, this)).ToArray());
         }
 
         public async Task<BacklogResponse<Group>> AddGroupAsync(Group group)
@@ -57,15 +35,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
-                new Group()
-                {
-                    Id = data.id,
-                    Name = data.name,
-                    DisplayOrder = data.displayOrder,
-                    Members = data.members.Select(y => new User(y)).ToArray(),
-                    Creator = (data.createdUser != null) ? new User(data.createdUser) : null,
-                    Created = data.created,
-                });
+                new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> GetGroupAsync(int id)
@@ -74,15 +44,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
-                new Group()
-                {
-                    Id = data.id,
-                    Name = data.name,
-                    DisplayOrder = data.displayOrder,
-                    Members = data.members.Select(y => new User(y)).ToArray(),
-                    Creator = (data.createdUser != null) ? new User(data.createdUser) : null,
-                    Created = data.created,
-                });
+                new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> UpdateGroupAsync(Group group)
@@ -97,15 +59,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
-                new Group()
-                {
-                    Id = data.id,
-                    Name = data.name,
-                    DisplayOrder = data.displayOrder,
-                    Members = data.members.Select(y => new User(y)).ToArray(),
-                    Creator = (data.createdUser != null) ? new User(data.createdUser) : null,
-                    Created = data.created,
-                });
+                new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> DeleteGroupAsync(Group group)
@@ -114,27 +68,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
-                new Group()
-                {
-                    Id = data.id,
-                    Name = data.name,
-                    DisplayOrder = data.displayOrder,
-                    Members = data.members.Select(y => new User(y)).ToArray(),
-                    Creator = (data.createdUser != null) ? new User(data.createdUser) : null,
-                    Created = data.created,
-                });
+                new Group(data, this));
+            }
         }
-
-        struct _Group
-        {
-            public int id { get; set; }
-            public string name { get; set; }
-            public List<_User> members { get; set; }
-            public int displayOrder { get; set; }
-            public _User createdUser { get; set; }
-            public DateTime created { get; set; }
-            public _User updatedUser { get; set; }
-            public DateTime updated { get; set; }
-        }
-    }
 }

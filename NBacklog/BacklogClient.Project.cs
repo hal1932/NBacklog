@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -46,35 +44,16 @@ namespace NBacklog
 
             var response = await PatchAsync<_Project>($"/api/v2/projects/{project.Id}", parameters).ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<Project>.Create(
-                response,
-                new Project(data, this));
+            var updated = ItemsCache.Update(new Project(data, this));
+            return BacklogResponse<Project>.Create(response, updated);
         }
 
-        public async Task<BacklogResponse<Project>> DeleteProjectAsync(int id)
+        public async Task<BacklogResponse<Project>> DeleteProjectAsync(Project project)
         {
-            return await DeleteProjectAsync(id.ToString()).ConfigureAwait(false);
-        }
-
-        public async Task<BacklogResponse<Project>> DeleteProjectAsync(string key)
-        {
-            var response = await DeleteAsync<_Project>($"/api/v2/projects/{key}").ConfigureAwait(false);
+            var response = await DeleteAsync<_Project>($"/api/v2/projects/{project.Id}").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<Project>.Create(
-                response,
-                new Project(data, this));
+            var deleted = ItemsCache.Delete(new Project(data, this));
+            return BacklogResponse<Project>.Create(response, deleted);
         }
-    }
-
-    class _Project
-    {
-        public int id { get; set; }
-        public string projectKey { get; set; }
-        public string name { get; set; }
-        public bool chartEnabled { get; set; }
-        public bool subtaskingEnabled { get; set; }
-        public bool projectLeaderCanEditProjectLeader { get; set; }
-        public string textFormattingRule { get; set; }
-        public bool archived { get; set; }
     }
 }

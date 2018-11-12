@@ -55,6 +55,8 @@
     <Compile Include="BacklogClient.Space.cs" />
     <Compile Include="BacklogResponse.cs" />
     <Compile Include="BacklogClient.User.cs" />
+    <Compile Include="ApiDataTypes.cs" />
+    <Compile Include="DataCache.cs" />
     <Compile Include="OAuth2\JsonNetSerializer.cs" />
     <Compile Include="OAuth2\OAuth2.cs" />
     <Compile Include="OAuth2\OAuth2Client.cs" />
@@ -62,7 +64,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OAuth2\RestClientExtensions.cs" />
     <Compile Include="OAuth2\RestRequestExtensions.cs" />
+    <Compile Include="DataTypes.cs" />
+    <Compile Include="Query\TicketQuery.cs" />
+    <Compile Include="Ticket.cs" />
     <Compile Include="User.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BacklogClient.Metadata.cs" />

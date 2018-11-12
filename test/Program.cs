@@ -1,5 +1,6 @@
 ﻿using NBacklog;
 using NBacklog.OAuth2;
+using NBacklog.Query;
 using RestSharp;
 using System;
 using System.Collections.Generic;
@@ -33,8 +34,9 @@ namespace test
             //var users = await client.GetUsersAsync();
             //var user = await client.GetUserAsync(users.Content[0].Id);
             //var myUser = await client.GetMyUserAsync();
-            //var projs = await client.GetProjectsAsync();
-            var groups = await client.GetGroupsAsync();
+            var projs = await client.GetProjectsAsync();
+            //var groups = await client.GetGroupsAsync();
+            var tickets = await projs.Content[0].FindTicketsAsync(new TicketQuery());
 
             Console.WriteLine("");
         }
