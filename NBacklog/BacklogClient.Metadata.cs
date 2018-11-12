@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace NBacklog
 {
-	public struct StatusType
+    public struct StatusType
     {
         public int Id;
         public string Name;

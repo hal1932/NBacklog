@@ -21,8 +21,8 @@ namespace test
             var client = new BacklogClient("hal1932", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
             {
-                ClientId = "",
-                ClientSecret = "",
+                ClientId = "LKkkTWIJ5gkfXMNyKxJsMLQ0DcXMtLcv",
+                ClientSecret = "ZeNtBZNRBvskUDxFbO1exlLNfLpDYc6AKytZKXij7qhzAwLKyEJtn7Nbf3ulSohA",
                 RedirectUri = "http://localhost:54321/",
                 CredentialsCachePath = "oauth2cache.json",
             });
