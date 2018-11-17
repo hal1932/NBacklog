@@ -230,4 +230,35 @@ namespace NBacklog.DataTypes
         public string lang { get; set; }
         public string mailAddress { get; set; }
     }
+
+    class _CustomField
+    {
+        public int id { get; set; }
+        public int typeId { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public bool required { get; set; }
+        public List<int> applicableIssueTypes { get; set; }
+
+        public string min { get; set; }
+        public string max { get; set; }
+
+        public double initialValue { get; set; }
+        public string unit { get; set; }
+
+        public int initialValueType { get; set; }
+        public DateTime initialDate { get; set; }
+        public int initialShift { get; set; }
+
+        public List<_ListCustomFieldItem> items { get; set; }
+        public bool allowAddItem { get; set; }
+        public bool allowInput { get; set; }
+    }
+
+    class _ListCustomFieldItem
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public int displayOrder { get; set; }
+    }
 }
