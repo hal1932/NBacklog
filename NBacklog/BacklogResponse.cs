@@ -1,4 +1,8 @@
-﻿using RestSharp;
+﻿using NBacklog.DataTypes;
+using Newtonsoft.Json;
+using RestSharp;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 
 namespace NBacklog
@@ -6,10 +10,10 @@ namespace NBacklog
     public struct BacklogResponse<T>
     {
         public HttpStatusCode StatusCode;
-        public string ErrorContent;
+        public Error[] Errors;
         public T Content;
 
-        internal static BacklogResponse<T> Create(IRestResponse response, T content)
+        internal static BacklogResponse<T> Create(IRestResponse response, HttpStatusCode requiredCode, T content)
         {
             var instance = new BacklogResponse<T>()
             {
@@ -17,9 +21,11 @@ namespace NBacklog
                 Content = content,
             };
 
-            if (instance.StatusCode != HttpStatusCode.OK)
+            if (instance.StatusCode != requiredCode)
             {
-                instance.ErrorContent = response.Content;
+                instance.Errors = JsonConvert.DeserializeObject<List<_Error>>(response.Content)
+                    .Select(x => new Error(x))
+                    .ToArray();
             }
 
             return instance;

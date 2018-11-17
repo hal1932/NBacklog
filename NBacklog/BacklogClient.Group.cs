@@ -1,6 +1,7 @@
 ﻿using NBacklog.DataTypes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -20,6 +21,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => new Group(x, this)).ToArray());
         }
 
@@ -35,6 +37,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
+                HttpStatusCode.Created,
                 new Group(data, this));
         }
 
@@ -44,6 +47,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Group(data, this));
         }
 
@@ -59,6 +63,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Group(data, this));
         }
 
@@ -68,6 +73,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Group>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Group(data, this));
             }
         }

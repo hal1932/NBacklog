@@ -1,10 +1,10 @@
-﻿using NBacklog.DataTypes;
-using NBacklog.Query;
+﻿using NBacklog.Query;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
-namespace NBacklog
+namespace NBacklog.DataTypes
 {
     public class Project : CachableBacklogItem
     {
@@ -30,6 +30,7 @@ namespace NBacklog
             _client = client;
         }
 
+        #region users
         public async Task<BacklogResponse<User[]>> GetUsersAsync(bool excludeGroupMembers = true)
         {
             var parameters = new
@@ -41,6 +42,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => _client.ItemsCache.Get(x.id, () => new User(x, _client))).ToArray());
         }
 
@@ -55,6 +57,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
+                HttpStatusCode.Created,
                 _client.ItemsCache.Get(data.id, () => new User(data, _client)));
         }
 
@@ -69,15 +72,19 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
+                HttpStatusCode.OK,
                 _client.ItemsCache.Get(data.id, () => new User(data, _client)));
         }
+        #endregion
 
+        #region tickets
         public async Task<BacklogResponse<TicketType[]>> GetTicketTypesAsync()
         {
             var response = await _client.GetAsync<List<_TicketType>>($"/api/v2/projects/{Id}/issueTypes").ConfigureAwait(false);
             var data = response.Data;
             return BacklogResponse<TicketType[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => _client.ItemsCache.Get(x.id, () => new TicketType(x, this))).ToArray());
         }
 
@@ -87,6 +94,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Category[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => _client.ItemsCache.Get(x.id, () => new Category(x))).ToArray());
         }
 
@@ -96,6 +104,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Milestone[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => _client.ItemsCache.Get(x.id, () => new Milestone(x, this))).ToArray());
         }
 
@@ -108,6 +117,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Ticket[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => _client.ItemsCache.Get(x.id, () => new Ticket(x, this, _client))).ToArray());
         }
 
@@ -118,7 +128,18 @@ namespace NBacklog
 
             var response = await _client.GetAsync<_Count>("/api/v2/issues/count", query.Build());
             var data = response.Data.count;
-            return BacklogResponse<int>.Create(response, data);
+            return BacklogResponse<int>.Create(response, HttpStatusCode.OK, data);
+        }
+        #endregion
+
+        public async Task<BacklogResponse<CustomField[]>> GetCustomFieldsAsync()
+        {
+            var response = await _client.GetAsync<List<_CustomField>>($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
+            var data = response.Data;
+            return BacklogResponse<CustomField[]>.Create(
+                response,
+                HttpStatusCode.OK,
+                data.Select(x => _client.ItemsCache.Get(x.id, () => CustomField.Create(x, this))).ToArray());
         }
 
         private BacklogClient _client;

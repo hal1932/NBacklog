@@ -1,4 +1,5 @@
 ﻿using NBacklog.DataTypes;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -11,6 +12,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Space>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Space(data));
         }
 
@@ -20,6 +22,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Notification>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Notification(data));
         }
 
@@ -30,6 +33,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Notification>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Notification(data));
         }
 
@@ -40,6 +44,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<SpaceDiskUsage>.Create(
                 response,
+                HttpStatusCode.OK,
                 new SpaceDiskUsage(data));
         }
     }

@@ -3,6 +3,13 @@ using System.Collections.Generic;
 
 namespace NBacklog.DataTypes
 {
+    class _Error
+    {
+        public string message { get; set; }
+        public int code { get; set; }
+        public string moreInfo { get; set; }
+    }
+
     class _Count
     {
         public int count { get; set; }
@@ -61,7 +68,7 @@ namespace NBacklog.DataTypes
         public DateTime created { get; set; }
         public _User updatedUser { get; set; }
         public DateTime updated { get; set; }
-        //public List<_CustomField> customFields { get; set; }
+        public List<_CustomFieldValue> customFields { get; set; }
         public List<_Attachment> attachments { get; set; }
         public List<_Sharedfile> sharedFiles { get; set; }
         public List<_Star> stars { get; set; }
@@ -256,6 +263,22 @@ namespace NBacklog.DataTypes
     }
 
     class _ListCustomFieldItem
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public int displayOrder { get; set; }
+    }
+
+    class _CustomFieldValue
+    {
+        public int id { get; set; }
+        public int fieldTypeId { get; set; }
+        public string name { get; set; }
+        public object value { get; set; } // _CustomFieldItemValue or List<_CustomFieldItemValue>
+        public string otherValue { get; set; }
+    }
+
+    class _CustomFieldItemValue
     {
         public int id { get; set; }
         public string name { get; set; }

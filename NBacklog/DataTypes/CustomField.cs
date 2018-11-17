@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Linq;
 
 namespace NBacklog.DataTypes
@@ -31,9 +32,29 @@ namespace NBacklog.DataTypes
         public bool IsRequired { get; set; }
         public int[] ApplicableTicketTypeIds { get; set; }
 
-        internal static CustomField Create()
+        internal static CustomField Create(_CustomField data, Project project)
         {
-            return null;
+            switch ((CustomFieldType)data.typeId)
+            {
+                case CustomFieldType.Text:
+                case CustomFieldType.TextArea:
+                    return new TextCustomField(data, project);
+
+                case CustomFieldType.Numeric:
+                    return new NumericCustomField(data, project);
+
+                case CustomFieldType.Date:
+                    return new DateCustomField(data, project);
+
+                case CustomFieldType.SingleList:
+                case CustomFieldType.MultipleList:
+                case CustomFieldType.CheckBox:
+                case CustomFieldType.Radio:
+                    return new ListCustomField(data, project);
+
+                default:
+                    throw new ArgumentException($"invalid data.typeId: {data.typeId}");
+            }
         }
 
         internal CustomField(_CustomField data, Project project)
@@ -46,6 +67,13 @@ namespace NBacklog.DataTypes
             IsRequired = data.required;
             ApplicableTicketTypeIds = data.applicableIssueTypes.ToArray();
         }
+    }
+
+    public class TextCustomField : CustomField
+    {
+        internal TextCustomField(_CustomField data, Project project)
+            : base(data, project)
+        { }
     }
 
     public class NumericCustomField : CustomField
@@ -109,6 +137,49 @@ namespace NBacklog.DataTypes
         {
             Name = data.name;
             DisplayOrder = data.displayOrder;
+        }
+    }
+
+    public class CustomFieldValue : CachableBacklogItem
+    {
+        public CustomFieldType Type { get; set; }
+        public string Name { get; set; }
+        public CustomFieldValueItem[] Values { get; set; }
+        public string OtherValue { get; set; }
+
+        internal CustomFieldValue(_CustomFieldValue data)
+            : base(data.id)
+        {
+            Type = (CustomFieldType)data.fieldTypeId;
+            Name = data.name;
+            OtherValue = data.otherValue;
+
+            var valueType = data.value.GetType();
+            if (valueType.IsAssignableFrom(typeof(JObject)))
+            {
+                Values = new[] { new CustomFieldValueItem(data.value as JObject) };
+            }
+            else if (valueType.IsAssignableFrom(typeof(JArray)))
+            {
+                Values = (data.value as JArray).Select(x => new CustomFieldValueItem(x as JObject)).ToArray();
+            }
+            else
+            {
+                throw new ArgumentException($"invalid data.value: {valueType}");
+            }
+        }
+    }
+
+    public class CustomFieldValueItem : CachableBacklogItem
+    {
+        public string Name { get; set; }
+        public int DisplayOrder { get; set; }
+
+        internal CustomFieldValueItem(JObject data)
+            : base(data.Value<int>("id"))
+        {
+            Name = data.Value<string>("name");
+            DisplayOrder = data.Value<int>("displayOrder");
         }
     }
 }

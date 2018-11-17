@@ -1,12 +1,12 @@
-﻿using NBacklog.DataTypes;
-using NBacklog.Query;
+﻿using NBacklog.Query;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
-namespace NBacklog
+namespace NBacklog.DataTypes
 {
     public class TicketType : CachableBacklogItem
     {
@@ -82,6 +82,7 @@ namespace NBacklog
         public DateTime Created { get; set; }
         public User LastUpdater { get; set; }
         public DateTime LastUpdated { get; set; }
+        public CustomFieldValue[] CustomFields { get; set; }
         public Attachment[] Attachments { get; set; }
         public SharedFile[] SharedFiles { get; set; }
         public Star[] Stars { get; set; }
@@ -111,6 +112,7 @@ namespace NBacklog
             Created = data.created;
             LastUpdater = client.ItemsCache.Get(data.updatedUser.id, () => new User(data.updatedUser, client));
             LastUpdated = data.updated;
+            CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
             Attachments = data.attachments.Select(x => new Attachment(x)).ToArray();
             SharedFiles = data.sharedFiles.Select(x => new SharedFile(x, client)).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
@@ -126,6 +128,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Comment[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => new Comment(x, _client)).ToArray());
         }
 

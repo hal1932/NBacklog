@@ -1,6 +1,7 @@
 ﻿using NBacklog.DataTypes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -13,6 +14,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => ItemsCache.Get(x.id, () => new User(x, this))).ToArray());
         }
 
@@ -22,6 +24,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
+                HttpStatusCode.OK,
                 ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
@@ -31,6 +34,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
+                HttpStatusCode.OK,
                 ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
@@ -49,6 +53,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
+                HttpStatusCode.Created,
                 ItemsCache.Get(data.id, () => new User(data, this)));
         }
 
@@ -78,7 +83,7 @@ namespace NBacklog
             var response = await PatchAsync<_User>($"/api/v2/users/{user.Id}", parameters).ConfigureAwait(false);
             var data = response.Data;
             var updated = ItemsCache.Update(new User(data, this));
-            return BacklogResponse<User>.Create(response, updated);
+            return BacklogResponse<User>.Create(response, HttpStatusCode.OK, updated);
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(int id)
@@ -86,7 +91,7 @@ namespace NBacklog
             var response = await DeleteAsync<_User>($"/api/v2/users/{id}").ConfigureAwait(false);
             var data = response.Data;
             var deleted = ItemsCache.Delete(new User(data, this));
-            return BacklogResponse<User>.Create(response, deleted);
+            return BacklogResponse<User>.Create(response, HttpStatusCode.OK, deleted);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using NBacklog.DataTypes;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -13,6 +14,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Project[]>.Create(
                 response,
+                HttpStatusCode.OK,
                 data.Select(x => new Project(x, this)).ToArray());
         }
 
@@ -27,6 +29,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Project>.Create(
                 response,
+                HttpStatusCode.OK,
                 new Project(data, this));
         }
 
@@ -46,7 +49,7 @@ namespace NBacklog
             var response = await PatchAsync<_Project>($"/api/v2/projects/{project.Id}", parameters).ConfigureAwait(false);
             var data = response.Data;
             var updated = ItemsCache.Update(new Project(data, this));
-            return BacklogResponse<Project>.Create(response, updated);
+            return BacklogResponse<Project>.Create(response, HttpStatusCode.OK, updated);
         }
 
         public async Task<BacklogResponse<Project>> DeleteProjectAsync(Project project)
@@ -54,7 +57,7 @@ namespace NBacklog
             var response = await DeleteAsync<_Project>($"/api/v2/projects/{project.Id}").ConfigureAwait(false);
             var data = response.Data;
             var deleted = ItemsCache.Delete(new Project(data, this));
-            return BacklogResponse<Project>.Create(response, deleted);
+            return BacklogResponse<Project>.Create(response, HttpStatusCode.OK, deleted);
         }
     }
 }
