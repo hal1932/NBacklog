@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NBacklog.DataTypes;
+using System;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NBacklog.Query
 {
-    public class TicketQuery
+    public class TicketQuery : Query<TicketQuery>
     {
         public enum ParentChildType
         {
@@ -41,225 +38,148 @@ namespace NBacklog.Query
             [Description("childIssue")] ChildTicket,
         }
 
-        public enum OrderType
-        {
-            [Description("desc")] Desc,
-            [Description("asc")] Asc,
-        }
-
         internal TicketQuery Project(params Project[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("projectId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("projectId[]", values, x => x.Id);
         }
 
         public TicketQuery TicketType(params TicketType[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("issueTypeid[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("issueTypeid[]", values, x => x.Id);
         }
 
         public TicketQuery Category(params Category[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("categoryId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("categoryId[]", values, x => x.Id);
         }
 
         public TicketQuery Versions(params Milestone[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("versionId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("versionId[]", values, x => x.Id);
         }
 
         public TicketQuery Milestone(params Milestone[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("milestoneId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("milestoneId[]", values, x => x.Id);
         }
 
-        public TicketQuery Status(params StatusType[] values)
+        public TicketQuery Status(params Status[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("statusId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("statusId[]", values, x => x.Id);
         }
 
-        public TicketQuery Priority(params PriorityType[] values)
+        public TicketQuery Priority(params Priority[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("priorityId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("priorityId[]", values, x => x.Id);
         }
 
         public TicketQuery Assignee(params User[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("assigneeId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("assigneeId[]", values, x => x.Id);
         }
 
         public TicketQuery Creator(params User[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("createdUserId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("createdUserId[]", values, x => x.Id);
         }
 
-        public TicketQuery Resolution(params ResolutionType[] values)
+        public TicketQuery Resolution(params Resolution[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("resolutionId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("resolutionId[]", values, x => x.Id);
         }
 
         public TicketQuery ParentChild(ParentChildType value)
         {
-            _parameters.Add(("parentChild", (int)value));
-            return this;
+            return AddParameter("parentChild", (int)value);
         }
 
         public TicketQuery HasAttachment(bool value)
         {
-            _parameters.Add(("attachment", value));
-            return this;
+            return AddParameter("attachment", value);
         }
 
         public TicketQuery HasSharedFile(bool value)
         {
-            _parameters.Add(("sharedFile", value));
-            return this;
+            return AddParameter("sharedFile", value);
         }
 
         public TicketQuery SortBy(SortType value)
         {
             var attribute = typeof(SortType).GetMember(value.ToString())[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            _parameters.Add(("sort", attribute.Description));
-            return this;
+            return AddParameter("sort", attribute.Description);
         }
 
         public TicketQuery OrderBy(OrderType value)
         {
             var attribute = typeof(OrderType).GetMember(value.ToString())[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            _parameters.Add(("order", attribute.Description));
-            return this;
+            return AddParameter("order", attribute.Description);
         }
 
         public TicketQuery Offset(int value)
         {
-            _parameters.Add(("offset", value));
-            return this;
+            return AddParameter("offset", value);
         }
 
         public TicketQuery Count(int value)
         {
-            _parameters.Add(("count", value));
-            return this;
+            return AddParameter("count", value);
         }
 
         public TicketQuery CreatedSince(DateTime value)
         {
-            _parameters.Add(("createdSince", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("createdSince", value);
         }
 
         public TicketQuery CreatedUntil(DateTime value)
         {
-            _parameters.Add(("createdUntil", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("createdUntil", value);
         }
 
         public TicketQuery LastUpdatedSince(DateTime value)
         {
-            _parameters.Add(("updatedSince", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("updatedSince", value);
         }
 
         public TicketQuery LastUpdatedUntil(DateTime value)
         {
-            _parameters.Add(("updatedUntil", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("updatedUntil", value);
         }
 
         public TicketQuery StartDateSince(DateTime value)
         {
-            _parameters.Add(("startDateSince", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("startDateSince", value);
         }
 
         public TicketQuery StartDateUntil(DateTime value)
         {
-            _parameters.Add(("startDateUntil", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("startDateUntil", value);
         }
 
         public TicketQuery DueDateSince(DateTime value)
         {
-            _parameters.Add(("dueDateSince", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("dueDateSince", value);
         }
 
         public TicketQuery DueDateUntil(DateTime value)
         {
-            _parameters.Add(("dueDateUntil", value.ToString("yyyy-MM-dd")));
-            return this;
+            return AddParameter("dueDateUntil", value);
         }
 
         public TicketQuery Ids(params int[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("id[]", value));
-            }
-            return this;
+            return AddParameterRange("id[]", values);
         }
 
         public TicketQuery ParentTickets(params Ticket[] values)
         {
-            foreach (var value in values)
-            {
-                _parameters.Add(("parentIssueId[]", value.Id));
-            }
-            return this;
+            return AddParameterRange("parentIssueId[]", values, x => x.Id);
         }
 
         public TicketQuery Keyword(string value)
         {
-            _parameters.Add(("keyword", value));
-            return this;
+            return AddParameter("keyword", value);
         }
-
-        internal List<(string, object)> Build()
-        {
-            return _parameters;
-        }
-
-        private List<(string, object)> _parameters = new List<(string, object)>();
     }
 }

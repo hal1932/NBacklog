@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace NBacklog
+﻿namespace NBacklog.DataTypes
 {
     public enum UserRole
     {
@@ -16,7 +10,7 @@ namespace NBacklog
         GuestViewer = 6,
     }
 
-    public class User : CacheItem
+    public class User : CachableBacklogItem
     {
         public string UserId { get; set; }
         public string Name { get; set; }
@@ -25,8 +19,8 @@ namespace NBacklog
         public string MailAddress { get; set; }
 
         internal User(_User data, BacklogClient _)
+            : base(data.id)
         {
-            Id = data.id;
             UserId = data.userId;
             Name = data.name;
             Role = (UserRole)data.roleType;

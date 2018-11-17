@@ -1,11 +1,12 @@
-﻿using NBacklog.Query;
+﻿using NBacklog.DataTypes;
+using NBacklog.Query;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NBacklog
 {
-    public class Project : CacheItem
+    public class Project : CachableBacklogItem
     {
         public string Key { get; set; }
         public string Name { get; set; }
@@ -16,8 +17,8 @@ namespace NBacklog
         public bool IsArchived { get; set; }
 
         internal Project(_Project data, BacklogClient client)
+            : base(data.id)
         {
-            Id = data.id;
             Key = data.projectKey;
             Name = data.name;
             IsChartEnabled = data.chartEnabled;
@@ -25,6 +26,7 @@ namespace NBacklog
             CanProjectLeaderEditProjectLeader = data.projectLeaderCanEditProjectLeader;
             TextFormattingRule = data.textFormattingRule;
             IsArchived = data.archived;
+
             _client = client;
         }
 
@@ -39,7 +41,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User[]>.Create(
                 response,
-                data.Select(x => ItemsCache.Get(x.id, () => new User(x, _client))).ToArray());
+                data.Select(x => _client.ItemsCache.Get(x.id, () => new User(x, _client))).ToArray());
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
@@ -53,7 +55,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
-                ItemsCache.Get(data.id, () => new User(data, _client)));
+                _client.ItemsCache.Get(data.id, () => new User(data, _client)));
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(User user)
@@ -67,7 +69,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<User>.Create(
                 response,
-                ItemsCache.Get(data.id, () => new User(data, _client)));
+                _client.ItemsCache.Get(data.id, () => new User(data, _client)));
         }
 
         public async Task<BacklogResponse<TicketType[]>> GetTicketTypesAsync()
@@ -76,7 +78,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<TicketType[]>.Create(
                 response,
-                data.Select(x => ItemsCache.Get(x.id, () => new TicketType(x, this))).ToArray());
+                data.Select(x => _client.ItemsCache.Get(x.id, () => new TicketType(x, this))).ToArray());
         }
 
         public async Task<BacklogResponse<Category[]>> GetCategoriesAsync()
@@ -85,7 +87,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Category[]>.Create(
                 response,
-                data.Select(x => ItemsCache.Get(x.id, () => new Category(x))).ToArray());
+                data.Select(x => _client.ItemsCache.Get(x.id, () => new Category(x))).ToArray());
         }
 
         public async Task<BacklogResponse<Milestone[]>> GetMilestonesAsync()
@@ -94,10 +96,10 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Milestone[]>.Create(
                 response,
-                data.Select(x => ItemsCache.Get(x.id, () => new Milestone(x, this))).ToArray());
+                data.Select(x => _client.ItemsCache.Get(x.id, () => new Milestone(x, this))).ToArray());
         }
 
-        public async Task<BacklogResponse<Ticket[]>> FindTicketsAsync(TicketQuery query = null)
+        public async Task<BacklogResponse<Ticket[]>> GetTicketsAsync(TicketQuery query = null)
         {
             query = query ?? new TicketQuery();
             query.Project(this);
@@ -106,7 +108,17 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Ticket[]>.Create(
                 response,
-                data.Select(x => ItemsCache.Get(x.id, () => new Ticket(x, this, _client))).ToArray());
+                data.Select(x => _client.ItemsCache.Get(x.id, () => new Ticket(x, this, _client))).ToArray());
+        }
+
+        public async Task<BacklogResponse<int>> GetTicketCountAsync(TicketQuery query = null)
+        {
+            query = query ?? new TicketQuery();
+            query.Project(this);
+
+            var response = await _client.GetAsync<_Count>("/api/v2/issues/count", query.Build());
+            var data = response.Data.count;
+            return BacklogResponse<int>.Create(response, data);
         }
 
         private BacklogClient _client;

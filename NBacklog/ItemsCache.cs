@@ -3,19 +3,21 @@ using System.Collections.Generic;
 
 namespace NBacklog
 {
-    public class CacheItem
+    public abstract class CachableBacklogItem : BacklogItem
     {
-        public int Id { get; protected set; }
+        protected CachableBacklogItem(int id)
+            : base(id)
+        { }
     }
 
-    internal static class ItemsCache
+    internal class ItemsCache
     {
-        public static T Get<T>(T source)
-            where T : CacheItem
+        public T Get<T>(T source)
+            where T : CachableBacklogItem
         {
             var key = (typeof(T), source.Id);
 
-            CacheItem item;
+            CachableBacklogItem item;
             if (_data.TryGetValue(key, out item))
             {
                 return item as T;
@@ -25,8 +27,8 @@ namespace NBacklog
             return source;
         }
 
-        public static T Get<T>(int? id, Func<T> selector)
-            where T : CacheItem
+        public T Get<T>(int? id, Func<T> selector)
+            where T : CachableBacklogItem
         {
             if (!id.HasValue)
             {
@@ -35,7 +37,7 @@ namespace NBacklog
 
             var key = (typeof(T), id.Value);
 
-            CacheItem item;
+            CachableBacklogItem item;
             if (!_data.TryGetValue(key, out item))
             {
                 item = selector();
@@ -45,20 +47,20 @@ namespace NBacklog
             return item as T;
         }
 
-        public static T Update<T>(T item)
-            where T : CacheItem
+        public T Update<T>(T item)
+            where T : CachableBacklogItem
         {
             var key = (typeof(T), item.Id);
             _data[key] = item;
             return item;
         }
 
-        public static T Delete<T>(T item)
-            where T : CacheItem
+        public T Delete<T>(T item)
+            where T : CachableBacklogItem
         {
             var key = (typeof(T), item.Id);
 
-            CacheItem deleted;
+            CachableBacklogItem deleted;
             if (_data.TryGetValue(key, out deleted))
             {
                 _data.Remove(key);
@@ -67,6 +69,6 @@ namespace NBacklog
             return null;
         }
 
-        private static Dictionary<(Type, int), CacheItem> _data = new Dictionary<(Type, int), CacheItem>();
+        private Dictionary<(Type, int), CachableBacklogItem> _data = new Dictionary<(Type, int), CachableBacklogItem>();
     }
 }

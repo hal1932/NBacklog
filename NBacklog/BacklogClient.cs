@@ -1,8 +1,6 @@
 ﻿using NBacklog.OAuth2;
-using NBacklog.Query;
 using RestSharp;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -11,6 +9,8 @@ namespace NBacklog
     {
         public string SpaceKey { get; }
         public string Domain { get; }
+
+        internal ItemsCache ItemsCache { get; } = new ItemsCache();
 
         public BacklogClient(string spaceKey, string domain = "backlog.jp")
         {

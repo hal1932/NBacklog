@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NBacklog.DataTypes;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -6,31 +7,31 @@ namespace NBacklog
 {
     public partial class BacklogClient
     {
-        public async Task<BacklogResponse<StatusType[]>> GetStatusTypesAsync()
+        public async Task<BacklogResponse<Status[]>> GetStatusTypesAsync()
         {
-            var response = await GetAsync<List<_StatusType>>("/api/v2/statuses").ConfigureAwait(false);
+            var response = await GetAsync<List<_Status>>("/api/v2/statuses").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<StatusType[]>.Create(
+            return BacklogResponse<Status[]>.Create(
                 response,
-                data.Select(x => new StatusType(x)).ToArray());
+                data.Select(x => new Status(x)).ToArray());
         }
 
-        public async Task<BacklogResponse<ResolutionType[]>> GetResolutionTypesAsync()
+        public async Task<BacklogResponse<Resolution[]>> GetResolutionTypesAsync()
         {
-            var response = await GetAsync<List<_ResolutionType>>("/api/v2/resolutions").ConfigureAwait(false);
+            var response = await GetAsync<List<_Resolution>>("/api/v2/resolutions").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<ResolutionType[]>.Create(
+            return BacklogResponse<Resolution[]>.Create(
                 response,
-                data.Select(x => new ResolutionType(x)).ToArray());
+                data.Select(x => new Resolution(x)).ToArray());
         }
 
-        public async Task<BacklogResponse<PriorityType[]>> GetPriorityTypeAsync()
+        public async Task<BacklogResponse<Priority[]>> GetPriorityTypeAsync()
         {
-            var response = await GetAsync<List<_PriorityType>>("/api/v2/priorities").ConfigureAwait(false);
+            var response = await GetAsync<List<_Priority>>("/api/v2/priorities").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<PriorityType[]>.Create(
+            return BacklogResponse<Priority[]>.Create(
                 response,
-                data.Select(x => new PriorityType(x)).ToArray());
+                data.Select(x => new Priority(x)).ToArray());
         }
     }
 }

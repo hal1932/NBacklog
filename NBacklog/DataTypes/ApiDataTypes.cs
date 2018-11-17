@@ -1,8 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NBacklog
+namespace NBacklog.DataTypes
 {
+    class _Count
+    {
+        public int count { get; set; }
+    }
+
     class _TicketType
     {
         public int id { get; set; }
@@ -40,9 +45,9 @@ namespace NBacklog
         public _TicketType issueType { get; set; }
         public string summary { get; set; }
         public string description { get; set; }
-        public _ResolutionType resolutions { get; set; }
-        public _PriorityType priority { get; set; }
-        public _StatusType status { get; set; }
+        public _Resolution resolutions { get; set; }
+        public _Priority priority { get; set; }
+        public _Status status { get; set; }
         public _User assignee { get; set; }
         public List<_Category> category { get; set; }
         public List<_Milestone> versions { get; set; }
@@ -62,11 +67,52 @@ namespace NBacklog
         public List<_Star> stars { get; set; }
     }
 
+    class _Comment
+    {
+        public int id { get; set; }
+        public string content { get; set; }
+        public List<_ChangeLog> changeLog { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime created { get; set; }
+        public DateTime updated { get; set; }
+        public List<_Star> stars { get; set; }
+        public List<_Notification> notifications { get; set; }
+    }
+
+    class _ChangeLog
+    {
+        public string field { get; set; }
+        public string originalValue { get; set; }
+        public string newValue { get; set; }
+        public _AttachmentInfo attachmentInfo { get; set; }
+        public _AttributeInfo attributeInfo { get; set; }
+        public _NotificationInfo notificationInfo { get; set; }
+    }
+
+    class _AttachmentInfo
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+    }
+
+    class _AttributeInfo
+    {
+        public int id { get; set; }
+        public string typeId { get; set; }
+    }
+
+    class _NotificationInfo
+    {
+        public string type { get; set; }
+    }
+
     class _Attachment
     {
         public int id { get; set; }
         public string name { get; set; }
         public int size { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime created { get; set; }
     }
 
     class _Sharedfile
@@ -104,19 +150,19 @@ namespace NBacklog
         public DateTime updated { get; set; }
     }
 
-    class _StatusType
+    class _Status
     {
         public int id { get; set; }
         public string name { get; set; }
     }
 
-    class _ResolutionType
+    class _Resolution
     {
         public int id { get; set; }
         public string name { get; set; }
     }
 
-    class _PriorityType
+    class _Priority
     {
         public int id { get; set; }
         public string name { get; set; }
@@ -147,7 +193,7 @@ namespace NBacklog
         public DateTime updated { get; set; }
     }
 
-    class _SpaceNotification
+    class _Notification
     {
         public string content { get; set; }
         public DateTime updated { get; set; }

@@ -1,5 +1,4 @@
-﻿using NBacklog;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Diagnostics;
@@ -166,12 +165,12 @@ namespace NBacklog.OAuth2
             };
         }
 
-        struct _QueryTokenResult
+        class _QueryTokenResult
         {
-            public string access_token;
-            public string token_type;
-            public int expires_in;
-            public string refresh_token;
+            public string access_token { get; set; }
+            public string token_type { get; set; }
+            public int expires_in { get; set; }
+            public string refresh_token { get; set; }
         }
     }
 }

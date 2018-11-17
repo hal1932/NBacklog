@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using NBacklog.DataTypes;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -13,45 +11,26 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<Space>.Create(
                 response,
-                new Space()
-                {
-                    Key = data.spaceKey,
-                    Name = data.name,
-                    OwnerId = data.ownerId,
-                    Language = data.lang,
-                    TimeZone = data.timezone,
-                    ReportSendTime = data.reportSendTime,
-                    TextFormattingRule = data.textFormattingRule,
-                    Created = data.created,
-                    Updated = data.updated,
-                });
+                new Space(data));
         }
 
-        public async Task<BacklogResponse<SpaceNotification>> GetSpaceNotificationAsync()
+        public async Task<BacklogResponse<Notification>> GetSpaceNotificationAsync()
         {
-            var response = await GetAsync<_SpaceNotification>("/api/v2/space/notification").ConfigureAwait(false);
+            var response = await GetAsync<_Notification>("/api/v2/space/notification").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<SpaceNotification>.Create(
+            return BacklogResponse<Notification>.Create(
                 response,
-                new SpaceNotification()
-                {
-                    Content = data.content,
-                    Updated = data.updated,
-                });
+                new Notification(data));
         }
 
-        public async Task<BacklogResponse<SpaceNotification>> UpdateSpaceNotificationAsync(string content)
+        public async Task<BacklogResponse<Notification>> UpdateSpaceNotificationAsync(string content)
         {
-            var response = await PutAsync<_SpaceNotification>("/api/v2/space/notification", new { content = content })
+            var response = await PutAsync<_Notification>("/api/v2/space/notification", new { content = content })
                 .ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<SpaceNotification>.Create(
+            return BacklogResponse<Notification>.Create(
                 response,
-                new SpaceNotification()
-                {
-                    Content = data.content,
-                    Updated = data.updated,
-                });
+                new Notification(data));
         }
 
         public async Task<BacklogResponse<SpaceDiskUsage>> GetSpaceDiskUsageAsync()
@@ -61,24 +40,7 @@ namespace NBacklog
             var data = response.Data;
             return BacklogResponse<SpaceDiskUsage>.Create(
                 response,
-                new SpaceDiskUsage()
-                {
-                    Capacity = data.capacity,
-                    Issue = data.issue,
-                    Wiki = data.wiki,
-                    File = data.file,
-                    Subversion = data.subversion,
-                    Git = data.git,
-                    Details = data.details.Select(x => new SpaceDiskUsageDetail()
-                    {
-                        ProjectId = x.projectId,
-                        Issue = x.issue,
-                        Wiki = x.wiki,
-                        File = x.file,
-                        Subversion = x.subversion,
-                        Git = x.git,
-                    }).ToArray(),
-                });
+                new SpaceDiskUsage(data));
         }
     }
 }
