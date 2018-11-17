@@ -330,3 +330,4 @@ ASALocalRun/
 .mfractor/
 test/Program.cs
 test/Program.cs
+test/client.json
