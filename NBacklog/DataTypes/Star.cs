@@ -16,8 +16,8 @@ namespace NBacklog.DataTypes
             Comment = data.comment;
             Url = data.url;
             Title = data.title;
-            Creator = client.ItemsCache.Get(data.presenter.id, () => new User(data.presenter, client));
-            Created = data.created;
+            Creator = client.ItemsCache.Get(data.presenter?.id, () => new User(data.presenter));
+            Created = data.created ?? default(DateTime);
         }
     }
 }

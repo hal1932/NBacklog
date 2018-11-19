@@ -20,10 +20,10 @@ namespace NBacklog.DataTypes
             Dir = data.dir;
             Name = data.name;
             Size = data.size;
-            Creator = client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser, client));
-            Created = data.created;
-            LastUpdater = client.ItemsCache.Get(data.updatedUser.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated;
+            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
+            Created = data.created ?? default(DateTime);
+            LastUpdated = data.updated ?? default(DateTime);
+            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
         }
     }
 }

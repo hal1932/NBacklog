@@ -18,7 +18,7 @@
         public string Language { get; set; }
         public string MailAddress { get; set; }
 
-        internal User(_User data, BacklogClient _)
+        internal User(_User data)
             : base(data.id)
         {
             UserId = data.userId;

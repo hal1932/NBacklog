@@ -4,7 +4,7 @@ using RestSharp.Deserializers;
 using RestSharp.Serializers;
 using System.IO;
 
-namespace NBacklog.OAuth2
+namespace NBacklog
 {
     internal class JsonNetSerializer : ISerializer, IDeserializer
     {

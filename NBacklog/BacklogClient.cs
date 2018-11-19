@@ -60,7 +60,7 @@ namespace NBacklog
             return await SendAsync<T>(resource, Method.DELETE, parameters).ConfigureAwait(false);
         }
 
-        public async Task<IRestResponse<T>> SendAsync<T>(string resource, Method method, object parameters = null)
+        public virtual async Task<IRestResponse<T>> SendAsync<T>(string resource, Method method, object parameters = null)
             where T : new()
         {
             var token = await GetAccessTokenAsync();

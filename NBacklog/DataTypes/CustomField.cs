@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 
@@ -107,7 +108,7 @@ namespace NBacklog.DataTypes
             Min = DateTime.Parse(data.min);
             Max = DateTime.Parse(data.max);
             InitialValueType = (DateCustomFieldInitialValueType)data.initialValueType;
-            InitialDate = data.initialDate;
+            InitialDate = data.initialDate ?? default(DateTime);
             InitialShift = data.initialShift;
         }
     }
@@ -144,6 +145,7 @@ namespace NBacklog.DataTypes
     {
         public CustomFieldType Type { get; set; }
         public string Name { get; set; }
+        public CustomFieldValueItem Value => Values[0];
         public CustomFieldValueItem[] Values { get; set; }
         public string OtherValue { get; set; }
 
@@ -154,26 +156,62 @@ namespace NBacklog.DataTypes
             Name = data.name;
             OtherValue = data.otherValue;
 
-            var valueType = data.value.GetType();
-            if (valueType.IsAssignableFrom(typeof(JObject)))
+            if (data.value == null)
             {
-                Values = new[] { new CustomFieldValueItem(data.value as JObject) };
-            }
-            else if (valueType.IsAssignableFrom(typeof(JArray)))
-            {
-                Values = (data.value as JArray).Select(x => new CustomFieldValueItem(x as JObject)).ToArray();
+                Values = new CustomFieldValueItem[] { null };
             }
             else
             {
-                throw new ArgumentException($"invalid data.value: {valueType}");
+                var value = data.value;
+                if (value is JArray)
+                {
+                    Values = (value as JArray).Select(x =>
+                        (x.Type == JTokenType.Object) ? new CustomFieldValueItem(x as JObject) : new CustomFieldValueItem(x)
+                        ).ToArray();
+                }
+                else if (value is JObject)
+                {
+                    Values = new[] { new CustomFieldValueItem(value as JObject) };
+                }
+                else
+                {
+                    Values = new[] { new CustomFieldValueItem(value) };
+                }
+            }
+        }
+
+        internal string ToJsonValue()
+        {
+            switch (Type)
+            {
+                case CustomFieldType.Text:
+                case CustomFieldType.TextArea:
+                case CustomFieldType.Numeric:
+                case CustomFieldType.Date:
+                    return Values[0].Name;
+
+                case CustomFieldType.SingleList:
+                case CustomFieldType.MultipleList:
+                case CustomFieldType.CheckBox:
+                case CustomFieldType.Radio:
+                    return JsonConvert.SerializeObject(Values.Select(x => x.Name).ToArray());
+
+                default:
+                    throw new InvalidOperationException();
             }
         }
     }
 
-    public class CustomFieldValueItem : CachableBacklogItem
+    public class CustomFieldValueItem : BacklogItem
     {
         public string Name { get; set; }
         public int DisplayOrder { get; set; }
+
+        public Type ValueType { get; }
+        public int IntValue => (int)_value;
+        public double DoubleValue => (double)_value;
+        public DateTime DateValue => (DateTime)_value;
+        public string StringValue => _value as string;
 
         internal CustomFieldValueItem(JObject data)
             : base(data.Value<int>("id"))
@@ -181,5 +219,78 @@ namespace NBacklog.DataTypes
             Name = data.Value<string>("name");
             DisplayOrder = data.Value<int>("displayOrder");
         }
+
+        internal CustomFieldValueItem(JToken data)
+        {
+            switch (data.Type)
+            {
+                case JTokenType.Integer:
+                    _value = (int)data.Value<long>();
+                    ValueType = typeof(long);
+                    break;
+
+                case JTokenType.Float:
+                    _value = data.Value<double>();
+                    ValueType = typeof(double);
+                    break;
+
+                case JTokenType.Date:
+                    _value = data.Value<DateTime>();
+                    ValueType = typeof(DateTime);
+                    break;
+
+                case JTokenType.String:
+                    var value = data.Value<string>();
+                    DateTime date;
+                    if (DateTime.TryParse(value, out date))
+                    {
+                        _value = date;
+                        ValueType = typeof(DateTime);
+                    }
+                    else
+                    {
+                        _value = value;
+                        ValueType = typeof(string);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentException($"invalid data type: {data.Type}");
+            }
+        }
+
+        internal CustomFieldValueItem(object data)
+        {
+            if (data is long)
+            {
+                _value = (int)(long)data;
+                ValueType = typeof(int);
+            }
+            else if (data is double)
+            {
+                _value = (double)data;
+            }
+            else if (data is string)
+            {
+                var value = data as string;
+                DateTime date;
+                if (DateTime.TryParse(value, out date))
+                {
+                    _value = date;
+                    ValueType = typeof(DateTime);
+                }
+                else
+                {
+                    _value = value;
+                    ValueType = typeof(string);
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"invalid data type: {data.GetType()}");
+            }
+        }
+
+        private object _value;
     }
 }

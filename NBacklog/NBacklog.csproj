@@ -72,7 +72,7 @@
     <Compile Include="DataTypes\Star.cs" />
     <Compile Include="DataTypes\User.cs" />
     <Compile Include="ItemsCache.cs" />
-    <Compile Include="OAuth2\JsonNetSerializer.cs" />
+    <Compile Include="JsonNetSerializer.cs" />
     <Compile Include="OAuth2\OAuth2.cs" />
     <Compile Include="OAuth2\OAuth2Client.cs" />
     <Compile Include="DataTypes\Project.cs" />

@@ -18,8 +18,8 @@ namespace NBacklog.DataTypes
             Project = project;
             Name = data.name;
             Description = data.description;
-            StartDate = data.startDate;
-            ReleaseDueDate = data.releaseDueDate;
+            StartDate = data.startDate ?? default(DateTime);
+            ReleaseDueDate = data.releaseDueDate ?? default(DateTime);
             IsArchived = data.archived;
             DisplayOrder = data.displayOrder;
         }

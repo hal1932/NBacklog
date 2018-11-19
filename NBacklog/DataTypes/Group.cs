@@ -17,12 +17,12 @@ namespace NBacklog.DataTypes
             : base(data.id)
         {
             Name = data.name;
-            Members = data.members.Select(x => client.ItemsCache.Get(x.id, () => new User(x, client))).ToArray();
+            Members = data.members.Select(x => client.ItemsCache.Get(x.id, () => new User(x))).ToArray();
             DisplayOrder = data.displayOrder;
-            Creator = client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser, client));
-            Created = data.created;
-            LastUpdater = client.ItemsCache.Get(data.updatedUser.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated;
+            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
+            Created = data.created ?? default(DateTime);
+            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
+            LastUpdated = data.updated ?? default(DateTime);
         }
     }
 }

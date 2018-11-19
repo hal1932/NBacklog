@@ -37,8 +37,8 @@ namespace NBacklog.DataTypes
         public int projectId { get; set; }
         public string name { get; set; }
         public string description { get; set; }
-        public DateTime startDate { get; set; }
-        public DateTime releaseDueDate { get; set; }
+        public DateTime? startDate { get; set; }
+        public DateTime? releaseDueDate { get; set; }
         public bool archived { get; set; }
         public int displayOrder { get; set; }
     }
@@ -59,15 +59,15 @@ namespace NBacklog.DataTypes
         public List<_Category> category { get; set; }
         public List<_Milestone> versions { get; set; }
         public List<_Milestone> milestone { get; set; }
-        public DateTime startDate { get; set; }
-        public DateTime dueDate { get; set; }
-        public int estimatedHours { get; set; }
-        public int actualHours { get; set; }
-        public int parentIssueId { get; set; }
+        public DateTime? startDate { get; set; }
+        public DateTime? dueDate { get; set; }
+        public double estimatedHours { get; set; }
+        public double actualHours { get; set; }
+        public int? parentIssueId { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
         public _User updatedUser { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? updated { get; set; }
         public List<_CustomFieldValue> customFields { get; set; }
         public List<_Attachment> attachments { get; set; }
         public List<_Sharedfile> sharedFiles { get; set; }
@@ -80,8 +80,8 @@ namespace NBacklog.DataTypes
         public string content { get; set; }
         public List<_ChangeLog> changeLog { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? created { get; set; }
+        public DateTime? updated { get; set; }
         public List<_Star> stars { get; set; }
         public List<_Notification> notifications { get; set; }
     }
@@ -108,6 +108,15 @@ namespace NBacklog.DataTypes
         public string typeId { get; set; }
     }
 
+    class _Notification
+    {
+        public int id { get; set; }
+        public bool alreadyRead { get; set; }
+        public int reason { get; set; }
+        public _User user { get; set; }
+        public bool resourceAlreadyRead { get; set; }
+    }
+
     class _NotificationInfo
     {
         public string type { get; set; }
@@ -119,7 +128,7 @@ namespace NBacklog.DataTypes
         public string name { get; set; }
         public int size { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
     }
 
     class _Sharedfile
@@ -130,9 +139,9 @@ namespace NBacklog.DataTypes
         public string name { get; set; }
         public int size { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
         public _User updatedUser { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? updated { get; set; }
     }
 
     class _Star
@@ -142,7 +151,7 @@ namespace NBacklog.DataTypes
         public string url { get; set; }
         public string title { get; set; }
         public _User presenter { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
     }
 
     class _Group
@@ -152,9 +161,9 @@ namespace NBacklog.DataTypes
         public List<_User> members { get; set; }
         public int displayOrder { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
         public _User updatedUser { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? updated { get; set; }
     }
 
     class _Status
@@ -196,14 +205,14 @@ namespace NBacklog.DataTypes
         public string timezone { get; set; }
         public string reportSendTime { get; set; }
         public string textFormattingRule { get; set; }
-        public DateTime created { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? created { get; set; }
+        public DateTime? updated { get; set; }
     }
 
-    class _Notification
+    class _SpaceNotification
     {
         public string content { get; set; }
-        public DateTime updated { get; set; }
+        public DateTime? updated { get; set; }
     }
 
 
@@ -254,7 +263,7 @@ namespace NBacklog.DataTypes
         public string unit { get; set; }
 
         public int initialValueType { get; set; }
-        public DateTime initialDate { get; set; }
+        public DateTime? initialDate { get; set; }
         public int initialShift { get; set; }
 
         public List<_ListCustomFieldItem> items { get; set; }

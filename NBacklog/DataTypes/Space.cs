@@ -25,8 +25,8 @@ namespace NBacklog.DataTypes
             TimeZone = data.timezone;
             ReportSendTime = data.reportSendTime;
             TextFormattingRule = data.textFormattingRule;
-            Created = data.created;
-            Updated = data.updated;
+            Created = data.created ?? default(DateTime);
+            Updated = data.updated ?? default(DateTime);
         }
     }
 

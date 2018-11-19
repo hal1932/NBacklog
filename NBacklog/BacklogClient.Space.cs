@@ -16,25 +16,25 @@ namespace NBacklog
                 new Space(data));
         }
 
-        public async Task<BacklogResponse<Notification>> GetSpaceNotificationAsync()
+        public async Task<BacklogResponse<SpaceNotification>> GetSpaceNotificationAsync()
         {
-            var response = await GetAsync<_Notification>("/api/v2/space/notification").ConfigureAwait(false);
+            var response = await GetAsync<_SpaceNotification>("/api/v2/space/notification").ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<Notification>.Create(
+            return BacklogResponse<SpaceNotification>.Create(
                 response,
                 HttpStatusCode.OK,
-                new Notification(data));
+                new SpaceNotification(data));
         }
 
-        public async Task<BacklogResponse<Notification>> UpdateSpaceNotificationAsync(string content)
+        public async Task<BacklogResponse<SpaceNotification>> UpdateSpaceNotificationAsync(string content)
         {
-            var response = await PutAsync<_Notification>("/api/v2/space/notification", new { content = content })
+            var response = await PutAsync<_SpaceNotification>("/api/v2/space/notification", new { content = content })
                 .ConfigureAwait(false);
             var data = response.Data;
-            return BacklogResponse<Notification>.Create(
+            return BacklogResponse<SpaceNotification>.Create(
                 response,
                 HttpStatusCode.OK,
-                new Notification(data));
+                new SpaceNotification(data));
         }
 
         public async Task<BacklogResponse<SpaceDiskUsage>> GetSpaceDiskUsageAsync()
