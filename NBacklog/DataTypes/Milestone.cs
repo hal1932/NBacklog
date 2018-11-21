@@ -8,7 +8,7 @@ namespace NBacklog.DataTypes
         public string Name { get; set; }
         public string Description { get; set; }
         public DateTime StartDate { get; set; }
-        public DateTime ReleaseDueDate { get; set; }
+        public DateTime DueDate { get; set; }
         public bool IsArchived { get; set; }
         public int DisplayOrder { get; set; }
 
@@ -19,7 +19,7 @@ namespace NBacklog.DataTypes
             Name = data.name;
             Description = data.description;
             StartDate = data.startDate ?? default(DateTime);
-            ReleaseDueDate = data.releaseDueDate ?? default(DateTime);
+            DueDate = data.releaseDueDate ?? default(DateTime);
             IsArchived = data.archived;
             DisplayOrder = data.displayOrder;
         }

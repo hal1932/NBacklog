@@ -24,5 +24,11 @@ namespace NBacklog.DataTypes
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
         }
+
+        internal Comment(int id, string content)
+            : base(id)
+        {
+            Content = content;
+        }
     }
 }

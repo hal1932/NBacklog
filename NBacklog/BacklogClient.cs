@@ -17,6 +17,7 @@ namespace NBacklog
             SpaceKey = spaceKey;
             Domain = domain;
             _client = new RestClient($"https://{SpaceKey}.{Domain}/");
+            _client.SetJsonNetSerializer(_serializer);
         }
 
         public override async Task AuthorizeAsync(OAuth2App app)

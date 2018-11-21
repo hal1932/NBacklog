@@ -96,6 +96,16 @@ namespace NBacklog.DataTypes
         public _NotificationInfo notificationInfo { get; set; }
     }
 
+    class _Activity
+    {
+        public int id { get; set; }
+        public _Project project { get; set; }
+        public int type { get; set; }
+        public Newtonsoft.Json.Linq.JObject content { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime created { get; set; }
+    }
+
     class _AttachmentInfo
     {
         public int id { get; set; }
@@ -126,7 +136,7 @@ namespace NBacklog.DataTypes
     {
         public int id { get; set; }
         public string name { get; set; }
-        public int size { get; set; }
+        public long size { get; set; }
         public _User createdUser { get; set; }
         public DateTime? created { get; set; }
     }
@@ -137,7 +147,7 @@ namespace NBacklog.DataTypes
         public string type { get; set; }
         public string dir { get; set; }
         public string name { get; set; }
-        public int size { get; set; }
+        public long size { get; set; }
         public _User createdUser { get; set; }
         public DateTime? created { get; set; }
         public _User updatedUser { get; set; }

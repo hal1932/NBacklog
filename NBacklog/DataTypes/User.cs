@@ -1,4 +1,7 @@
-﻿namespace NBacklog.DataTypes
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+
+namespace NBacklog.DataTypes
 {
     public enum UserRole
     {
@@ -26,6 +29,16 @@
             Role = (UserRole)data.roleType;
             Language = data.lang;
             MailAddress = data.mailAddress;
+        }
+
+        internal User(JObject data)
+            : base(data.Value<int>("id"))
+        {
+            UserId = data.Value<string>("userId");
+            Name = data.Value<string>("name");
+            Role = (UserRole)data.Value<int>("roleType");
+            Language = data.Value<string>("lang");
+            MailAddress = data.Value<string>("mailAddress");
         }
     }
 }

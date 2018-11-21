@@ -24,5 +24,11 @@ namespace NBacklog.DataTypes
             LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
             LastUpdated = data.updated ?? default(DateTime);
         }
+
+        internal Group(int id, string name)
+            : base(id)
+        {
+            Name = name;
+        }
     }
 }

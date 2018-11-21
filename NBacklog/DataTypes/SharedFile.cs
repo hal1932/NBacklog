@@ -7,7 +7,7 @@ namespace NBacklog.DataTypes
         public string Type { get; set; }
         public string Dir { get; set; }
         public string Name { get; set; }
-        public int Size { get; set; }
+        public long Size { get; set; }
         public User Creator { get; set; }
         public DateTime Created { get; set; }
         public User LastUpdater { get; set; }
@@ -24,6 +24,13 @@ namespace NBacklog.DataTypes
             Created = data.created ?? default(DateTime);
             LastUpdated = data.updated ?? default(DateTime);
             LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
+        }
+
+        internal SharedFile(int id, string name, long size)
+            : base(id)
+        {
+            Name = name;
+            Size = size;
         }
     }
 }

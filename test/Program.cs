@@ -26,7 +26,7 @@ namespace test
         {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
 
-            //var client new TestClient("hal1932", "backlog.com");
+            //var client = new TestClient("hal1932", "backlog.com");
             var client = new BacklogClient("hal1932", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
             {
@@ -37,8 +37,9 @@ namespace test
             });
 
             var space = await client.GetSpaceAsync();
-            var spaceNotices = await client.GetSpaceNotificationAsync();
-            var spaceDisk = await client.GetSpaceDiskUsageAsync();
+            var activities = await space.Content.GetActivitiesAsync();
+            var spaceNotices = await space.Content.GetNotificationAsync();
+            var spaceDisk = await space.Content.GetDiskUsageAsync();
             var users = await client.GetUsersAsync();
             var user = await client.GetUserAsync(users.Content[0].Id);
             var myUser = await client.GetMyUserAsync();
