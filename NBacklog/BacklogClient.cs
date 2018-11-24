@@ -1,6 +1,10 @@
-﻿using NBacklog.OAuth2;
+﻿using NBacklog.DataTypes;
+using NBacklog.OAuth2;
 using RestSharp;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -31,38 +35,32 @@ namespace NBacklog
             await AuthorizeAsync(app, endPoint);
         }
 
-        public async Task<IRestResponse<T>> GetAsync<T>(string resource, object parameters = null)
-            where T: new()
+        public async Task<IRestResponse> GetAsync(string resource, object parameters = null)
         {
-            return await SendAsync<T>(resource, Method.GET, parameters).ConfigureAwait(false);
+            return await SendAsync(resource, Method.GET, parameters).ConfigureAwait(false);
         }
 
-        public async Task<IRestResponse<T>> PutAsync<T>(string resource, object parameters = null)
-            where T : new()
+        public async Task<IRestResponse> PutAsync(string resource, object parameters = null)
         {
-            return await SendAsync<T>(resource, Method.PUT, parameters).ConfigureAwait(false);
+            return await SendAsync(resource, Method.PUT, parameters).ConfigureAwait(false);
         }
 
-        public async Task<IRestResponse<T>> PatchAsync<T>(string resource, object parameters = null)
-            where T : new()
+        public async Task<IRestResponse> PatchAsync(string resource, object parameters = null)
         {
-            return await SendAsync<T>(resource, Method.PATCH, parameters).ConfigureAwait(false);
+            return await SendAsync(resource, Method.PATCH, parameters).ConfigureAwait(false);
         }
 
-        public async Task<IRestResponse<T>> PostAsync<T>(string resource, object parameters = null)
-            where T : new()
+        public async Task<IRestResponse> PostAsync(string resource, object parameters = null)
         {
-            return await SendAsync<T>(resource, Method.POST, parameters).ConfigureAwait(false);
+            return await SendAsync(resource, Method.POST, parameters).ConfigureAwait(false);
         }
 
-        public async Task<IRestResponse<T>> DeleteAsync<T>(string resource, object parameters = null)
-            where T : new()
+        public async Task<IRestResponse> DeleteAsync(string resource, object parameters = null)
         {
-            return await SendAsync<T>(resource, Method.DELETE, parameters).ConfigureAwait(false);
+            return await SendAsync(resource, Method.DELETE, parameters).ConfigureAwait(false);
         }
 
-        public virtual async Task<IRestResponse<T>> SendAsync<T>(string resource, Method method, object parameters = null)
-            where T : new()
+        public virtual async Task<IRestResponse> SendAsync(string resource, Method method, object parameters = null)
         {
             var token = await GetAccessTokenAsync();
 
@@ -90,8 +88,22 @@ namespace NBacklog
                     }
                 }
 
-                return _client.Execute<T>(request);
+                return _client.Execute(request);
             });
+        }
+
+        internal BacklogResponse<TApiData> CreateResponse<TApiData, TContent>(IRestResponse response, HttpStatusCode successfulStatusCode, Func<TContent, TApiData> contentSelector)
+        {
+            if (response.StatusCode != successfulStatusCode)
+            {
+                return new BacklogResponse<TApiData>(
+                    response.StatusCode,
+                    _client.Deserialize<_Errors>(response).Data.errors.Select(x => new Error(x)));
+            }
+
+            return new BacklogResponse<TApiData>(
+                response.StatusCode,
+                contentSelector(_client.Deserialize<TContent>(response).Data));
         }
 
         private RestClient _client;

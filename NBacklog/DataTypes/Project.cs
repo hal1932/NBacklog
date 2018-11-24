@@ -35,12 +35,11 @@ namespace NBacklog.DataTypes
         #region users
         public async Task<BacklogResponse<User[]>> GetUsersAsync()
         {
-            var response = await Client.GetAsync<List<_User>>($"/api/v2/projects/{Id}/users").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<User[]>.Create(
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users").ConfigureAwait(false);
+            return Client.CreateResponse<User[], List <_User>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => new User(x))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new User(x))).ToArray());
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
@@ -50,12 +49,11 @@ namespace NBacklog.DataTypes
                 userId = user.Id,
             };
 
-            var response = await Client.PostAsync<_User>($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<User>.Create(
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
+            return Client.CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.Created,
-                Client.ItemsCache.Get(data.id, () => new User(data)));
+                data => Client.ItemsCache.Update(new User(data)));
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(User user)
@@ -65,12 +63,11 @@ namespace NBacklog.DataTypes
                 userId = user.Id,
             };
 
-            var response = await Client.DeleteAsync<_User>($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<User>.Create(
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
+            return Client.CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                Client.ItemsCache.Get(data.id, () => new User(data)));
+                data => Client.ItemsCache.Delete(new User(data)));
         }
         #endregion
 
@@ -80,12 +77,11 @@ namespace NBacklog.DataTypes
             query = query ?? new TicketQuery();
             query.Project(this);
 
-            var response = await Client.GetAsync<List<_Ticket>>("/api/v2/issues", query.Build());
-            var data = response.Data;
-            return BacklogResponse<Ticket[]>.Create(
+            var response = await Client.GetAsync("/api/v2/issues", query.Build());
+            return Client.CreateResponse<Ticket[], List<_Ticket>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => new Ticket(x, this, Client))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new Ticket(x, this, Client))).ToArray());
         }
 
         public async Task<BacklogResponse<int>> GetTicketCountAsync(TicketQuery query = null)
@@ -93,91 +89,82 @@ namespace NBacklog.DataTypes
             query = query ?? new TicketQuery();
             query.Project(this);
 
-            var response = await Client.GetAsync<_Count>("/api/v2/issues/count", query.Build());
-            var data = response.Data.count;
-            return BacklogResponse<int>.Create(response, HttpStatusCode.OK, data);
+            var response = await Client.GetAsync("/api/v2/issues/count", query.Build());
+            return Client.CreateResponse<int, _Count>(
+                response,
+                HttpStatusCode.OK,
+                data => data.count);
+        }
+
+        public async Task<BacklogResponse<Ticket>> AddTicketAsync(Ticket ticket)
+        {
+            var parameters = ticket.ToApiParameters();
+            parameters.Replace("projectId", Id);
+
+            var response = await Client.PostAsync("/api/v2/issues", parameters.Build());
+            return Client.CreateResponse<Ticket, _Ticket>(
+                response,
+                HttpStatusCode.Created,
+                data => Client.ItemsCache.Update(new Ticket(data, this, Client)));
         }
 
         public async Task<BacklogResponse<Ticket>> UpdateTicketAsync(Ticket ticket)
         {
-            var parameters = new Dictionary<string, object>()
-            {
-                { "summary", ticket.Summary },
-                { "description", ticket.Description },
-                { "statusId", ticket.Status.Id },
-                { "startDate", ticket.StateDate },
-                { "dueDate", ticket.DueDate },
-                { "issueTypeId", ticket.Type.Id },
-                { "categoryId", ticket.Categories.Select(x => x.Id).ToArray() },
-                { "versionId", ticket.Versions.Select(x => x.Id).ToArray() },
-                { "milestoneId", ticket.Milestones.Select(x => x.Id).ToArray() },
-                { "priorityId", ticket.Priority.Id },
-                { "attachmentId", ticket.Attachments.Select(x => x.Id).ToArray() },
-            };
+            var parameters = ticket.ToApiParameters();
+            parameters.Replace("projectId", Id);
 
-            if (ticket.ParentTicketId > 0) parameters["parentIssueId"] = ticket.ParentTicketId;
-            if (ticket.Resolution != null) parameters["resolutionId"] = ticket.Resolution.Id;
-            if (ticket.EstimatedHours > 0) parameters["estimatedHours"] = ticket.EstimatedHours;
-            if (ticket.ActualHours > 0) parameters["actualHours"] = ticket.ActualHours;
-            if (ticket.Assignee != null) parameters["assigneeId"] = ticket.Assignee.Id;
-
-            foreach (var field in ticket.CustomFields)
-            {
-                parameters[$"customField_{field.Id}"] = field.ToJsonValue();
-                if (field.OtherValue != null)
-                {
-                    parameters[$"customField_{field.Id}_otherValue"] = field.OtherValue;
-                }
-            }
-
-            var response = await Client.GetAsync<_Ticket>($"/api/v2/issues/{ticket.Id}", parameters);
-            var data = response.Data;
-            return BacklogResponse<Ticket>.Create(
+            var response = await Client.GetAsync($"/api/v2/issues/{ticket.Id}", parameters.Build());
+            return Client.CreateResponse<Ticket, _Ticket>(
                 response,
                 HttpStatusCode.OK,
-                Client.ItemsCache.Update(new Ticket(data, this, Client)));
+                data => Client.ItemsCache.Update(new Ticket(data, this, Client)));
+        }
+
+        public async Task<BacklogResponse<Ticket>> DeleteTicketAsync(Ticket ticket)
+        {
+            var response = await Client.DeleteAsync($"/api/v2/issues/{ticket.Id}");
+            return Client.CreateResponse<Ticket, _Ticket>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Delete(new Ticket(data, this, Client)));
         }
         #endregion
 
         #region metadata
         public async Task<BacklogResponse<TicketType[]>> GetTicketTypesAsync()
         {
-            var response = await Client.GetAsync<List<_TicketType>>($"/api/v2/projects/{Id}/issueTypes").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<TicketType[]>.Create(
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/issueTypes").ConfigureAwait(false);
+            return Client.CreateResponse<TicketType[], List<_TicketType>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => new TicketType(x, this))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new TicketType(x, this))).ToArray());
         }
 
         public async Task<BacklogResponse<Category[]>> GetCategoriesAsync()
         {
-            var response = await Client.GetAsync<List<_Category>>($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Category[]>.Create(
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
+            return Client.CreateResponse<Category[], List<_Category>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => new Category(x))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new Category(x))).ToArray());
         }
 
         public async Task<BacklogResponse<Milestone[]>> GetMilestonesAsync()
         {
-            var response = await Client.GetAsync<List<_Milestone>>($"/api/v2/projects/{Id}/versions").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Milestone[]>.Create(
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/versions").ConfigureAwait(false);
+            return Client.CreateResponse<Milestone[], List<_Milestone>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => new Milestone(x, this))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new Milestone(x, this))).ToArray());
         }
 
         public async Task<BacklogResponse<CustomField[]>> GetCustomFieldsAsync()
         {
-            var response = await Client.GetAsync<List<_CustomField>>($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<CustomField[]>.Create(
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
+            return Client.CreateResponse<CustomField[], List<_CustomField>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => Client.ItemsCache.Get(x.id, () => CustomField.Create(x, this))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(CustomField.Create(x, this))).ToArray());
         }
         #endregion
     }

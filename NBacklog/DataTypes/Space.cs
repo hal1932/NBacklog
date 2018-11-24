@@ -79,45 +79,38 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<SpaceNotification>> GetNotificationAsync()
         {
-            var response = await _client.GetAsync<_SpaceNotification>("/api/v2/space/notification").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<SpaceNotification>.Create(
+            var response = await _client.GetAsync("/api/v2/space/notification").ConfigureAwait(false);
+            return _client.CreateResponse<SpaceNotification, _SpaceNotification>(
                 response,
                 HttpStatusCode.OK,
-                new SpaceNotification(data));
+                data => new SpaceNotification(data));
         }
 
         public async Task<BacklogResponse<SpaceNotification>> UpdateNotificationAsync(string content)
         {
-            var response = await _client.PutAsync<_SpaceNotification>("/api/v2/space/notification", new { content = content })
-                .ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<SpaceNotification>.Create(
+            var response = await _client.PutAsync("/api/v2/space/notification", new { content }).ConfigureAwait(false);
+            return _client.CreateResponse<SpaceNotification, _SpaceNotification>(
                 response,
                 HttpStatusCode.OK,
-                new SpaceNotification(data));
+                data => new SpaceNotification(data));
         }
 
         public async Task<BacklogResponse<SpaceDiskUsage>> GetDiskUsageAsync()
         {
-            var response = await _client.GetAsync<_SpaceDiskUsage>("/api/v2/space/diskUsage")
-                .ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<SpaceDiskUsage>.Create(
+            var response = await _client.GetAsync("/api/v2/space/diskUsage").ConfigureAwait(false);
+            return _client.CreateResponse<SpaceDiskUsage, _SpaceDiskUsage>(
                 response,
                 HttpStatusCode.OK,
-                new SpaceDiskUsage(data));
+                data => new SpaceDiskUsage(data));
         }
 
         public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync()
         {
-            var response = await _client.GetAsync<List<_Activity>>("/api/v2/space/activities")
-                .ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Activity[]>.Create(
+            var response = await _client.GetAsync("/api/v2/space/activities").ConfigureAwait(false);
+            return _client.CreateResponse<Activity[], List<_Activity>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Activity(x, _client)).ToArray());
+                data => data.Select(x => new Activity(x, _client)).ToArray());
         }
 
         private BacklogClient _client;

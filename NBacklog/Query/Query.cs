@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NBacklog.Query
 {
@@ -32,6 +33,20 @@ namespace NBacklog.Query
             foreach (var value in values)
             {
                 _parameters.Add((key, valueSelector(value)));
+            }
+            return this as T;
+        }
+
+        protected T ReplaceParameter<S>(string key, S value)
+        {
+            var parameter = _parameters.FirstOrDefault(x => x.Item1 == key);
+            if (parameter.Item1 == key)
+            {
+                parameter.Item2 = value;
+            }
+            else
+            {
+                _parameters.Add((key, value));
             }
             return this as T;
         }

@@ -10,19 +10,12 @@ namespace NBacklog
     {
         public async Task<BacklogResponse<Group[]>> GetGroupsAsync(string order = "desc", int offset = 0, int count = 20)
         {
-            var parameters = new
-            {
-                order = order,
-                offset = offset,
-                count = count,
-            };
-
-            var response = await GetAsync<List<_Group>>($"/api/v2/groups", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Group[]>.Create(
+            var parameters = new { order, offset, count };
+            var response = await GetAsync($"/api/v2/groups", parameters).ConfigureAwait(false);
+            return CreateResponse<Group[], List<_Group>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Group(x, this)).ToArray());
+                data => data.Select(x => new Group(x, this)).ToArray());
         }
 
         public async Task<BacklogResponse<Group>> AddGroupAsync(Group group)
@@ -33,22 +26,20 @@ namespace NBacklog
                 members = group.Members.Select(x => x.Id).ToArray(),
             };
 
-            var response = await PostAsync<_Group>($"/api/v2/groups", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Group>.Create(
+            var response = await PostAsync($"/api/v2/groups", parameters).ConfigureAwait(false);
+            return CreateResponse<Group, _Group>(
                 response,
                 HttpStatusCode.Created,
-                new Group(data, this));
+                data => new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> GetGroupAsync(int id)
         {
-            var response = await GetAsync<_Group>($"/api/v2/groups/{id}").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Group>.Create(
+            var response = await GetAsync($"/api/v2/groups/{id}").ConfigureAwait(false);
+            return CreateResponse<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                new Group(data, this));
+                data => new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> UpdateGroupAsync(Group group)
@@ -59,22 +50,20 @@ namespace NBacklog
                 members = group.Members.Select(x => x.Id).ToArray(),
             };
 
-            var response = await PatchAsync<_Group>($"/api/v2/groups/{group.Id}", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Group>.Create(
+            var response = await PatchAsync($"/api/v2/groups/{group.Id}", parameters).ConfigureAwait(false);
+            return CreateResponse<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                new Group(data, this));
+                data => new Group(data, this));
         }
 
         public async Task<BacklogResponse<Group>> DeleteGroupAsync(Group group)
         {
-            var response = await DeleteAsync<_Group>($"/api/v2/groups/{group.Id}").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Group>.Create(
+            var response = await DeleteAsync($"/api/v2/groups/{group.Id}").ConfigureAwait(false);
+            return CreateResponse<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                new Group(data, this));
-            }
+                data => new Group(data, this));
         }
+    }
 }

@@ -10,32 +10,29 @@ namespace NBacklog
     {
         public async Task<BacklogResponse<Status[]>> GetStatusTypesAsync()
         {
-            var response = await GetAsync<List<_Status>>("/api/v2/statuses").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Status[]>.Create(
+            var response = await GetAsync("/api/v2/statuses").ConfigureAwait(false);
+            return CreateResponse<Status[], List<_Status>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Status(x)).ToArray());
+                data => data.Select(x => new Status(x)).ToArray());
         }
 
         public async Task<BacklogResponse<Resolution[]>> GetResolutionTypesAsync()
         {
-            var response = await GetAsync<List<_Resolution>>("/api/v2/resolutions").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Resolution[]>.Create(
+            var response = await GetAsync("/api/v2/resolutions").ConfigureAwait(false);
+            return CreateResponse<Resolution[], List<_Resolution>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Resolution(x)).ToArray());
+                data => data.Select(x => new Resolution(x)).ToArray());
         }
 
         public async Task<BacklogResponse<Priority[]>> GetPriorityTypeAsync()
         {
-            var response = await GetAsync<List<_Priority>>("/api/v2/priorities").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Priority[]>.Create(
+            var response = await GetAsync("/api/v2/priorities").ConfigureAwait(false);
+            return CreateResponse<Priority[], List<_Priority>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Priority(x)).ToArray());
+                data => data.Select(x => new Priority(x)).ToArray());
         }
     }
 }

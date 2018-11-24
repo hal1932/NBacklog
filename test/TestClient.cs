@@ -13,9 +13,8 @@ using System.Threading.Tasks;
 
 namespace test
 {
-    class TestResponse<T> : IRestResponse<T>
+    class TestResponse : IRestResponse
     {
-        public T Data { get; set; }
         public IRestRequest Request { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string ContentType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public long ContentLength { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -39,11 +38,10 @@ namespace test
         public Exception ErrorException { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public Version ProtocolVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public TestResponse(HttpStatusCode code, string content, T data)
+        public TestResponse(HttpStatusCode code, string content)
         {
             StatusCode = code;
             Content = content;
-            Data = data;
         }
     }
 
@@ -64,7 +62,7 @@ namespace test
             await Task.Delay(0);
         }
 
-        public override async Task<IRestResponse<T>> SendAsync<T>(string resource, Method method, object parameters = null)
+        public override async Task<IRestResponse> SendAsync(string resource, Method method, object parameters = null)
         {
             await Task.Delay(0);
 
@@ -86,7 +84,7 @@ namespace test
                 throw new Exception(resource);
             }
 
-            return new TestResponse<T>(HttpStatusCode.OK, content, JsonConvert.DeserializeObject<T>(content));
+            return new TestResponse(HttpStatusCode.OK, content);
         }
 
         private List<(Regex, string)> _dataPaths = new List<(Regex, string)>();

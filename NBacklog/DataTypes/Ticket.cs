@@ -60,7 +60,8 @@ namespace NBacklog.DataTypes
 
     public class Ticket : CachableBacklogItem
     {
-        public Project Project { get; set; }
+        public Project Project { get; }
+
         public string Key { get; set; }
         public int KeyId { get; set; }
         public TicketType Type { get; set; }
@@ -73,7 +74,7 @@ namespace NBacklog.DataTypes
         public Category[] Categories { get; set; }
         public Milestone[] Versions { get; set; }
         public Milestone[] Milestones { get; set; }
-        public DateTime StateDate { get; set; }
+        public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public double EstimatedHours { get; set; }
         public double ActualHours { get; set; }
@@ -86,6 +87,15 @@ namespace NBacklog.DataTypes
         public Attachment[] Attachments { get; set; }
         public SharedFile[] SharedFiles { get; set; }
         public Star[] Stars { get; set; }
+
+        public Ticket(Project project, string summary, TicketType type, Priority priority)
+            : base(-1)
+        {
+            Project = project;
+            Summary = summary;
+            Type = type;
+            Priority = priority;
+        }
 
         internal Ticket(_Ticket data, Project project, BacklogClient client)
             : base(data.id)
@@ -103,10 +113,10 @@ namespace NBacklog.DataTypes
             Categories = data.category.Select(x => client.ItemsCache.Get(x.id, () => new Category(x))).ToArray();
             Versions = data.versions.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
             Milestones = data.milestone.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
-            StateDate = data.startDate ?? default(DateTime);
+            StartDate = data.startDate ?? default(DateTime);
             DueDate = data.dueDate ?? default(DateTime);
-            EstimatedHours = data.estimatedHours;
-            ActualHours = data.actualHours;
+            EstimatedHours = data.estimatedHours ?? default(double);
+            ActualHours = data.actualHours ?? default(double);
             ParentTicketId = data.parentIssueId ?? default(int);
             Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
             Created = data.created ?? default(DateTime);
@@ -122,45 +132,62 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<int>> GetCommentCount(CommentQuery query = null)
         {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
             query = query ?? new CommentQuery();
 
-            var response = await _client.GetAsync<int>($"/api/v2/issues/{Id}/comments/comment", query.Build());
-            var data = response.Data;
-            return BacklogResponse<int>.Create(
+            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments/comment", query.Build());
+            return _client.CreateResponse<int, _Count>(
                 response,
                 HttpStatusCode.OK,
-                data);
+                data => data.count);
         }
 
         public async Task<BacklogResponse<Comment[]>> GetCommentsAsync(CommentQuery query = null)
         {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
             query = query ?? new CommentQuery();
 
-            var response = await _client.GetAsync<List<_Comment>>($"/api/v2/issues/{Id}/comments", query.Build());
-            var data = response.Data;
-            return BacklogResponse<Comment[]>.Create(
+            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments", query.Build());
+            return _client.CreateResponse<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Comment(x, _client)).ToArray());
+                data => data.Select(x => new Comment(x, _client)).ToArray());
         }
 
         public async Task<BacklogResponse<Comment[]>> UpdateCommentAsync(Comment comment)
         {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
             var parameters = new
             {
                 content = comment.Content,
             };
 
-            var response = await _client.PostAsync<List<_Comment>>($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            var data = response.Data;
-            return BacklogResponse<Comment[]>.Create(
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
+            return _client.CreateResponse<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Comment(x, _client)).ToArray());
+                data => data.Select(x => new Comment(x, _client)).ToArray());
         }
 
         public async Task<BacklogResponse<Comment>> AddCommentAsync(Comment comment, IEnumerable<User> notifiedUsers = null, IEnumerable<Attachment> attachments = null)
         {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
             var parameters = new
             {
                 content = comment.Content,
@@ -168,27 +195,66 @@ namespace NBacklog.DataTypes
                 attachmentId = attachments?.Select(x => x.Id).ToArray() ?? Array.Empty<int>(),
             };
 
-            var response = await _client.PostAsync<_Comment>($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            var data = response.Data;
-            return BacklogResponse<Comment>.Create(
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
+            return _client.CreateResponse<Comment, _Comment>(
                 response,
                 HttpStatusCode.Created,
-                new Comment(data, Project.Client));
+                data => new Comment(data, Project.Client));
         }
 
         public async Task<BacklogResponse<Comment[]>> DeleteCommentAsync(Comment comment)
         {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
             var parameters = new
             {
                 content = comment.Content,
             };
 
-            var response = await _client.DeleteAsync<List<_Comment>>($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            var data = response.Data;
-            return BacklogResponse<Comment[]>.Create(
+            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
+            return _client.CreateResponse<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Comment(x, _client)).ToArray());
+                data => data.Select(x => new Comment(x, _client)).ToArray());
+        }
+
+        internal QueryParameters ToApiParameters()
+        {
+            var parameters = new QueryParameters();
+
+            if (Summary != null) parameters.Add("summary", Summary);
+            if (Type != null) parameters.Add("issueTypeId", Type.Id);
+            if (Priority != null) parameters.Add("priorityId", Priority.Id);
+            if (Description != null) parameters.Add("description", Description);
+            if (Status != null) parameters.Add("statusId", Status.Id);
+            if (StartDate != default(DateTime)) parameters.Add("startDate", StartDate.ToString("yyyy-MM-dd"));
+            if (DueDate != default(DateTime)) parameters.Add("dueDate", DueDate.ToString("yyyy-MM-dd"));
+            if (Categories != null) parameters.AddRange("categoryId[]", Categories.Select(x => x.Id));
+            if (Versions != null) parameters.AddRange("versionId[]", Versions.Select(x => x.Id));
+            if (Milestones != null) parameters.AddRange("milestoneId[]", Milestones.Select(x => x.Id));
+            if (Attachments != null) parameters.AddRange("attachmentId[]", Attachments.Select(x => x.Id));
+            if (ParentTicketId > 0) parameters.Add("parentIssueId", ParentTicketId);
+            if (Resolution != null) parameters.Add("resolutionId", Resolution.Id);
+            if (EstimatedHours > 0) parameters.Add("estimatedHours", EstimatedHours);
+            if (ActualHours > 0) parameters.Add("actualHours", ActualHours);
+            if (Assignee != null) parameters.Add("assigneeId", Assignee.Id);
+
+            if (CustomFields != null)
+            {
+                foreach (var field in CustomFields)
+                {
+                    parameters.Add($"customField_{field.Id}", field.ToJsonValue());
+                    if (field.OtherValue != null)
+                    {
+                        parameters.Add($"customField_{field.Id}_otherValue", field.OtherValue);
+                    }
+                }
+            }
+
+            return parameters;
         }
 
         private BacklogClient _client;

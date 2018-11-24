@@ -38,6 +38,8 @@ namespace NBacklog.Query
             [Description("childIssue")] ChildTicket,
         }
 
+        public const int MaxCount = 100;
+
         internal TicketQuery Project(params Project[] values)
         {
             return AddParameterRange("projectId[]", values, x => x.Id);
@@ -90,81 +92,81 @@ namespace NBacklog.Query
 
         public TicketQuery ParentChild(ParentChildType value)
         {
-            return AddParameter("parentChild", (int)value);
+            return ReplaceParameter("parentChild", (int)value);
         }
 
         public TicketQuery HasAttachment(bool value)
         {
-            return AddParameter("attachment", value);
+            return ReplaceParameter("attachment", value);
         }
 
         public TicketQuery HasSharedFile(bool value)
         {
-            return AddParameter("sharedFile", value);
+            return ReplaceParameter("sharedFile", value);
         }
 
         public TicketQuery SortBy(SortType value)
         {
             var attribute = typeof(SortType).GetMember(value.ToString())[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return AddParameter("sort", attribute.Description);
+            return ReplaceParameter("sort", attribute.Description);
         }
 
         public TicketQuery OrderBy(OrderType value)
         {
             var attribute = typeof(OrderType).GetMember(value.ToString())[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return AddParameter("order", attribute.Description);
+            return ReplaceParameter("order", attribute.Description);
         }
 
         public TicketQuery Offset(int value)
         {
-            return AddParameter("offset", value);
+            return ReplaceParameter("offset", value);
         }
 
         public TicketQuery Count(int value)
         {
-            return AddParameter("count", value);
+            return ReplaceParameter("count", value);
         }
 
         public TicketQuery CreatedSince(DateTime value)
         {
-            return AddParameter("createdSince", value);
+            return ReplaceParameter("createdSince", value);
         }
 
         public TicketQuery CreatedUntil(DateTime value)
         {
-            return AddParameter("createdUntil", value);
+            return ReplaceParameter("createdUntil", value);
         }
 
         public TicketQuery LastUpdatedSince(DateTime value)
         {
-            return AddParameter("updatedSince", value);
+            return ReplaceParameter("updatedSince", value);
         }
 
         public TicketQuery LastUpdatedUntil(DateTime value)
         {
-            return AddParameter("updatedUntil", value);
+            return ReplaceParameter("updatedUntil", value);
         }
 
         public TicketQuery StartDateSince(DateTime value)
         {
-            return AddParameter("startDateSince", value);
+            return ReplaceParameter("startDateSince", value);
         }
 
         public TicketQuery StartDateUntil(DateTime value)
         {
-            return AddParameter("startDateUntil", value);
+            return ReplaceParameter("startDateUntil", value);
         }
 
         public TicketQuery DueDateSince(DateTime value)
         {
-            return AddParameter("dueDateSince", value);
+            return ReplaceParameter("dueDateSince", value);
         }
 
         public TicketQuery DueDateUntil(DateTime value)
         {
-            return AddParameter("dueDateUntil", value);
+            return ReplaceParameter("dueDateUntil", value);
         }
 
         public TicketQuery Ids(params int[] values)
@@ -179,7 +181,7 @@ namespace NBacklog.Query
 
         public TicketQuery Keyword(string value)
         {
-            return AddParameter("keyword", value);
+            return ReplaceParameter("keyword", value);
         }
     }
 }

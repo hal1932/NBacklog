@@ -3,6 +3,11 @@ using System.Collections.Generic;
 
 namespace NBacklog.DataTypes
 {
+    class _Errors
+    {
+        public List<_Error> errors { get; set; }
+    }
+
     class _Error
     {
         public string message { get; set; }
@@ -61,8 +66,8 @@ namespace NBacklog.DataTypes
         public List<_Milestone> milestone { get; set; }
         public DateTime? startDate { get; set; }
         public DateTime? dueDate { get; set; }
-        public double estimatedHours { get; set; }
-        public double actualHours { get; set; }
+        public double? estimatedHours { get; set; }
+        public double? actualHours { get; set; }
         public int? parentIssueId { get; set; }
         public _User createdUser { get; set; }
         public DateTime? created { get; set; }

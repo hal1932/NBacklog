@@ -10,12 +10,11 @@ namespace NBacklog
     {
         public async Task<BacklogResponse<Project[]>> GetProjectsAsync()
         {
-            var response = await GetAsync<List<_Project>>("/api/v2/projects").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Project[]>.Create(
+            var response = await GetAsync("/api/v2/projects").ConfigureAwait(false);
+            return CreateResponse<Project[], List<_Project>>(
                 response,
                 HttpStatusCode.OK,
-                data.Select(x => new Project(x, this)).ToArray());
+                data => data.Select(x => new Project(x, this)).ToArray());
         }
 
         public async Task<BacklogResponse<Project>> GetProjectAsync(int id)
@@ -25,12 +24,11 @@ namespace NBacklog
 
         public async Task<BacklogResponse<Project>> GetProjectAsync(string key)
         {
-            var response = await GetAsync<_Project>($"/api/v2/projects/{key}").ConfigureAwait(false);
-            var data = response.Data;
-            return BacklogResponse<Project>.Create(
+            var response = await GetAsync($"/api/v2/projects/{key}").ConfigureAwait(false);
+            return CreateResponse<Project, _Project>(
                 response,
                 HttpStatusCode.OK,
-                new Project(data, this));
+                data => new Project(data, this));
         }
 
         public async Task<BacklogResponse<Project>> UpdateProjectAsync(Project project)
@@ -46,18 +44,20 @@ namespace NBacklog
                 archived = project.IsArchived,
             };
 
-            var response = await PatchAsync<_Project>($"/api/v2/projects/{project.Id}", parameters).ConfigureAwait(false);
-            var data = response.Data;
-            var updated = ItemsCache.Update(new Project(data, this));
-            return BacklogResponse<Project>.Create(response, HttpStatusCode.OK, updated);
+            var response = await PatchAsync($"/api/v2/projects/{project.Id}", parameters).ConfigureAwait(false);
+            return CreateResponse<Project, _Project>(
+                response,
+                HttpStatusCode.OK,
+                data => new Project(data, this));
         }
 
         public async Task<BacklogResponse<Project>> DeleteProjectAsync(Project project)
         {
-            var response = await DeleteAsync<_Project>($"/api/v2/projects/{project.Id}").ConfigureAwait(false);
-            var data = response.Data;
-            var deleted = ItemsCache.Delete(new Project(data, this));
-            return BacklogResponse<Project>.Create(response, HttpStatusCode.OK, deleted);
+            var response = await DeleteAsync($"/api/v2/projects/{project.Id}").ConfigureAwait(false);
+            return CreateResponse<Project, _Project>(
+                response,
+                HttpStatusCode.OK,
+                data => new Project(data, this));
         }
     }
 }
