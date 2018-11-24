@@ -4,14 +4,16 @@ namespace NBacklog.Query
 {
     public class CommentQuery : Query<CommentQuery>
     {
+        public const int MaxCount = 100;
+
         public CommentQuery MinId(int id)
         {
-            return AddParameter("minId", id);
+            return ReplaceParameter("minId", id);
         }
 
         public CommentQuery MaxId(int id)
         {
-            return AddParameter("maxId", id);
+            return ReplaceParameter("maxId", id);
         }
 
         public CommentQuery IdRange(int min, int max)
@@ -21,14 +23,14 @@ namespace NBacklog.Query
 
         public CommentQuery Count(int value)
         {
-            return AddParameter("count", value);
+            return ReplaceParameter("count", value);
         }
 
         public CommentQuery OrderBy(OrderType value)
         {
             var attribute = typeof(OrderType).GetMember(value.ToString())[0]
                 .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return AddParameter("order", attribute.Description);
+            return ReplaceParameter("order", attribute.Description);
         }
     }
 }

@@ -130,7 +130,7 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
-        #region metadata
+        #region type
         public async Task<BacklogResponse<TicketType[]>> GetTicketTypesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/issueTypes").ConfigureAwait(false);
@@ -140,6 +140,37 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => Client.ItemsCache.Update(new TicketType(x, this))).ToArray());
         }
 
+        public async Task<BacklogResponse<TicketType>> AddTicketTypeAsync(TicketType type)
+        {
+            var parameters = type.ToApiParameters();
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/issueTypes", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<TicketType, _TicketType>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new TicketType(data, this)));
+        }
+
+        public async Task<BacklogResponse<TicketType>> UpdateTicketTypeAsync(TicketType type)
+        {
+            var parameters = type.ToApiParameters();
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/issueTypes/{type.Id}", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<TicketType, _TicketType>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new TicketType(data, this)));
+        }
+
+        public async Task<BacklogResponse<TicketType>> DeleteTicketAsync(TicketType type)
+        {
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/issueTypes/{type.Id}").ConfigureAwait(false);
+            return Client.CreateResponse<TicketType, _TicketType>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Delete(new TicketType(data, this)));
+        }
+        #endregion
+
+        #region category
         public async Task<BacklogResponse<Category[]>> GetCategoriesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
@@ -149,6 +180,38 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => Client.ItemsCache.Update(new Category(x))).ToArray());
         }
 
+        public async Task<BacklogResponse<Category>> AddCategoryAsync(Category category)
+        {
+            var parameters = category.ToApiParameters();
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/categories", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<Category, _Category>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Category(data)));
+        }
+
+        public async Task<BacklogResponse<Category>> UpdateCategoryAsync(Category category)
+        {
+            var parameters = category.ToApiParameters();
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/categories", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<Category, _Category>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Category(data)));
+        }
+
+        public async Task<BacklogResponse<Category>> DeleteCategoryAsync(Category category)
+        {
+            var parameters = category.ToApiParameters();
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
+            return Client.CreateResponse<Category, _Category>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Category(data)));
+        }
+        #endregion
+
+        #region milestone
         public async Task<BacklogResponse<Milestone[]>> GetMilestonesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/versions").ConfigureAwait(false);
@@ -158,6 +221,37 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => Client.ItemsCache.Update(new Milestone(x, this))).ToArray());
         }
 
+        public async Task<BacklogResponse<Milestone>> AddMilestoneAsync(Milestone milestone)
+        {
+            var parameters = milestone.ToApiParameters();
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/versions", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<Milestone, _Milestone>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Milestone(data, this)));
+        }
+
+        public async Task<BacklogResponse<Milestone>> UpdateMilestoneAsync(Milestone milestone)
+        {
+            var parameters = milestone.ToApiParameters();
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/versions/{milestone.Id}", parameters.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<Milestone, _Milestone>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Milestone(data, this)));
+        }
+
+        public async Task<BacklogResponse<Milestone>> DeleteMilestoneAsync(Milestone milestone)
+        {
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/versions/{milestone.Id}").ConfigureAwait(false);
+            return Client.CreateResponse<Milestone, _Milestone>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Delete(new Milestone(data, this)));
+        }
+        #endregion
+
+        #region custom filed
         public async Task<BacklogResponse<CustomField[]>> GetCustomFieldsAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
@@ -165,6 +259,32 @@ namespace NBacklog.DataTypes
                 response,
                 HttpStatusCode.OK,
                 data => data.Select(x => Client.ItemsCache.Update(CustomField.Create(x, this))).ToArray());
+        }
+        #endregion
+
+        #region shared files
+        public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
+        {
+            query = query ?? new SharedFileQuery();
+
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/files/metadata/{directory}", query.Build()).ConfigureAwait(false);
+            var result = Client.CreateResponse<SharedFile[], List<_SharedFile>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => Client.ItemsCache.Update(new SharedFile(x, this))).ToArray());
+
+            if (result.Errors != null)
+            {
+                return result;
+            }
+
+            var content = result.Content.Where(x => query.TypeNames.Contains(x.TypeName)).ToArray();
+            if (content.Length == result.Content.Length)
+            {
+                return result;
+            }
+
+            return new BacklogResponse<SharedFile[]>(result.StatusCode, content);
         }
         #endregion
     }

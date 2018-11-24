@@ -42,7 +42,9 @@ namespace NBacklog.Query
             var parameter = _parameters.FirstOrDefault(x => x.Item1 == key);
             if (parameter.Item1 == key)
             {
+                _parameters.Remove(parameter);
                 parameter.Item2 = value;
+                _parameters.Add(parameter);
             }
             else
             {

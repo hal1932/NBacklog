@@ -73,6 +73,7 @@
     <Compile Include="DataTypes\SharedFile.cs" />
     <Compile Include="DataTypes\Space.cs" />
     <Compile Include="DataTypes\Star.cs" />
+    <Compile Include="DataTypes\TicketType.cs" />
     <Compile Include="DataTypes\User.cs" />
     <Compile Include="Extensions\BacklogResponseExtensions.cs" />
     <Compile Include="Extensions\ErrorHandler.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Query\CommentQuery.cs" />
     <Compile Include="Query\OrderType.cs" />
     <Compile Include="Query\Query.cs" />
+    <Compile Include="Query\SharedFileQuery.cs" />
     <Compile Include="Query\TicketQuery.cs" />
     <Compile Include="DataTypes\Ticket.cs" />
     <Compile Include="Utils.cs" />

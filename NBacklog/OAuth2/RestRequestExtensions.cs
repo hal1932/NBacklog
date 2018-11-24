@@ -4,9 +4,9 @@ namespace NBacklog.OAuth2
 {
     internal static class RestRequestExtensions
     {
-        public static void SetOAuth2Credentials(this RestRequest request, OAuth2Credentials credentials)
+        public static void SetOAuth2AccessToken(this RestRequest request, string accessToken)
         {
-            request.AddHeader("Authorization", credentials.AccessToken);
+            request.AddHeader("Authorization", $"Bearer {accessToken}");
         }
     }
 }

@@ -1,36 +1,67 @@
 ﻿using System;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
-    public class SharedFile : BacklogItem
+    [Flags]
+    public enum SharedFileType
     {
-        public string Type { get; set; }
-        public string Dir { get; set; }
-        public string Name { get; set; }
-        public long Size { get; set; }
-        public User Creator { get; set; }
-        public DateTime Created { get; set; }
-        public User LastUpdater { get; set; }
-        public DateTime LastUpdated { get; set; }
+        Directory,
+        File,
+    }
 
-        internal SharedFile(_Sharedfile data, BacklogClient client)
+    public class SharedFile : CachableBacklogItem
+    {
+        public Project Project { get; }
+        public SharedFileType Type { get; }
+        public string TypeName { get; }
+        public string Dir { get; }
+        public string Name { get; }
+        public long Size { get; }
+        public User Creator { get; }
+        public DateTime Created { get; }
+        public User LastUpdater { get; }
+        public DateTime LastUpdated { get; }
+
+        internal SharedFile(_SharedFile data, Project project)
             : base(data.id)
         {
-            Type = data.type;
+            Project = project;
+
+            TypeName = data.type;
+            switch (TypeName)
+            {
+                case "file": Type = SharedFileType.File; break;
+                case "directory": Type = SharedFileType.Directory; break;
+                default:
+                    throw new ArgumentException($"unsupported file type: {Type}");
+            }
+
             Dir = data.dir;
             Name = data.name;
-            Size = data.size;
-            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
+            Size = data.size ?? default(long);
+            Creator = project.Client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
             Created = data.created ?? default(DateTime);
             LastUpdated = data.updated ?? default(DateTime);
-            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
+            LastUpdater = project.Client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
         }
 
-        internal SharedFile(int id, string name, long size)
+        internal SharedFile(int id, string name, long size, Project project)
             : base(id)
         {
             Name = name;
             Size = size;
+        }
+
+        public async Task<BacklogResponse<MemoryStream>> DownloadAsync()
+        {
+            var response = await Project.Client.GetAsync($"/api/v2/projects/{Project.Id}/files/{Id}").ConfigureAwait(false);
+            return Project.Client.CreateResponse(
+                response,
+                HttpStatusCode.OK,
+                data => new MemoryStream(data));
         }
     }
 }

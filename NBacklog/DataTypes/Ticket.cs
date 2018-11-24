@@ -1,30 +1,12 @@
 ﻿using NBacklog.Query;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
-    public class TicketType : CachableBacklogItem
-    {
-        public Project Project { get; set; }
-        public string Name { get; set; }
-        public Color Color { get; set; }
-        public int DisplayOrder { get; set; }
-
-        internal TicketType(_TicketType data, Project project)
-            : base(data.id)
-        {
-            Project = project;
-            Name = data.name;
-            Color = Utils.ColorFromWebColorStr(data.color);
-            DisplayOrder = data.displayOrder;
-        }
-    }
-
     public class Status : CachableBacklogItem
     {
         public string Name { get; set; }
@@ -124,12 +106,13 @@ namespace NBacklog.DataTypes
             LastUpdated = data.updated ?? default(DateTime);
             CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
             Attachments = data.attachments.Select(x => new Attachment(x)).ToArray();
-            SharedFiles = data.sharedFiles.Select(x => new SharedFile(x, client)).ToArray();
+            SharedFiles = data.sharedFiles.Select(x => new SharedFile(x, project)).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
 
             _client = client;
         }
 
+        #region comment
         public async Task<BacklogResponse<int>> GetCommentCount(CommentQuery query = null)
         {
             if (Id < 0)
@@ -162,25 +145,6 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => new Comment(x, _client)).ToArray());
         }
 
-        public async Task<BacklogResponse<Comment[]>> UpdateCommentAsync(Comment comment)
-        {
-            if (Id < 0)
-            {
-                throw new InvalidOperationException("ticket retrieved not from the server");
-            }
-
-            var parameters = new
-            {
-                content = comment.Content,
-            };
-
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            return _client.CreateResponse<Comment[], List<_Comment>>(
-                response,
-                HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, _client)).ToArray());
-        }
-
         public async Task<BacklogResponse<Comment>> AddCommentAsync(Comment comment, IEnumerable<User> notifiedUsers = null, IEnumerable<Attachment> attachments = null)
         {
             if (Id < 0)
@@ -202,6 +166,25 @@ namespace NBacklog.DataTypes
                 data => new Comment(data, Project.Client));
         }
 
+        public async Task<BacklogResponse<Comment>> UpdateCommentAsync(Comment comment)
+        {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
+            var parameters = new
+            {
+                content = comment.Content,
+            };
+
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
+            return _client.CreateResponse<Comment, _Comment>(
+                response,
+                HttpStatusCode.OK,
+                data => new Comment(data, _client));
+        }
+
         public async Task<BacklogResponse<Comment[]>> DeleteCommentAsync(Comment comment)
         {
             if (Id < 0)
@@ -220,6 +203,54 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => data.Select(x => new Comment(x, _client)).ToArray());
         }
+        #endregion
+
+        #region shared files
+        public async Task<BacklogResponse<SharedFile[]>> LinkSharedFilesAsync(params SharedFile[] sharedFiles)
+        {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
+            var parameters = new QueryParameters();
+            parameters.AddRange("fileId[]", sharedFiles.Select(x => x.Id));
+
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/sharedFiles", parameters.Build());
+            var result = _client.CreateResponse<SharedFile[], List<_SharedFile>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => _client.ItemsCache.Update(new SharedFile(x, Project))).ToArray());
+
+            if (result.Content.Length > 0)
+            {
+                SharedFiles = SharedFiles.Concat(result.Content).ToArray();
+            }
+
+            return result;
+        }
+
+        public async Task<BacklogResponse<SharedFile>> UnlinkSharedFilesAsync(SharedFile sharedFile)
+        {
+            if (Id < 0)
+            {
+                throw new InvalidOperationException("ticket retrieved not from the server");
+            }
+
+            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/sharedFiles/{sharedFile.Id}");
+            var result = _client.CreateResponse<SharedFile, _SharedFile>(
+                response,
+                HttpStatusCode.OK,
+                data => _client.ItemsCache.Delete(new SharedFile(data, Project)));
+
+            if (result.Content != null)
+            {
+                SharedFiles = SharedFiles.Except(new[] { result.Content }).ToArray();
+            }
+
+            return result;
+        }
+        #endregion
 
         internal QueryParameters ToApiParameters()
         {

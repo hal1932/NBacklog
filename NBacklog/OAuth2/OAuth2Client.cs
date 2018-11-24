@@ -15,7 +15,7 @@ namespace NBacklog.OAuth2
 
         protected async Task<string> GetAccessTokenAsync()
         {
-            await UpdateCredentialsAsync();
+            await UpdateCredentialsAsync().ConfigureAwait(false);
             return _credentials.AccessToken;
         }
 

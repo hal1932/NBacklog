@@ -75,7 +75,7 @@ namespace NBacklog.DataTypes
         public DateTime? updated { get; set; }
         public List<_CustomFieldValue> customFields { get; set; }
         public List<_Attachment> attachments { get; set; }
-        public List<_Sharedfile> sharedFiles { get; set; }
+        public List<_SharedFile> sharedFiles { get; set; }
         public List<_Star> stars { get; set; }
     }
 
@@ -146,13 +146,13 @@ namespace NBacklog.DataTypes
         public DateTime? created { get; set; }
     }
 
-    class _Sharedfile
+    class _SharedFile
     {
         public int id { get; set; }
         public string type { get; set; }
         public string dir { get; set; }
         public string name { get; set; }
-        public long size { get; set; }
+        public long? size { get; set; }
         public _User createdUser { get; set; }
         public DateTime? created { get; set; }
         public _User updatedUser { get; set; }

@@ -113,7 +113,7 @@ namespace NBacklog.DataTypes
                 case ActivityType.WikiCreated:
                 case ActivityType.WikiDeleted:
                 case ActivityType.WikiUpdated:
-                    Content = new WikiActivityContent(contentData);
+                    Content = new WikiActivityContent(contentData, Project);
                     break;
 
                 case ActivityType.MilestoneAdded:
@@ -257,7 +257,7 @@ namespace NBacklog.DataTypes
         public Attachment[] Attachments { get; }
         public SharedFile[] SharedFiles { get; }
 
-        internal WikiActivityContent(JObject data)
+        internal WikiActivityContent(JObject data, Project project)
         {
             Id = data.Value<int>("id");
             Name = data.Value<string>("name");
@@ -269,7 +269,7 @@ namespace NBacklog.DataTypes
                 .Select(x => new Attachment(x))
                 .ToArray();
             SharedFiles = (data.Value<JArray>("shared_files") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new SharedFile(x.Value<int>("id"), x.Value<string>("name"), x.Value<long>("size")))
+                .Select(x => new SharedFile(x.Value<int>("id"), x.Value<string>("name"), x.Value<long>("size"), project))
                 .ToArray();
         }
     }

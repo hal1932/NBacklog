@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -111,6 +112,19 @@ namespace NBacklog.DataTypes
                 response,
                 HttpStatusCode.OK,
                 data => data.Select(x => new Activity(x, _client)).ToArray());
+        }
+
+        public async Task<BacklogResponse<Attachment>> AddAttachment(FileInfo file)
+        {
+            var response = await _client.SendFileAsync(
+                "/api/v2/space/attachment",
+                RestSharp.Method.POST,
+                "file",
+                file);
+            return _client.CreateResponse<Attachment, _Attachment>(
+                response,
+                HttpStatusCode.OK,
+                data => new Attachment(data));
         }
 
         private BacklogClient _client;

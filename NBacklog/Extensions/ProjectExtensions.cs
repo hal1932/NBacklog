@@ -2,13 +2,14 @@
 using NBacklog.Query;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NBacklog.Extensions
 {
     public static class ProjectExtensions
     {
-        public static async Task<Ticket[]> BatchGetTicketAsync(this Project project, TicketQuery query = null, ErrorHandler onError = null)
+        public static async Task<Ticket[]> BatchGetTicketsAsync(this Project project, TicketQuery query = null, ErrorHandler onError = null)
         {
             query = query ?? new TicketQuery();
 
@@ -36,6 +37,58 @@ namespace NBacklog.Extensions
             }
 
             return tickets.ToArray();
+        }
+
+        public static async Task<SharedFile[]> GetSharedFilesRecursiveAsync(this Project project, string directory = "", SharedFileQuery query = null, ErrorHandler onError = null)
+        {
+            query = query ?? new SharedFileQuery();
+
+            var typeNames = query.TypeNames;
+
+            query.Count(SharedFileQuery.MaxCount);
+            query.FileType(SharedFileType.Directory | SharedFileType.File);
+
+            var files = new List<SharedFile>();
+
+            var directories = new Queue<string>();
+            directories.Enqueue(directory);
+
+            var success = true;
+            while (success && directories.Any())
+            {
+                var tmpFiles = new List<SharedFile>();
+                var currentDir = directories.Dequeue();
+
+                while (true)
+                {
+                    query.Offset(tmpFiles.Count);
+                    var fileResponse = await project.GetSharedFilesAsync(currentDir, query);
+                    if (!fileResponse.CanContinueBatchJobs(onError))
+                    {
+                        success = false;
+                        break;
+                    }
+
+                    tmpFiles.AddRange(fileResponse.Content);
+
+                    foreach (var file in fileResponse.Content)
+                    {
+                        if (file.Type == SharedFileType.Directory)
+                        {
+                            directories.Enqueue(currentDir + file.Name);
+                        }
+                    }
+
+                    if (fileResponse.Content.Length < SharedFileQuery.MaxCount)
+                    {
+                        break;
+                    }
+                }
+
+                files.AddRange(tmpFiles.Where(x => typeNames.Contains(x.TypeName)));
+            }
+
+            return files.ToArray();
         }
     }
 }

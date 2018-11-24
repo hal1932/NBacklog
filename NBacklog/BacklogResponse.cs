@@ -8,7 +8,7 @@ namespace NBacklog
     public class BacklogResponse<TContent>
     {
         public HttpStatusCode StatusCode { get; }
-        public TContent Content { get; }
+        public TContent Content { get; internal set; }
         public Error[] Errors { get; }
 
         public BacklogResponse(HttpStatusCode code, TContent content)
