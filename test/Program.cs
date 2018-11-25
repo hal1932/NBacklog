@@ -52,18 +52,18 @@ namespace test
             {
                 var tickets = await project.BatchGetTicketsAsync();
                 Console.WriteLine(tickets.Length);
-                foreach (var ticket in tickets)
-                {
-                    await project.DeleteTicketAsync(ticket);
-                    Console.WriteLine($"delete {ticket.Key}");
-                }
+                //foreach (var ticket in tickets)
+                //{
+                //    await project.DeleteTicketAsync(ticket);
+                //    Console.WriteLine($"delete {ticket.Key}");
+                //}
             }
 
             {
-                var rand = new Random();
+                var rand = new Random(0x12345678);
                 var tickets = new List<Ticket>();
 
-                for (var i = 0; i < 100; ++i)
+                for (var i = 0; i < 500; ++i)
                 {
                     var type = types[rand.Next(i) % types.Length];
                     var priority = priorities[rand.Next(i) % priorities.Length];
@@ -72,16 +72,23 @@ namespace test
                     var milestone = milestones[rand.Next(i) % milestones.Length];
                     var assignee = users[rand.Next(i) % users.Length];
                     var sharedFile = sharedFiles[rand.Next(i) % sharedFiles.Length];
+                    var startDate = DateTime.Now - TimeSpan.FromDays(rand.Next(5));
+                    var dueDate = DateTime.Now + TimeSpan.FromDays(rand.Next(10));
+                    var estimatedHours = rand.NextDouble() * 30;
+                    var attachSharedFile = rand.Next(3) == 0;
+
+                    var r = rand.Next(i);
+                    var parentTicketId = tickets.Any() ? tickets[r % tickets.Count].Id : -1;
 
                     var ticket = new Ticket(project, $"summary_{i}", type, priority);
                     if (rand.Next(3) == 0) ticket.Description = $"desc_{i}";
                     if (rand.Next(3) == 0) ticket.Assignee = assignee;
                     if (rand.Next(3) == 0) ticket.Categories = new[] { category };
                     if (rand.Next(3) == 0) ticket.Milestones = new[] { milestone };
-                    if (rand.Next(3) == 0) ticket.StartDate = DateTime.Now - TimeSpan.FromDays(rand.Next(5));
-                    if (rand.Next(3) == 0) ticket.DueDate = DateTime.Now + TimeSpan.FromDays(rand.Next(10));
-                    if (rand.Next(3) == 0) ticket.EstimatedHours = rand.NextDouble() * 30;
-                    if (rand.Next(5) == 0 && tickets.Any()) ticket.ParentTicketId = tickets[rand.Next(i) % tickets.Count].Id;
+                    if (rand.Next(3) == 0) ticket.StartDate = startDate;
+                    if (rand.Next(3) == 0) ticket.DueDate = dueDate;
+                    if (rand.Next(3) == 0) ticket.EstimatedHours = estimatedHours;
+                    if (rand.Next(5) == 0 && tickets.Any()) ticket.ParentTicketId = parentTicketId;
                     if (rand.Next(3) == 0)
                     {
                         var attachment = space.AddAttachment(new FileInfo(@"C:\Users\yuta\Downloads\fantasy_ocean_kraken.png")).Result.Content;
@@ -99,7 +106,7 @@ namespace test
                         Console.WriteLine($"create: {ticket.Key} {ticket.Summary}");
                         tickets.Add(ticket);
 
-                        if (rand.Next(3) == 0) await ticket.LinkSharedFilesAsync(sharedFile);
+                        if (attachSharedFile) await ticket.LinkSharedFilesAsync(sharedFile);
                     }
                 }
             }

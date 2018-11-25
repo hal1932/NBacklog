@@ -265,7 +265,7 @@ namespace NBacklog.DataTypes
             Version = data.Value<int?>("version") ?? default(int);
 
             Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Attachment(x))
+                .Select(x => new Attachment(x, null))
                 .ToArray();
             SharedFiles = (data.Value<JArray>("shared_files") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new SharedFile(x.Value<int>("id"), x.Value<string>("name"), x.Value<long>("size"), project))

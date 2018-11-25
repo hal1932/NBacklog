@@ -36,7 +36,7 @@ namespace NBacklog.OAuth2
         internal static async Task<OAuth2Credentials> AuthorizeAsync(OAuth2App app, OAuth2EndPoint endPoint)
         {
             var credentials = LoadCredentials(app);
-            if (credentials?.AccessToken == null || credentials.Expires < DateTime.Now)
+            if (credentials?.AccessToken == null)
             {
                 var server = StartRedirectServer(app.RedirectUri).ConfigureAwait(false);
 
@@ -47,6 +47,10 @@ namespace NBacklog.OAuth2
 
                 credentials = await Task.Factory.StartNew(() => GetCredentials(code, app, endPoint)).ConfigureAwait(false);
                 SaveCredentials(credentials, app);
+            }
+            else if (credentials.Expires < DateTime.Now)
+            {
+                credentials = await UpdateCredentialsAsync(credentials, app, endPoint);
             }
 
             return credentials;
@@ -66,7 +70,7 @@ namespace NBacklog.OAuth2
 
                 var tokenRequest = new RestRequest(endPoint.QueryTokenResource, Method.POST, DataFormat.Json);
                 tokenRequest.SetJsonNetSerializer();
-                tokenRequest.AddParameter("grant_type", "authorization_code");
+                tokenRequest.AddParameter("grant_type", "refresh_token");
                 tokenRequest.AddParameter("client_id", app.ClientId);
                 tokenRequest.AddParameter("client_secret", app.ClientSecret);
                 tokenRequest.AddParameter("refresh_token", credentials.RefreshToken);
