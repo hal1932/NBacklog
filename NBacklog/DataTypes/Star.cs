@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
@@ -19,6 +20,15 @@ namespace NBacklog.DataTypes
             Title = data.title;
             Creator = client.ItemsCache.Get(data.presenter?.id, () => new User(data.presenter, client));
             Created = data.created ?? default(DateTime);
+        }
+
+        internal static async Task<BacklogResponse<Star>> AddTo(object parameters, BacklogClient client)
+        {
+            var response = await client.GetAsync("/api/v2/stars", parameters).ConfigureAwait(false);
+            return client.CreateResponse<Star, _Star>(
+                response,
+                HttpStatusCode.NoContent,
+                data => new Star(data, client));
         }
     }
 }

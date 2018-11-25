@@ -252,6 +252,11 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
+        public async Task<BacklogResponse<Star>> AddStarAsync()
+        {
+            return await Star.AddTo(new { issueId = Id }, _client).ConfigureAwait(false);
+        }
+
         internal QueryParameters ToApiParameters()
         {
             var parameters = new QueryParameters();

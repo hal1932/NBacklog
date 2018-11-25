@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
@@ -23,6 +24,7 @@ namespace NBacklog.DataTypes
             LastUpdated = data.updated ?? default(DateTime);
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
+            _client = client;
         }
 
         internal Comment(int id, string content)
@@ -30,5 +32,12 @@ namespace NBacklog.DataTypes
         {
             Content = content;
         }
+
+        public async Task<BacklogResponse<Star>> AddStarAsync()
+        {
+            return await Star.AddTo(new { commentId = Id }, _client).ConfigureAwait(false);
+        }
+
+        private BacklogClient _client;
     }
 }
