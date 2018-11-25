@@ -1,11 +1,31 @@
 ﻿using NBacklog.Query;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
+    public class ProjectDiskUsage : BacklogItem
+    {
+        public int Issue { get; }
+        public int Wiki { get; }
+        public int File { get; }
+        public int Subversion { get; }
+        public int Git { get; }
+
+        internal ProjectDiskUsage(_ProjectDiskUsage data)
+            : base(-1)
+        {
+            Issue = data.issue;
+            Wiki = data.wiki;
+            File = data.file;
+            Subversion = data.subversion;
+            Git = data.git;
+        }
+    }
+
     public class Project : CachableBacklogItem
     {
         public BacklogClient Client { get; }
@@ -39,7 +59,7 @@ namespace NBacklog.DataTypes
             return Client.CreateResponse<User[], List <_User>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new User(x))).ToArray());
+                data => data.Select(x => Client.ItemsCache.Update(new User(x, Client))).ToArray());
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
@@ -53,7 +73,7 @@ namespace NBacklog.DataTypes
             return Client.CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.Created,
-                data => Client.ItemsCache.Update(new User(data)));
+                data => Client.ItemsCache.Update(new User(data, Client)));
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(User user)
@@ -67,7 +87,7 @@ namespace NBacklog.DataTypes
             return Client.CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new User(data)));
+                data => Client.ItemsCache.Delete(new User(data, Client)));
         }
         #endregion
 
@@ -262,7 +282,6 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
-        #region shared files
         public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
         {
             query = query ?? new SharedFileQuery();
@@ -286,6 +305,33 @@ namespace NBacklog.DataTypes
 
             return new BacklogResponse<SharedFile[]>(result.StatusCode, content);
         }
-        #endregion
+
+        public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
+        {
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/icon");
+            return Client.CreateResponse(
+                response,
+                HttpStatusCode.OK,
+                data => new MemoryStream(data));
+        }
+
+        public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync(ActivityQuery query = null)
+        {
+            query = query ?? new ActivityQuery();
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/activities", query.Build()).ConfigureAwait(false);
+            return Client.CreateResponse<Activity[], List<_Activity>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => new Activity(x, Client)).ToArray());
+        }
+
+        public async Task<BacklogResponse<ProjectDiskUsage>> GetDiskUsageAsync()
+        {
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/diskUsage").ConfigureAwait(false);
+            return Client.CreateResponse<ProjectDiskUsage, _ProjectDiskUsage>(
+                response,
+                HttpStatusCode.OK,
+                data => new ProjectDiskUsage(data));
+        }
     }
 }

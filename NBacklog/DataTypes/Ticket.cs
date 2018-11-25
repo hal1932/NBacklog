@@ -44,8 +44,8 @@ namespace NBacklog.DataTypes
     {
         public Project Project { get; }
 
-        public string Key { get; set; }
-        public int KeyId { get; set; }
+        public string Key { get; }
+        public int KeyId { get; }
         public TicketType Type { get; set; }
         public string Summary { get; set; }
         public string Description { get; set; }
@@ -61,14 +61,14 @@ namespace NBacklog.DataTypes
         public double EstimatedHours { get; set; }
         public double ActualHours { get; set; }
         public int ParentTicketId { get; set; }
-        public User Creator { get; set; }
-        public DateTime Created { get; set; }
-        public User LastUpdater { get; set; }
-        public DateTime LastUpdated { get; set; }
+        public User Creator { get; }
+        public DateTime Created { get; }
+        public User LastUpdater { get; }
+        public DateTime LastUpdated { get; }
         public CustomFieldValue[] CustomFields { get; set; }
         public Attachment[] Attachments { get; set; }
-        public SharedFile[] SharedFiles { get; set; }
-        public Star[] Stars { get; set; }
+        public SharedFile[] SharedFiles { get; private set; }
+        public Star[] Stars { get; }
 
         public Ticket(Project project, string summary, TicketType type, Priority priority)
             : base(-1)
@@ -91,7 +91,7 @@ namespace NBacklog.DataTypes
             Resolution = client.ItemsCache.Get(data.resolutions?.id, () => new Resolution(data.resolutions));
             Priority = client.ItemsCache.Get(data.priority?.id, () => new Priority(data.priority));
             Status = client.ItemsCache.Get(data.status?.id, () => new Status(data.status));
-            Assignee = client.ItemsCache.Get(data.assignee?.id, () => new User(data.assignee));
+            Assignee = client.ItemsCache.Get(data.assignee?.id, () => new User(data.assignee, client));
             Categories = data.category.Select(x => client.ItemsCache.Get(x.id, () => new Category(x))).ToArray();
             Versions = data.versions.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
             Milestones = data.milestone.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
@@ -100,12 +100,12 @@ namespace NBacklog.DataTypes
             EstimatedHours = data.estimatedHours ?? default(double);
             ActualHours = data.actualHours ?? default(double);
             ParentTicketId = data.parentIssueId ?? default(int);
-            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
+            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default(DateTime);
-            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
+            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, client));
             LastUpdated = data.updated ?? default(DateTime);
             CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
-            Attachments = data.attachments.Select(x => new Attachment(x)).ToArray();
+            Attachments = data.attachments.Select(x => new Attachment(x, this)).ToArray();
             SharedFiles = data.sharedFiles.Select(x => new SharedFile(x, project)).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
 

@@ -14,7 +14,7 @@ namespace NBacklog
             return CreateResponse<User[], List<_User>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => ItemsCache.Update(new User(x))).ToArray());
+                data => data.Select(x => ItemsCache.Update(new User(x, this))).ToArray());
         }
 
         public async Task<BacklogResponse<User>> GetUserAsync(int id)
@@ -23,7 +23,7 @@ namespace NBacklog
             return CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Update(new User(data)));
+                data => ItemsCache.Update(new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> GetMyUserAsync()
@@ -32,7 +32,7 @@ namespace NBacklog
             return CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Update(new User(data)));
+                data => ItemsCache.Update(new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user, string password)
@@ -50,7 +50,7 @@ namespace NBacklog
             return CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.Created,
-                data => ItemsCache.Update(new User(data)));
+                data => ItemsCache.Update(new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> UpdateUserAsync(User user, string password = null)
@@ -80,7 +80,7 @@ namespace NBacklog
             return CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Update(new User(data)));
+                data => ItemsCache.Update(new User(data, this)));
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(int id)
@@ -89,7 +89,7 @@ namespace NBacklog
             return CreateResponse<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Delete(new User(data)));
+                data => ItemsCache.Delete(new User(data, this)));
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace NBacklog.DataTypes
@@ -49,7 +48,7 @@ namespace NBacklog.DataTypes
         {
             Project = client.ItemsCache.Get(data.project.id, () => new Project(data.project, client));
             Type = (ActivityType)data.type;
-            Creator = client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser));
+            Creator = client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser, client));
             Created = data.created;
 
             var contentData = data.content;
@@ -124,7 +123,7 @@ namespace NBacklog.DataTypes
 
                 case ActivityType.ProjectGroupAdded:
                 case ActivityType.ProjectGroupRemoved:
-                    Content = new GroupActivityContent(contentData);
+                    Content = new GroupActivityContent(contentData, client);
                     break;
 
                 default:
@@ -193,7 +192,7 @@ namespace NBacklog.DataTypes
             }
 
             Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Attachment(x))
+                .Select(x => new Attachment(x, null))
                 .ToArray();
 
             Changes = (data.Value<JArray>("changes") ?? Enumerable.Empty<object>()).Cast<JObject>()
@@ -345,14 +344,14 @@ namespace NBacklog.DataTypes
             var creator = data.Value<JObject>("createdUser");
             if (creator != null)
             {
-                Creator = client.ItemsCache.Get(creator.Value<int>("id"), () => new User(creator));
+                Creator = client.ItemsCache.Get(creator.Value<int>("id"), () => new User(creator, client));
             }
             Created = data.Value<DateTime>("created");
 
             var updater = data.Value<JObject>("updater");
             if (updater != null)
             {
-                Updater = client.ItemsCache.Get((int)updater["id"], () => new User(updater));
+                Updater = client.ItemsCache.Get((int)updater["id"], () => new User(updater, client));
             }
             Updated = data.Value<DateTime>("updated");
         }
@@ -398,7 +397,7 @@ namespace NBacklog.DataTypes
         internal ProjectUserActivityContent(JObject data, BacklogClient client)
         {
             Users = (data.Value<JArray>("revisions") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new User(x))
+                .Select(x => new User(x, client))
                 .ToArray();
             Comment = data.Value<string>("comment");
         }
@@ -465,10 +464,10 @@ namespace NBacklog.DataTypes
     {
         public Group[] Groups { get; }
 
-        internal GroupActivityContent(JObject data)
+        internal GroupActivityContent(JObject data, BacklogClient client)
         {
             Groups = (data.Value<JArray>("parties") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Group(x.Value<int>("id"), x.Value<string>("name")))
+                .Select(x => new Group(x.Value<int>("id"), x.Value<string>("name"), client))
                 .ToArray();
         }
     }

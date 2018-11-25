@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NBacklog.Query;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,12 +10,12 @@ namespace NBacklog.DataTypes
 {
     public class SpaceDiskUsage : BacklogItem
     {
-        public int Capacity { get; set; }
-        public int Issue { get; set; }
-        public int Wiki { get; set; }
-        public int File { get; set; }
-        public int Subversion { get; set; }
-        public int Git { get; set; }
+        public int Capacity { get; }
+        public int Issue { get; }
+        public int Wiki { get; }
+        public int File { get; }
+        public int Subversion { get; }
+        public int Git { get; }
         public SpaceDiskUsageDetail[] Details;
 
         internal SpaceDiskUsage(_SpaceDiskUsage data)
@@ -32,12 +33,12 @@ namespace NBacklog.DataTypes
 
     public class SpaceDiskUsageDetail : BacklogItem
     {
-        public int ProjectId { get; set; }
-        public int Issue { get; set; }
-        public int Wiki { get; set; }
-        public int File { get; set; }
-        public int Subversion { get; set; }
-        public int Git { get; set; }
+        public int ProjectId { get; }
+        public int Issue { get; }
+        public int Wiki { get; }
+        public int File { get; }
+        public int Subversion { get; }
+        public int Git { get; }
 
         internal SpaceDiskUsageDetail(_SpaceDiskUsageDetail data)
             : base(-1)
@@ -105,13 +106,23 @@ namespace NBacklog.DataTypes
                 data => new SpaceDiskUsage(data));
         }
 
-        public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync()
+        public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync(ActivityQuery query = null)
         {
-            var response = await _client.GetAsync("/api/v2/space/activities").ConfigureAwait(false);
+            query = query ?? new ActivityQuery();
+            var response = await _client.GetAsync("/api/v2/space/activities", query.Build()).ConfigureAwait(false);
             return _client.CreateResponse<Activity[], List<_Activity>>(
                 response,
                 HttpStatusCode.OK,
                 data => data.Select(x => new Activity(x, _client)).ToArray());
+        }
+
+        public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
+        {
+            var response = await _client.GetAsync($"/api/v2/space/image");
+            return _client.CreateResponse(
+                response,
+                HttpStatusCode.OK,
+                data => new MemoryStream(data));
         }
 
         public async Task<BacklogResponse<Attachment>> AddAttachment(FileInfo file)
@@ -124,7 +135,7 @@ namespace NBacklog.DataTypes
             return _client.CreateResponse<Attachment, _Attachment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Attachment(data));
+                data => new Attachment(data, null));
         }
 
         private BacklogClient _client;

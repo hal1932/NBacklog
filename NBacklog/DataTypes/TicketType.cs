@@ -21,7 +21,7 @@ namespace NBacklog.DataTypes
         public Project Project { get; }
         public string Name { get; set; }
         public Color Color { get; set; }
-        public int DisplayOrder { get; set; }
+        public int DisplayOrder { get; }
 
         public TicketType(Project project, string name, TicketColor color)
             : base(-1)

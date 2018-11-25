@@ -42,10 +42,10 @@ namespace NBacklog.DataTypes
             Dir = data.dir;
             Name = data.name;
             Size = data.size ?? default(long);
-            Creator = project.Client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser));
+            Creator = project.Client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser, project.Client));
             Created = data.created ?? default(DateTime);
             LastUpdated = data.updated ?? default(DateTime);
-            LastUpdater = project.Client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser));
+            LastUpdater = project.Client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
         }
 
         internal SharedFile(int id, string name, long size, Project project)

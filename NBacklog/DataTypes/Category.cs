@@ -3,7 +3,7 @@
     public class Category : CachableBacklogItem
     {
         public string Name { get; set; }
-        public int DisplayOrder { get; set; }
+        public int DisplayOrder { get; }
 
         public Category(string name)
             : base(-1)

@@ -10,7 +10,7 @@ namespace NBacklog.DataTypes
         public DateTime StartDate { get; set; }
         public DateTime DueDate { get; set; }
         public bool IsArchived { get; set; }
-        public int DisplayOrder { get; set; }
+        public int DisplayOrder { get; }
 
         public Milestone(Project project, string name)
             : base(-1)

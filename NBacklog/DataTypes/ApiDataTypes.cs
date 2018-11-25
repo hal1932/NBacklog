@@ -211,6 +211,16 @@ namespace NBacklog.DataTypes
         public bool archived { get; set; }
     }
 
+    class _ProjectDiskUsage
+    {
+        public int projectId { get; set; }
+        public int issue { get; set; }
+        public int wiki { get; set; }
+        public int file { get; set; }
+        public int subversion { get; set; }
+        public int git { get; set; }
+    }
+
     class _Space
     {
         public string spaceKey { get; set; }

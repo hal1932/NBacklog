@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
@@ -16,7 +17,7 @@ namespace NBacklog.DataTypes
             Comment = data.comment;
             Url = data.url;
             Title = data.title;
-            Creator = client.ItemsCache.Get(data.presenter?.id, () => new User(data.presenter));
+            Creator = client.ItemsCache.Get(data.presenter?.id, () => new User(data.presenter, client));
             Created = data.created ?? default(DateTime);
         }
     }
