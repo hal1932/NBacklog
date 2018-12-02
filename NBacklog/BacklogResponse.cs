@@ -7,6 +7,7 @@ namespace NBacklog
 {
     public class BacklogResponse<TContent>
     {
+        public bool IsSuccess => Errors == null;
         public HttpStatusCode StatusCode { get; }
         public TContent Content { get; internal set; }
         public Error[] Errors { get; }

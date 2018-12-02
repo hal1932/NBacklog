@@ -1,4 +1,4 @@
-﻿using RestSharp;
+﻿using NBacklog.Rest;
 
 namespace NBacklog.OAuth2
 {

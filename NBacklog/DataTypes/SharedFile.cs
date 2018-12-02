@@ -58,10 +58,10 @@ namespace NBacklog.DataTypes
         public async Task<BacklogResponse<MemoryStream>> DownloadAsync()
         {
             var response = await Project.Client.GetAsync($"/api/v2/projects/{Project.Id}/files/{Id}").ConfigureAwait(false);
-            return Project.Client.CreateResponse(
+            return await Project.Client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
-                data => new MemoryStream(data));
+                data => new MemoryStream(data)).ConfigureAwait(false);
         }
     }
 }

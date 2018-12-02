@@ -13,7 +13,7 @@ namespace NBacklog.Extensions
         {
             query = query ?? new TicketQuery();
 
-            var countResponse = await project.GetTicketCountAsync(query);
+            var countResponse = await project.GetTicketCountAsync(query).ConfigureAwait(false);
             if (!countResponse.CanContinueBatchJobs(onError))
             {
                 return Array.Empty<Ticket>();
@@ -27,7 +27,7 @@ namespace NBacklog.Extensions
                 var count = Math.Min(ticketCount - tickets.Count, TicketQuery.MaxCount);
                 query.Offset(tickets.Count).Count(count);
 
-                var ticketsResponse = await project.GetTicketsAsync(query);
+                var ticketsResponse = await project.GetTicketsAsync(query).ConfigureAwait(false);
                 if (!ticketsResponse.CanContinueBatchJobs(onError))
                 {
                     break;
@@ -62,7 +62,7 @@ namespace NBacklog.Extensions
                 while (true)
                 {
                     query.Offset(tmpFiles.Count);
-                    var fileResponse = await project.GetSharedFilesAsync(currentDir, query);
+                    var fileResponse = await project.GetSharedFilesAsync(currentDir, query).ConfigureAwait(false);
                     if (!fileResponse.CanContinueBatchJobs(onError))
                     {
                         success = false;

@@ -33,11 +33,6 @@ namespace NBacklog.DataTypes
             Content = content;
         }
 
-        public async Task<BacklogResponse<Star>> AddStarAsync()
-        {
-            return await Star.AddTo(new { commentId = Id }, _client).ConfigureAwait(false);
-        }
-
         private BacklogClient _client;
     }
 }

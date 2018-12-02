@@ -1,4 +1,5 @@
 ﻿using NBacklog.Query;
+using NBacklog.Rest;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,60 +83,61 @@ namespace NBacklog.DataTypes
         public async Task<BacklogResponse<SpaceNotification>> GetNotificationAsync()
         {
             var response = await _client.GetAsync("/api/v2/space/notification").ConfigureAwait(false);
-            return _client.CreateResponse<SpaceNotification, _SpaceNotification>(
+            return await _client.CreateResponseAsync<SpaceNotification, _SpaceNotification>(
                 response,
                 HttpStatusCode.OK,
-                data => new SpaceNotification(data));
+                data => new SpaceNotification(data)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<SpaceNotification>> UpdateNotificationAsync(string content)
         {
             var response = await _client.PutAsync("/api/v2/space/notification", new { content }).ConfigureAwait(false);
-            return _client.CreateResponse<SpaceNotification, _SpaceNotification>(
+            return await _client.CreateResponseAsync<SpaceNotification, _SpaceNotification>(
                 response,
                 HttpStatusCode.OK,
-                data => new SpaceNotification(data));
+                data => new SpaceNotification(data)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<SpaceDiskUsage>> GetDiskUsageAsync()
         {
             var response = await _client.GetAsync("/api/v2/space/diskUsage").ConfigureAwait(false);
-            return _client.CreateResponse<SpaceDiskUsage, _SpaceDiskUsage>(
+            return await _client.CreateResponseAsync<SpaceDiskUsage, _SpaceDiskUsage>(
                 response,
                 HttpStatusCode.OK,
-                data => new SpaceDiskUsage(data));
+                data => new SpaceDiskUsage(data)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync(ActivityQuery query = null)
         {
             query = query ?? new ActivityQuery();
             var response = await _client.GetAsync("/api/v2/space/activities", query.Build()).ConfigureAwait(false);
-            return _client.CreateResponse<Activity[], List<_Activity>>(
+            return await _client.CreateResponseAsync<Activity[], List<_Activity>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Activity(x, _client)).ToArray());
+                data => data.Select(x => new Activity(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
         {
-            var response = await _client.GetAsync($"/api/v2/space/image");
-            return _client.CreateResponse(
+            var response = await _client.GetAsync($"/api/v2/space/image").ConfigureAwait(false);
+            return await _client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
-                data => new MemoryStream(data));
+                data => new MemoryStream(data)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Attachment>> AddAttachment(FileInfo file)
         {
             var response = await _client.SendFileAsync(
                 "/api/v2/space/attachment",
-                RestSharp.Method.POST,
+                Method.POST,
                 "file",
-                file);
-            return _client.CreateResponse<Attachment, _Attachment>(
+                file)
+                .ConfigureAwait(false);
+            return await _client.CreateResponseAsync<Attachment, _Attachment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Attachment(data, null));
+                data => new Attachment(data, null)).ConfigureAwait(false);
         }
 
         private BacklogClient _client;

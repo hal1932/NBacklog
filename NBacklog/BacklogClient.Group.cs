@@ -12,10 +12,10 @@ namespace NBacklog
         {
             var parameters = new { order, offset, count };
             var response = await GetAsync($"/api/v2/groups", parameters).ConfigureAwait(false);
-            return CreateResponse<Group[], List<_Group>>(
+            return await CreateResponseAsync<Group[], List<_Group>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Group(x, this)).ToArray());
+                data => data.Select(x => new Group(x, this)).ToArray()).ConfigureAwait(false); ;
         }
 
         public async Task<BacklogResponse<Group>> AddGroupAsync(Group group)
@@ -27,19 +27,19 @@ namespace NBacklog
             };
 
             var response = await PostAsync($"/api/v2/groups", parameters).ConfigureAwait(false);
-            return CreateResponse<Group, _Group>(
+            return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.Created,
-                data => new Group(data, this));
+                data => new Group(data, this)).ConfigureAwait(false); ;
         }
 
         public async Task<BacklogResponse<Group>> GetGroupAsync(int id)
         {
             var response = await GetAsync($"/api/v2/groups/{id}").ConfigureAwait(false);
-            return CreateResponse<Group, _Group>(
+            return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this));
+                data => new Group(data, this)).ConfigureAwait(false); ;
         }
 
         public async Task<BacklogResponse<Group>> UpdateGroupAsync(Group group)
@@ -51,19 +51,19 @@ namespace NBacklog
             };
 
             var response = await PatchAsync($"/api/v2/groups/{group.Id}", parameters).ConfigureAwait(false);
-            return CreateResponse<Group, _Group>(
+            return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this));
+                data => new Group(data, this)).ConfigureAwait(false); ;
         }
 
         public async Task<BacklogResponse<Group>> DeleteGroupAsync(Group group)
         {
             var response = await DeleteAsync($"/api/v2/groups/{group.Id}").ConfigureAwait(false);
-            return CreateResponse<Group, _Group>(
+            return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this));
+                data => new Group(data, this)).ConfigureAwait(false); ;
         }
     }
 }

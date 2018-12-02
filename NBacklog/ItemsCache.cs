@@ -23,7 +23,10 @@ namespace NBacklog
                 return item as T;
             }
 
-            _data[key] = source;
+            lock (_dataLockObj)
+            {
+                _data[key] = source;
+            }
             return source;
         }
 
@@ -41,7 +44,10 @@ namespace NBacklog
             if (!_data.TryGetValue(key, out item))
             {
                 item = selector();
-                _data[key] = item;
+                lock (_dataLockObj)
+                {
+                    _data[key] = item;
+                }
             }
 
             return item as T;
@@ -51,7 +57,10 @@ namespace NBacklog
             where T : CachableBacklogItem
         {
             var key = (typeof(T), item.Id);
-            _data[key] = item;
+            lock (_dataLockObj)
+            {
+                _data[key] = item;
+            }
             return item;
         }
 
@@ -61,14 +70,17 @@ namespace NBacklog
             var key = (typeof(T), item.Id);
 
             CachableBacklogItem deleted;
-            if (_data.TryGetValue(key, out deleted))
+            lock (_dataLockObj)
             {
-                _data.Remove(key);
-                return deleted as T;
+                if (_data.TryGetValue(key, out deleted))
+                {
+                    _data.Remove(key);
+                }
             }
-            return null;
+            return deleted as T;
         }
 
         private Dictionary<(Type, int), CachableBacklogItem> _data = new Dictionary<(Type, int), CachableBacklogItem>();
+        private object _dataLockObj = new object();
     }
 }

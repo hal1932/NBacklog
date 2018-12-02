@@ -43,6 +43,7 @@ namespace NBacklog.DataTypes
     public class Ticket : CachableBacklogItem
     {
         public Project Project { get; }
+        public int ProjectId { get; }
 
         public string Key { get; }
         public int KeyId { get; }
@@ -83,6 +84,7 @@ namespace NBacklog.DataTypes
             : base(data.id)
         {
             Project = project;
+            ProjectId = data.projectId;
             Key = data.issueKey;
             KeyId = data.keyId;
             Type = client.ItemsCache.Get(data.issueType?.id, () => new TicketType(data.issueType, project));
@@ -122,11 +124,11 @@ namespace NBacklog.DataTypes
 
             query = query ?? new CommentQuery();
 
-            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments/comment", query.Build());
-            return _client.CreateResponse<int, _Count>(
+            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments/comment", query.Build()).ConfigureAwait(false);
+            return await _client.CreateResponseAsync<int, _Count>(
                 response,
                 HttpStatusCode.OK,
-                data => data.count);
+                data => data.count).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment[]>> GetCommentsAsync(CommentQuery query = null)
@@ -138,11 +140,11 @@ namespace NBacklog.DataTypes
 
             query = query ?? new CommentQuery();
 
-            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments", query.Build());
-            return _client.CreateResponse<Comment[], List<_Comment>>(
+            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments", query.Build()).ConfigureAwait(false);
+            return await _client.CreateResponseAsync<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, _client)).ToArray());
+                data => data.Select(x => new Comment(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment>> AddCommentAsync(Comment comment, IEnumerable<User> notifiedUsers = null, IEnumerable<Attachment> attachments = null)
@@ -159,11 +161,11 @@ namespace NBacklog.DataTypes
                 attachmentId = attachments?.Select(x => x.Id).ToArray() ?? Array.Empty<int>(),
             };
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            return _client.CreateResponse<Comment, _Comment>(
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
+            return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.Created,
-                data => new Comment(data, Project.Client));
+                data => new Comment(data, Project.Client)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment>> UpdateCommentAsync(Comment comment)
@@ -178,11 +180,11 @@ namespace NBacklog.DataTypes
                 content = comment.Content,
             };
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            return _client.CreateResponse<Comment, _Comment>(
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
+            return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Comment(data, _client));
+                data => new Comment(data, _client)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment[]>> DeleteCommentAsync(Comment comment)
@@ -197,11 +199,11 @@ namespace NBacklog.DataTypes
                 content = comment.Content,
             };
 
-            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters);
-            return _client.CreateResponse<Comment[], List<_Comment>>(
+            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
+            return await _client.CreateResponseAsync<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, _client)).ToArray());
+                data => data.Select(x => new Comment(x, _client)).ToArray()).ConfigureAwait(false);
         }
         #endregion
 
@@ -216,11 +218,11 @@ namespace NBacklog.DataTypes
             var parameters = new QueryParameters();
             parameters.AddRange("fileId[]", sharedFiles.Select(x => x.Id));
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/sharedFiles", parameters.Build());
-            var result = _client.CreateResponse<SharedFile[], List<_SharedFile>>(
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/sharedFiles", parameters.Build()).ConfigureAwait(false);
+            var result = await _client.CreateResponseAsync<SharedFile[], List<_SharedFile>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => _client.ItemsCache.Update(new SharedFile(x, Project))).ToArray());
+                data => data.Select(x => _client.ItemsCache.Update(new SharedFile(x, Project))).ToArray()).ConfigureAwait(false);
 
             if (result.Content.Length > 0)
             {
@@ -237,11 +239,11 @@ namespace NBacklog.DataTypes
                 throw new InvalidOperationException("ticket retrieved not from the server");
             }
 
-            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/sharedFiles/{sharedFile.Id}");
-            var result = _client.CreateResponse<SharedFile, _SharedFile>(
+            var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/sharedFiles/{sharedFile.Id}").ConfigureAwait(false);
+            var result = await _client.CreateResponseAsync<SharedFile, _SharedFile>(
                 response,
                 HttpStatusCode.OK,
-                data => _client.ItemsCache.Delete(new SharedFile(data, Project)));
+                data => _client.ItemsCache.Delete(new SharedFile(data, Project))).ConfigureAwait(false);
 
             if (result.Content != null)
             {
@@ -251,11 +253,6 @@ namespace NBacklog.DataTypes
             return result;
         }
         #endregion
-
-        public async Task<BacklogResponse<Star>> AddStarAsync()
-        {
-            return await Star.AddTo(new { issueId = Id }, _client).ConfigureAwait(false);
-        }
 
         internal QueryParameters ToApiParameters()
         {

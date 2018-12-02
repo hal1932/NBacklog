@@ -19,6 +19,9 @@ namespace NBacklog.DataTypes
         GuestViewer = 6,
     }
 
+    /// <summary>
+    /// 一般ユーザー
+    /// </summary>
     public class User : CachableBacklogItem
     {
         public string UserId { get; }
@@ -60,21 +63,21 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
         {
-            var response = await _client.GetAsync($"/api/v2/users/{Id}/icon");
-            return _client.CreateResponse(
+            var response = await _client.GetAsync($"/api/v2/users/{Id}/icon").ConfigureAwait(false);
+            return await _client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
-                data => new MemoryStream(data));
+                data => new MemoryStream(data)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Activity[]>> GetActivitiesAsync(ActivityQuery query = null)
         {
             query = query ?? new ActivityQuery();
             var response = await _client.GetAsync($"/api/v2/users/{Id}/activities", query.Build()).ConfigureAwait(false);
-            return _client.CreateResponse<Activity[], List<_Activity>>(
+            return await _client.CreateResponseAsync<Activity[], List<_Activity>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Activity(x, _client)).ToArray());
+                data => data.Select(x => new Activity(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<int>> GetStarCountAsync(DateTime since = default(DateTime), DateTime until = default(DateTime))
@@ -90,22 +93,22 @@ namespace NBacklog.DataTypes
             }
 
             var response = await _client.GetAsync($"/api/v2/users/{Id}/stars/count", query.Build()).ConfigureAwait(false);
-            return _client.CreateResponse<int, _Count>(
+            return await _client.CreateResponseAsync<int, _Count>(
                 response,
                 HttpStatusCode.OK,
-                data => data.count);
+                data => data.count).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Star[]>> GetStarsAsync(StarQuery query = null)
         {
             query = query ?? new StarQuery();
             var response = await _client.GetAsync($"/api/v2/users/{Id}/stars", query.Build()).ConfigureAwait(false);
-            return _client.CreateResponse<Star[], List<_Star>>(
+            return await _client.CreateResponseAsync<Star[], List<_Star>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Star(x, _client)).ToArray());
+                data => data.Select(x => new Star(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
-        private BacklogClient _client;
+        protected BacklogClient _client;
     }
 }

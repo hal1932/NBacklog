@@ -25,10 +25,10 @@ namespace NBacklog.DataTypes
         internal static async Task<BacklogResponse<Star>> AddTo(object parameters, BacklogClient client)
         {
             var response = await client.GetAsync("/api/v2/stars", parameters).ConfigureAwait(false);
-            return client.CreateResponse<Star, _Star>(
+            return await client.CreateResponseAsync<Star, _Star>(
                 response,
                 HttpStatusCode.NoContent,
-                data => new Star(data, client));
+                data => new Star(data, client)).ConfigureAwait(false); ;
         }
     }
 }

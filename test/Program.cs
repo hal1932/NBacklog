@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace test
@@ -29,6 +30,7 @@ namespace test
         static async Task MainAsync1()
         {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
+            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
 
             var client = new BacklogClient("hal1932", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
@@ -52,18 +54,25 @@ namespace test
             {
                 var tickets = await project.BatchGetTicketsAsync();
                 Console.WriteLine(tickets.Length);
-                //foreach (var ticket in tickets)
-                //{
-                //    await project.DeleteTicketAsync(ticket);
-                //    Console.WriteLine($"delete {ticket.Key}");
-                //}
+                Parallel.ForEach(tickets, parallelOptions, ticket =>
+                {
+                    var deleteResult = project.DeleteTicketAsync(ticket).Result;
+
+                    // トランザクション系のエラーだったら１回だけリトライ
+                    if (!deleteResult.IsSuccess && deleteResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
+                    {
+                        deleteResult = project.DeleteTicketAsync(ticket).Result;
+                    }
+
+                    Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");
+                });
             }
 
             {
                 var rand = new Random(0x12345678);
                 var tickets = new List<Ticket>();
 
-                for (var i = 0; i < 500; ++i)
+                Parallel.For(0, 500, parallelOptions, i =>
                 {
                     var type = types[rand.Next(i) % types.Length];
                     var priority = priorities[rand.Next(i) % priorities.Length];
@@ -95,23 +104,40 @@ namespace test
                         ticket.Attachments = new[] { attachment };
                     }
 
-                    var response = await project.AddTicketAsync(ticket);
-                    if (response.Errors != null)
+                    var addResult = project.AddTicketAsync(ticket).Result;
+
+                    // トランザクション系のエラーだったら１回だけリトライ
+                    if (!addResult.IsSuccess && addResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
                     {
-                        Console.WriteLine(string.Join(", ", response.Errors.Select(x => x.Message)));
+                        addResult = project.AddTicketAsync(ticket).Result;
+                    }
+
+                    if (!addResult.IsSuccess)
+                    {
+                        Console.WriteLine(string.Join(", ", addResult.Errors.Select(x => x.Message)));
                     }
                     else
                     {
-                        ticket = response.Content;
+                        ticket = addResult.Content;
                         Console.WriteLine($"create: {ticket.Key} {ticket.Summary}");
                         tickets.Add(ticket);
 
-                        if (attachSharedFile) await ticket.LinkSharedFilesAsync(sharedFile);
+                        if (attachSharedFile)
+                        {
+                            var linkResult = ticket.LinkSharedFilesAsync(sharedFile).Result;
+
+                            // トランザクション系のエラーだったら１回だけリトライ
+                            if (!linkResult.IsSuccess && linkResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
+                            {
+                                linkResult = ticket.LinkSharedFilesAsync(sharedFiles).Result;
+                            }
+                        }
                     }
-                }
+                });
             }
 
-            Console.WriteLine("");
+            Console.WriteLine("complete!!");
+            Console.ReadKey();
         }
 
         static async Task MainAsync()
@@ -134,7 +160,7 @@ namespace test
             var spaceDisk = await space.Content.GetDiskUsageAsync();
             var users = await client.GetUsersAsync();
             var user = await client.GetUserAsync(users.Content[0].Id);
-            var myUser = await client.GetMyUserAsync();
+            var myUser = await client.GetAuthorizedUserAsync();
             var statuses = await client.GetStatusTypesAsync();
             var resolutions = await client.GetResolutionTypesAsync();
             var priorities = await client.GetPriorityTypeAsync();

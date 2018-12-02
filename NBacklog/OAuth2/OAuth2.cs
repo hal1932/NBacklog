@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using RestSharp;
+﻿using NBacklog.Rest;
+using Newtonsoft.Json;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -45,7 +45,7 @@ namespace NBacklog.OAuth2
 
                 var code = await server;
 
-                credentials = await Task.Factory.StartNew(() => GetCredentials(code, app, endPoint)).ConfigureAwait(false);
+                credentials = await GetCredentialsAsync(code, app, endPoint).ConfigureAwait(false);
                 SaveCredentials(credentials, app);
             }
             else if (credentials.Expires < DateTime.Now)
@@ -63,31 +63,26 @@ namespace NBacklog.OAuth2
                 return credentials;
             }
 
-            return await Task.Factory.StartNew(() =>
+            var client = new RestClient(endPoint.BaseUri.TrimEnd('/') + '/');
+
+            var tokenRequest = new RestRequest(endPoint.QueryTokenResource, Method.POST, DataFormat.FormUrlEncoded);
+            tokenRequest.AddParameter("grant_type", "refresh_token");
+            tokenRequest.AddParameter("client_id", app.ClientId);
+            tokenRequest.AddParameter("client_secret", app.ClientSecret);
+            tokenRequest.AddParameter("refresh_token", credentials.RefreshToken);
+
+            var response = await client.SendAsync(tokenRequest).ConfigureAwait(false);
+            var result = await response.DeserializeContentAsync<_QueryTokenResult>().ConfigureAwait(false);
+
+            credentials = new OAuth2Credentials()
             {
-                var client = new RestClient(endPoint.BaseUri.TrimEnd('/') + '/');
-                client.SetJsonNetSerializer();
+                AccessToken = result.access_token,
+                RefreshToken = result.refresh_token,
+                Expires = DateTime.Now + TimeSpan.FromSeconds(result.expires_in),
+            };
+            SaveCredentials(credentials, app);
 
-                var tokenRequest = new RestRequest(endPoint.QueryTokenResource, Method.POST, DataFormat.Json);
-                tokenRequest.SetJsonNetSerializer();
-                tokenRequest.AddParameter("grant_type", "refresh_token");
-                tokenRequest.AddParameter("client_id", app.ClientId);
-                tokenRequest.AddParameter("client_secret", app.ClientSecret);
-                tokenRequest.AddParameter("refresh_token", credentials.RefreshToken);
-
-                var response = client.Execute<_QueryTokenResult>(tokenRequest);
-                var result = response.Data;
-
-                credentials = new OAuth2Credentials()
-                {
-                    AccessToken = result.access_token,
-                    RefreshToken = result.refresh_token,
-                    Expires = DateTime.Now + TimeSpan.FromSeconds(result.expires_in),
-                };
-                SaveCredentials(credentials, app);
-
-                return credentials;
-            });
+            return credentials;
         }
 
         private static void SaveCredentials(OAuth2Credentials credentials, OAuth2App app)
@@ -106,11 +101,8 @@ namespace NBacklog.OAuth2
                 return null;
             }
 
-            using (var reader = new StreamReader(app.CredentialsCachePath))
-            {
-                var serializer = new JsonSerializer();
-                return serializer.Deserialize(reader, typeof(OAuth2Credentials)) as OAuth2Credentials;
-            }
+            return JsonConvert.DeserializeObject<OAuth2Credentials>(
+                File.ReadAllText(app.CredentialsCachePath));
         }
 
         private static Task<string> StartRedirectServer(string uri)
@@ -146,20 +138,18 @@ namespace NBacklog.OAuth2
             return task;
         }
 
-        private static OAuth2Credentials GetCredentials(string code, OAuth2App app, OAuth2EndPoint endPoint)
+        private static async Task<OAuth2Credentials> GetCredentialsAsync(string code, OAuth2App app, OAuth2EndPoint endPoint)
         {
-            var client = new RestClient(endPoint.BaseUri.TrimEnd('/') + '/');
-            client.SetJsonNetSerializer();
+            var client = new RestClient(endPoint.BaseUri);
 
-            var tokenRequest = new RestRequest(endPoint.QueryTokenResource, Method.POST, DataFormat.Json);
-            tokenRequest.SetJsonNetSerializer();
+            var tokenRequest = new RestRequest(endPoint.QueryTokenResource, Method.POST, DataFormat.FormUrlEncoded);
             tokenRequest.AddParameter("grant_type", "authorization_code");
             tokenRequest.AddParameter("code", code);
             tokenRequest.AddParameter("client_id", app.ClientId);
             tokenRequest.AddParameter("client_secret", app.ClientSecret);
 
-            var response = client.Execute<_QueryTokenResult>(tokenRequest);
-            var result = response.Data;
+            var response = await client.SendAsync(tokenRequest).ConfigureAwait(false);
+            var result = await response.DeserializeContentAsync<_QueryTokenResult>().ConfigureAwait(false);
 
             return new OAuth2Credentials()
             {

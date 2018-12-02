@@ -39,11 +39,15 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<MemoryStream>> DownloadAsync()
         {
-            var response = await _ticket.Project.Client.GetAsync($"/api/v2/issues/{_ticket.Id}/attachments/{Id}");
-            return _ticket.Project.Client.CreateResponse(
+            var response = await _ticket.Project.Client
+                .GetAsync($"/api/v2/issues/{_ticket.Id}/attachments/{Id}")
+                .ConfigureAwait(false);
+
+            return await _ticket.Project.Client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
-                data => new MemoryStream(data));
+                data => new MemoryStream(data))
+                .ConfigureAwait(false);
         }
 
         private Ticket _ticket;

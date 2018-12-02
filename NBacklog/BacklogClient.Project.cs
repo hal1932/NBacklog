@@ -11,10 +11,10 @@ namespace NBacklog
         public async Task<BacklogResponse<Project[]>> GetProjectsAsync()
         {
             var response = await GetAsync("/api/v2/projects").ConfigureAwait(false);
-            return CreateResponse<Project[], List<_Project>>(
+            return await CreateResponseAsync<Project[], List<_Project>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Project(x, this)).ToArray());
+                data => data.Select(x => new Project(x, this)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Project>> GetProjectAsync(int id)
@@ -25,10 +25,10 @@ namespace NBacklog
         public async Task<BacklogResponse<Project>> GetProjectAsync(string key)
         {
             var response = await GetAsync($"/api/v2/projects/{key}").ConfigureAwait(false);
-            return CreateResponse<Project, _Project>(
+            return await CreateResponseAsync<Project, _Project>(
                 response,
                 HttpStatusCode.OK,
-                data => new Project(data, this));
+                data => new Project(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Project>> UpdateProjectAsync(Project project)
@@ -45,19 +45,19 @@ namespace NBacklog
             };
 
             var response = await PatchAsync($"/api/v2/projects/{project.Id}", parameters).ConfigureAwait(false);
-            return CreateResponse<Project, _Project>(
+            return await CreateResponseAsync<Project, _Project>(
                 response,
                 HttpStatusCode.OK,
-                data => new Project(data, this));
+                data => new Project(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Project>> DeleteProjectAsync(Project project)
         {
             var response = await DeleteAsync($"/api/v2/projects/{project.Id}").ConfigureAwait(false);
-            return CreateResponse<Project, _Project>(
+            return await CreateResponseAsync<Project, _Project>(
                 response,
                 HttpStatusCode.OK,
-                data => new Project(data, this));
+                data => new Project(data, this)).ConfigureAwait(false);
         }
     }
 }
