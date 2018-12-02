@@ -318,4 +318,18 @@ namespace NBacklog.DataTypes
         public string name { get; set; }
         public int displayOrder { get; set; }
     }
+
+    class _Webhook
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string hookUrl { get; set; }
+        public bool allEvent { get; set; }
+        public List<int> activityTypeIds { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime created { get; set; }
+        public _User updatedUser { get; set; }
+        public DateTime? updated { get; set; }
+    }
 }

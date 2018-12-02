@@ -24,13 +24,13 @@ namespace test
 
         static void Main(string[] args)
         {
-            MainAsync1().Wait();
+            MainAsync().Wait();
         }
 
         static async Task MainAsync1()
         {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
-            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 4 };
+            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
 
             var client = new BacklogClient("hal1932", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
@@ -51,22 +51,22 @@ namespace test
             var users = project.GetUsersAsync().Result.Content;
             var sharedFiles = project.GetSharedFilesRecursiveAsync().Result;
 
-            {
-                var tickets = await project.BatchGetTicketsAsync();
-                Console.WriteLine(tickets.Length);
-                Parallel.ForEach(tickets, parallelOptions, ticket =>
-                {
-                    var deleteResult = project.DeleteTicketAsync(ticket).Result;
+            //{
+            //    var tickets = await project.BatchGetTicketsAsync();
+            //    Console.WriteLine(tickets.Length);
+            //    Parallel.ForEach(tickets, parallelOptions, ticket =>
+            //    {
+            //        var deleteResult = project.DeleteTicketAsync(ticket).Result;
 
-                    // トランザクション系のエラーだったら１回だけリトライ
-                    if (!deleteResult.IsSuccess && deleteResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
-                    {
-                        deleteResult = project.DeleteTicketAsync(ticket).Result;
-                    }
+            //        // トランザクション系のエラーだったら１回だけリトライ
+            //        if (!deleteResult.IsSuccess && deleteResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
+            //        {
+            //            deleteResult = project.DeleteTicketAsync(ticket).Result;
+            //        }
 
-                    Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");
-                });
-            }
+            //        Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");
+            //    });
+            //}
 
             {
                 var rand = new Random(0x12345678);
@@ -154,29 +154,35 @@ namespace test
                 CredentialsCachePath = "oauth2cache.json",
             });
 
-            var space = await client.GetSpaceAsync();
-            var activities = await space.Content.GetActivitiesAsync();
-            var spaceNotices = await space.Content.GetNotificationAsync();
-            var spaceDisk = await space.Content.GetDiskUsageAsync();
-            var users = await client.GetUsersAsync();
-            var user = await client.GetUserAsync(users.Content[0].Id);
-            var myUser = await client.GetAuthorizedUserAsync();
-            var statuses = await client.GetStatusTypesAsync();
-            var resolutions = await client.GetResolutionTypesAsync();
-            var priorities = await client.GetPriorityTypeAsync();
-            var groups = await client.GetGroupsAsync();
+            //var space = await client.GetSpaceAsync();
+            //var activities = await space.Content.GetActivitiesAsync();
+            //var spaceNotices = await space.Content.GetNotificationAsync();
+            //var spaceDisk = await space.Content.GetDiskUsageAsync();
+            //var users = await client.GetUsersAsync();
+            //var user = await client.GetUserAsync(users.Content[0].Id);
+            //var myUser = await client.GetAuthorizedUserAsync();
+            //var statuses = await client.GetStatusTypesAsync();
+            //var resolutions = await client.GetResolutionTypesAsync();
+            //var priorities = await client.GetPriorityTypeAsync();
+            //var groups = await client.GetGroupsAsync();
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
-            var tickets = await proj.GetTicketsAsync(new TicketQuery());
-            var projUses = await proj.GetUsersAsync();
-            var ticketTypes = await proj.GetTicketTypesAsync();
-            var categories = await proj.GetCategoriesAsync();
-            var miles = await proj.GetMilestonesAsync();
-            var customFields = await proj.GetCustomFieldsAsync();
+            //var tickets = await proj.GetTicketsAsync(new TicketQuery());
+            //var projUses = await proj.GetUsersAsync();
+            //var ticketTypes = await proj.GetTicketTypesAsync();
+            //var categories = await proj.GetCategoriesAsync();
+            //var miles = await proj.GetMilestonesAsync();
+            //var customFields = await proj.GetCustomFieldsAsync();
+            var webhooks = proj.GetWebhooksAsync().Result.Content;
+            //webhooks[0].HookUrl = "http://localhost";
+            //await proj.UpdateWebhookAsync(webhooks[0]);
+            //await proj.DeleteWebhookAsync(webhooks[1]);
+            //webhooks[0].Name = "test2";
+            //await proj.AddWebhookAsync(webhooks[0]);
 
-            var ticket = tickets.Content[0];
-            var comments = await ticket.GetCommentsAsync();
+            //var ticket = tickets.Content[0];
+            //var comments = await ticket.GetCommentsAsync();
 
             Console.WriteLine("");
         }

@@ -43,6 +43,14 @@ namespace NBacklog.DataTypes
         public User Creator { get; }
         public DateTime Created { get; }
 
+        public static ActivityType[] GetAllTypes()
+        {
+            return Enum.GetValues(typeof(ActivityType))
+                .Cast<ActivityType>()
+                .Where(x => x > 0)
+                .ToArray();
+        }
+
         internal Activity(_Activity data, BacklogClient client)
             : base(data.id)
         {

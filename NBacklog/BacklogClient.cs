@@ -64,7 +64,7 @@ namespace NBacklog
         {
             var token = await GetAccessTokenAsync().ConfigureAwait(false);
 
-            var request = new RestRequest(resource, method);
+            var request = new RestRequest(resource, method, DataFormat.FormUrlEncoded);
             request.SetOAuth2AccessToken(token);
 
             if (parameters != null)
@@ -104,7 +104,6 @@ namespace NBacklog
         {
             if (response.StatusCode != successfulStatusCode)
             {
-                Console.WriteLine(response.StatusCode);
                 var content = await response.DeserializeContentAsync<_Errors>().ConfigureAwait(false);
                 return new BacklogResponse<TApiData>(
                     response.StatusCode,

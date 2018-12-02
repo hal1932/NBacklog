@@ -282,6 +282,50 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
+        #region webhook
+        public async Task<BacklogResponse<Webhook[]>> GetWebhooksAsync()
+        {
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/webhooks").ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Webhook[], List<_Webhook>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => Client.ItemsCache.Update(new Webhook(x, this))).ToArray()).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Webhook>> AddWebhookAsync(Webhook hook)
+        {
+            var parameters = hook.ToApiParameters();
+
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/webhooks", parameters.Build()).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Webhook, _Webhook>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Webhook(data, this))).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Webhook>> UpdateWebhookAsync(Webhook hook)
+        {
+            var parameters = hook.ToApiParameters();
+
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/webhooks/{hook.Id}", parameters.Build()).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Webhook, _Webhook>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Update(new Webhook(data, this))).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Webhook>> DeleteWebhookAsync(Webhook hook)
+        {
+            var parameters = hook.ToApiParameters();
+
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/webhooks/{hook.Id}", parameters.Build()).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Webhook, _Webhook>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Delete(new Webhook(data, this))).ConfigureAwait(false);
+        }
+        #endregion
+
         public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
         {
             query = query ?? new SharedFileQuery();

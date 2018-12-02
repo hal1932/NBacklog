@@ -75,8 +75,7 @@ namespace NBacklog.Rest
                         if (_parameters.Any())
                         {
                             //AddHeader("Content-Type", "application/x-www-form-urlencoded");
-                            content = new FormUrlEncodedContent(
-                                _parameters.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString())));
+                            content = new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair()));
                         }
                         break;
 
@@ -88,8 +87,7 @@ namespace NBacklog.Rest
 
                             if (_parameters.Any())
                             {
-                                multiContent.Add(new FormUrlEncodedContent(
-                                    _parameters.Select(x => new KeyValuePair<string, string>(x.Key, x.Value.ToString()))));
+                                multiContent.Add(new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair())));
                             }
 
                             if (_files.Any())
@@ -139,6 +137,12 @@ namespace NBacklog.Rest
             {
                 Key = key;
                 Value = value;
+            }
+
+            public KeyValuePair<string, string> ToKeyValuePair()
+            {
+                var valueStr = (Value is bool) ? Value.ToString().ToLower() : Value.ToString();
+                return new KeyValuePair<string, string>(Key, valueStr);
             }
         }
 

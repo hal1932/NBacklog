@@ -73,6 +73,7 @@
     <Compile Include="DataTypes\Star.cs" />
     <Compile Include="DataTypes\TicketType.cs" />
     <Compile Include="DataTypes\User.cs" />
+    <Compile Include="DataTypes\Webhook.cs" />
     <Compile Include="Extensions\BacklogResponseExtensions.cs" />
     <Compile Include="Extensions\ErrorHandler.cs" />
     <Compile Include="Extensions\ProjectExtensions.cs" />
