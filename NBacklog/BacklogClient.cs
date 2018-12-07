@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NBacklog
@@ -17,11 +18,12 @@ namespace NBacklog
 
         internal ItemsCache ItemsCache { get; } = new ItemsCache();
 
-        public BacklogClient(string spaceKey, string domain = "backlog.jp")
+        public BacklogClient(string spaceKey, string domain = "backlog.jp", BacklogClientConfig config = null)
         {
             SpaceKey = spaceKey;
             Domain = domain;
             _client = new RestClient($"https://{SpaceKey}.{Domain}/");
+            _config = config ?? new BacklogClientConfig();
         }
 
         public override async Task AuthorizeAsync(OAuth2App app)
@@ -60,7 +62,7 @@ namespace NBacklog
             return await SendAsync(resource, Method.DELETE, parameters).ConfigureAwait(false);
         }
 
-        public virtual async Task<RestResponse> SendAsync(string resource, Method method, object parameters = null)
+        public async Task<RestResponse> SendAsync(string resource, Method method, object parameters = null)
         {
             var token = await GetAccessTokenAsync().ConfigureAwait(false);
 
@@ -85,10 +87,10 @@ namespace NBacklog
                 }
             }
 
-            return await _client.SendAsync(request).ConfigureAwait(false);
+            return await SendImplAsync(request).ConfigureAwait(false);
         }
 
-        public virtual async Task<RestResponse> SendFileAsync(string resource, Method method, string name, FileInfo file)
+        public async Task<RestResponse> SendFileAsync(string resource, Method method, string name, FileInfo file)
         {
             var token = await GetAccessTokenAsync().ConfigureAwait(false);
 
@@ -97,17 +99,51 @@ namespace NBacklog
 
             request.AddFile(name, file.FullName, "application/octet-stream");
 
-            return await _client.SendAsync(request).ConfigureAwait(false);
+            return await SendImplAsync(request).ConfigureAwait(false);
+        }
+
+        private async Task<RestResponse> SendImplAsync(RestRequest request)
+        {
+            bool isClientError(HttpStatusCode code) => (int)code / 100 == 4;
+            bool isServerError(HttpStatusCode code) => (int)code / 100 == 5;
+
+            var (response, httpRequest) = await _client.SendAsync(request).ConfigureAwait(false);
+            if (_config.ThrowOnClientError && isClientError(response.StatusCode))
+            {
+                var errors = await GetErrorContentAsync(response);
+                throw new BacklogExcetion(httpRequest, errors);
+            }
+
+            if (_config.RetryOnServerError || _config.MaxRetryCount == 0)
+            {
+                return response;
+            }
+
+            var retryCount = _config.MaxRetryCount;
+
+            while (retryCount > 0 && isServerError(response.StatusCode))
+            {
+                Thread.Sleep(_config.RetrySpan);
+
+                (response, httpRequest) = await _client.SendAsync(request).ConfigureAwait(false);
+                --retryCount;
+
+                if (_config.ThrowOnClientError && isClientError(response.StatusCode))
+                {
+                    var errors = await GetErrorContentAsync(response);
+                    throw new BacklogExcetion(httpRequest, errors);
+                }
+            }
+
+            return response;
         }
 
         internal async Task<BacklogResponse<TApiData>> CreateResponseAsync<TApiData, TContent>(RestResponse response, HttpStatusCode successfulStatusCode, Func<TContent, TApiData> contentSelector)
         {
             if (response.StatusCode != successfulStatusCode)
             {
-                var content = await response.DeserializeContentAsync<_Errors>().ConfigureAwait(false);
-                return new BacklogResponse<TApiData>(
-                    response.StatusCode,
-                    content?.errors.Select(x => new Error(x)) ?? Array.Empty<Error>());
+                var errors = await GetErrorContentAsync(response);
+                return new BacklogResponse<TApiData>(response.StatusCode, errors);
             }
             else
             {
@@ -120,10 +156,8 @@ namespace NBacklog
         {
             if (response.StatusCode != successfulStatusCode)
             {
-                var content = await response.DeserializeContentAsync<_Errors>().ConfigureAwait(false);
-                return new BacklogResponse<T>(
-                    response.StatusCode,
-                    content?.errors.Select(x => new Error(x)) ?? Array.Empty<Error>());
+                var errors = await GetErrorContentAsync(response);
+                return new BacklogResponse<T>(response.StatusCode, errors);
             }
             else
             {
@@ -132,6 +166,13 @@ namespace NBacklog
             }
         }
 
+        private async Task<IEnumerable<Error>> GetErrorContentAsync(RestResponse response)
+        {
+            var content = await response.DeserializeContentAsync<_Errors>().ConfigureAwait(false);
+            return content?.errors.Select(x => new Error(x)) ?? Enumerable.Empty<Error>();
+        }
+
         private RestClient _client;
+        private BacklogClientConfig _config;
     }
 }

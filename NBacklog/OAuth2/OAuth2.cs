@@ -71,7 +71,7 @@ namespace NBacklog.OAuth2
             tokenRequest.AddParameter("client_secret", app.ClientSecret);
             tokenRequest.AddParameter("refresh_token", credentials.RefreshToken);
 
-            var response = await client.SendAsync(tokenRequest).ConfigureAwait(false);
+            var (response, _) = await client.SendAsync(tokenRequest).ConfigureAwait(false);
             var result = await response.DeserializeContentAsync<_QueryTokenResult>().ConfigureAwait(false);
 
             credentials = new OAuth2Credentials()
@@ -148,7 +148,7 @@ namespace NBacklog.OAuth2
             tokenRequest.AddParameter("client_id", app.ClientId);
             tokenRequest.AddParameter("client_secret", app.ClientSecret);
 
-            var response = await client.SendAsync(tokenRequest).ConfigureAwait(false);
+            var (response, _) = await client.SendAsync(tokenRequest).ConfigureAwait(false);
             var result = await response.DeserializeContentAsync<_QueryTokenResult>().ConfigureAwait(false);
 
             return new OAuth2Credentials()

@@ -27,10 +27,11 @@ namespace NBacklog.Rest
             _baseUri = baseUri;
         }
 
-        public async Task<RestResponse> SendAsync(RestRequest request)
+        public async Task<(RestResponse, HttpRequestMessage)> SendAsync(RestRequest request)
         {
-            var response = await _client.SendAsync(request.Build(_baseUri)).ConfigureAwait(false);
-            return new RestResponse(response, _serializer);
+            var httpRequest = request.Build(_baseUri);
+            var response = await _client.SendAsync(httpRequest).ConfigureAwait(false);
+            return (new RestResponse(response, _serializer), httpRequest);
         }
 
         private HttpClient _client;

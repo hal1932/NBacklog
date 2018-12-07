@@ -24,13 +24,13 @@ namespace test
 
         static void Main(string[] args)
         {
-            MainAsync().Wait();
+            MainAsync1().Wait();
         }
 
         static async Task MainAsync1()
         {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
-            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
+            var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 3 };
 
             var client = new BacklogClient("hal1932", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
@@ -51,27 +51,20 @@ namespace test
             var users = project.GetUsersAsync().Result.Content;
             var sharedFiles = project.GetSharedFilesRecursiveAsync().Result;
 
-            //{
-            //    var tickets = await project.BatchGetTicketsAsync();
-            //    Console.WriteLine(tickets.Length);
-            //    Parallel.ForEach(tickets, parallelOptions, ticket =>
-            //    {
-            //        var deleteResult = project.DeleteTicketAsync(ticket).Result;
-
-            //        // トランザクション系のエラーだったら１回だけリトライ
-            //        if (!deleteResult.IsSuccess && deleteResult.Errors.Any(x => x.Message.StartsWith("Deadlock")))
-            //        {
-            //            deleteResult = project.DeleteTicketAsync(ticket).Result;
-            //        }
-
-            //        Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");
-            //    });
-            //}
+            {
+                var tickets = await project.BatchGetTicketsAsync();
+                Console.WriteLine(tickets.Length);
+                Parallel.ForEach(tickets.OrderBy(x => x.ParentTicketId == default(int)), parallelOptions, ticket =>
+                {
+                    var deleteResult = project.DeleteTicketAsync(ticket).Result;
+                    Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");
+                });
+            }
 
             {
                 var rand = new Random(0x12345678);
                 var tickets = new List<Ticket>();
-
+                    
                 Parallel.For(0, 500, parallelOptions, i =>
                 {
                     var type = types[rand.Next(i) % types.Length];

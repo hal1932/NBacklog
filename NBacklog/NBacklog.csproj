@@ -50,6 +50,8 @@
     <Compile Include="BacklogClient.Group.cs" />
     <Compile Include="BacklogClient.Project.cs" />
     <Compile Include="BacklogClient.Space.cs" />
+    <Compile Include="BacklogClientConfig.cs" />
+    <Compile Include="BacklogExcetion.cs" />
     <Compile Include="BacklogItem.cs" />
     <Compile Include="BacklogResponse.cs" />
     <Compile Include="BacklogClient.User.cs" />
