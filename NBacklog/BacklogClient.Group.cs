@@ -1,4 +1,5 @@
 ﻿using NBacklog.DataTypes;
+using NBacklog.Query;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -8,10 +9,11 @@ namespace NBacklog
 {
     public partial class BacklogClient
     {
-        public async Task<BacklogResponse<Group[]>> GetGroupsAsync(string order = "desc", int offset = 0, int count = 20)
+        public async Task<BacklogResponse<Group[]>> GetGroupsAsync(GroupQuery query = null)
         {
-            var parameters = new { order, offset, count };
-            var response = await GetAsync($"/api/v2/groups", parameters).ConfigureAwait(false);
+            query = query ?? new GroupQuery();
+
+            var response = await GetAsync($"/api/v2/groups", query.Build()).ConfigureAwait(false);
             return await CreateResponseAsync<Group[], List<_Group>>(
                 response,
                 HttpStatusCode.OK,

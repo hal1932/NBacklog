@@ -88,6 +88,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="OAuth2\RestRequestExtensions.cs" />
     <Compile Include="Query\ActivityQuery.cs" />
+    <Compile Include="Query\GroupQuery.cs" />
     <Compile Include="Query\StarQuery.cs" />
     <Compile Include="Query\CommentQuery.cs" />
     <Compile Include="Query\OrderType.cs" />
