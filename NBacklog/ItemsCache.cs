@@ -12,6 +12,20 @@ namespace NBacklog
 
     internal class ItemsCache
     {
+        public bool TryGetValue<T>(int id, out T value)
+            where T : CachableBacklogItem
+        {
+            //return _data.TryGetValue((typeof(T), id), out value);
+            if (_data.TryGetValue((typeof(T), id), out var item))
+            {
+                value = item as T;
+                return true;
+            }
+
+            value = default;
+            return false;
+        }
+
         public T Update<T>(int? id, Func<T> selector)
             where T : CachableBacklogItem
         {

@@ -37,6 +37,12 @@ namespace NBacklog
             await AuthorizeAsync(app, endPoint).ConfigureAwait(false);
         }
 
+        public bool TryGetValueFromCache<T>(int id, out T value)
+            where T : CachableBacklogItem
+        {
+            return ItemsCache.TryGetValue(id, out value);
+        }
+
         public async Task<RestResponse> GetAsync(string resource, object parameters = null)
         {
             return await SendAsync(resource, Method.GET, parameters).ConfigureAwait(false);
