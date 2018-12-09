@@ -107,16 +107,12 @@ namespace NBacklog.Query
 
         public TicketQuery SortBy(SortType value)
         {
-            var attribute = typeof(SortType).GetMember(value.ToString())[0]
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return ReplaceParameter("sort", attribute.Description);
+            return ReplaceParameter("sort", GetEnumDesc(value));
         }
 
         public TicketQuery OrderBy(OrderType value)
         {
-            var attribute = typeof(OrderType).GetMember(value.ToString())[0]
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return ReplaceParameter("order", attribute.Description);
+            return ReplaceParameter("order", GetEnumDesc(value));
         }
 
         public TicketQuery Offset(int value)

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-
-namespace NBacklog.Query
+﻿namespace NBacklog.Query
 {
     public class CommentQuery : Query<CommentQuery>
     {
@@ -28,9 +26,7 @@ namespace NBacklog.Query
 
         public CommentQuery OrderBy(OrderType value)
         {
-            var attribute = typeof(OrderType).GetMember(value.ToString())[0]
-                .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
-            return ReplaceParameter("order", attribute.Description);
+            return ReplaceParameter("order", GetEnumDesc(value));
         }
     }
 }

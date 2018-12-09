@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 
 namespace NBacklog.Query
@@ -51,6 +52,14 @@ namespace NBacklog.Query
                 _parameters.Add((key, value));
             }
             return this as T;
+        }
+
+        private protected string GetEnumDesc<TEnum>(TEnum value)
+            where TEnum : Enum
+        {
+            var attribute = typeof(TEnum).GetMember(value.ToString())[0]
+                .GetCustomAttributes(typeof(DescriptionAttribute), false)[0] as DescriptionAttribute;
+            return attribute?.Description;
         }
 
         internal List<(string, object)> Build()
