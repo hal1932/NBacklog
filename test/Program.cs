@@ -158,12 +158,16 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
-            var wikis = proj.GetWikipagesAsync().Result.Content;
-            var wiki = wikis[1];
+            var wiki = new Wikipage("name", "hoge", new[] { "tag1", "tag4" });
+            var tags = proj.GetWikipageTagsAsync().Result.Content;
+            wiki = proj.AddWikipageAsync(wiki).Result.Content;
+            tags = proj.GetWikipageTagsAsync().Result.Content;
             wiki.GetContentAsync().Wait();
             wiki.Content += "aaaaa";
-            wiki = proj.UpdateWikipageAsync(wiki, false).Result.Content;
-            wiki = proj.DeleteWikipageAsync(wiki, false).Result.Content;
+            wiki = proj.UpdateWikipageAsync(wiki).Result.Content;
+            tags = proj.GetWikipageTagsAsync().Result.Content;
+            wiki = proj.DeleteWikipageAsync(wiki).Result.Content;
+            tags = proj.GetWikipageTagsAsync().Result.Content;
             //var tickets = await proj.GetTicketsAsync(new TicketQuery());
             //var projUses = await proj.GetUsersAsync();
             //var ticketTypes = await proj.GetTicketTypesAsync();

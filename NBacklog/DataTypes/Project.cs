@@ -390,10 +390,11 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Wikipage>> AddWikipageAsync(Wikipage wikipage, bool notifyByMail = false)
         {
+            var name = string.Join("", wikipage.Tags.Select(x => $"[{x}]").ToArray()) + wikipage.Name;
             var parameters = new
             {
                 projectId = Id,
-                name = wikipage.Name,
+                name = name,
                 content = wikipage.Content,
                 mailNotify = notifyByMail,
             };
@@ -406,9 +407,10 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Wikipage>> UpdateWikipageAsync(Wikipage wikipage, bool notifyByMail = false)
         {
+            var name = string.Join("", wikipage.Tags.Select(x => $"[{x}]").ToArray()) + wikipage.Name;
             var parameters = new
             {
-                name = wikipage.Name,
+                name = name,
                 content = wikipage.Content,
                 mailNotify = notifyByMail,
             };

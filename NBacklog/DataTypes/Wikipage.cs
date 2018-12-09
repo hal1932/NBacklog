@@ -11,7 +11,7 @@ namespace NBacklog.DataTypes
         public int ProjectId { get; }
         public string Name { get; set; }
         public string Content { get; set; }
-        public string[] Tags { get; }
+        public string[] Tags { get; set; }
         public Attachment[] Attachments { get; }
         public SharedFile[] SharedFiles { get; }
         public Star[] Stars { get; }
@@ -20,14 +20,12 @@ namespace NBacklog.DataTypes
         public User LastUpdater { get; }
         public DateTime LastUpdated { get; }
 
-        public Wikipage(string name, string content, Project project)
+        public Wikipage(string name, string content, string[] tags = null)
             : base(-1)
         {
-            ProjectId = project.Id;
             Name = name;
             Content = content;
-
-            Project = project;
+            Tags = tags ?? Array.Empty<string>();
         }
 
         internal Wikipage(_Wikipage data, Project project)
