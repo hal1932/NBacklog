@@ -144,8 +144,8 @@ namespace test
                 CredentialsCachePath = "oauth2cache.json",
             });
 
-            var space = client.GetSpaceAsync().Result.Content;
-            var activities = space.GetActivitiesAsync().Result.Content;
+            var space = await client.GetSpaceAsync();
+            var activities = await space.Content.GetActivitiesAsync();
             //var spaceNotices = await space.Content.GetNotificationAsync();
             //var spaceDisk = await space.Content.GetDiskUsageAsync();
             //var users = await client.GetUsersAsync();
@@ -159,8 +159,6 @@ namespace test
 
             var proj = projs.Content[0];
             var repos = proj.GetGitRepositoriesAsync().Result.Content;
-
-            //var repo = proj.GetGitRepositoryAsync((activities[0].Content as GitRepositoryCreatedActivityContent).Repository).Result.Content;
 
             //var wiki = new Wikipage("name", "hoge", new[] { "tag1", "tag4" });
             //var tags = proj.GetWikipageTagsAsync().Result.Content;
