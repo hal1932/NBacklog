@@ -8,6 +8,8 @@ namespace NBacklog.DataTypes
 {
     public class Comment : BacklogItem
     {
+        public Ticket Ticket { get; }
+
         public string Content { get; set; }
         public ChangeLog[] ChangeLogs { get;}
         public User Creator { get; }
@@ -16,10 +18,11 @@ namespace NBacklog.DataTypes
         public Star[] Stars { get; }
         public Notification[] Notifications { get; private set; }
 
-        public Comment(string content)
+        public Comment(string content, Ticket ticket)
             : base(-1)
         {
             Content = content;
+            Ticket = ticket;
         }
 
         internal Comment(_Comment data, Ticket ticket)
@@ -35,7 +38,7 @@ namespace NBacklog.DataTypes
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
 
-            _ticket = ticket;
+            Ticket = ticket;
         }
 
         internal Comment(int id, string content)
@@ -51,12 +54,12 @@ namespace NBacklog.DataTypes
                 notifiedUserId = users?.Select(x => x.Id).ToArray(),
             };
 
-            var client = _ticket.Project.Client;
-            var response = await client.PostAsync($"/api/v2/issues/{_ticket.Id}/comments/{Id}/notifications", parameters).ConfigureAwait(false);
+            var client = Ticket.Project.Client;
+            var response = await client.PostAsync($"/api/v2/issues/{Ticket.Id}/comments/{Id}/notifications", parameters).ConfigureAwait(false);
             var result = await client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Comment(data, _ticket)).ConfigureAwait(false);
+                data => new Comment(data, Ticket)).ConfigureAwait(false);
 
             if (!result.IsSuccess)
             {
@@ -66,7 +69,5 @@ namespace NBacklog.DataTypes
             Notifications = result.Content.Notifications;
             return new BacklogResponse<Notification[]>(result.StatusCode, Notifications);
         }
-
-        private Ticket _ticket;
     }
 }

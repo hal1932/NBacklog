@@ -137,7 +137,7 @@ namespace NBacklog.DataTypes
             return await _client.CreateResponseAsync<Attachment, _Attachment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Attachment(data, null)).ConfigureAwait(false);
+                data => new Attachment(data, _client)).ConfigureAwait(false);
         }
 
         private BacklogClient _client;

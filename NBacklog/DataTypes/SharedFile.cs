@@ -25,6 +25,12 @@ namespace NBacklog.DataTypes
         public User LastUpdater { get; }
         public DateTime LastUpdated { get; }
 
+        internal SharedFile(_SharedFile data, Wikipage wikipage)
+            : this(data, wikipage.Project)
+        {
+            _wikipage = wikipage;
+        }
+
         internal SharedFile(_SharedFile data, Project project)
             : base(data.id)
         {
@@ -57,11 +63,23 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<MemoryStream>> DownloadAsync()
         {
-            var response = await Project.Client.GetAsync($"/api/v2/projects/{Project.Id}/files/{Id}").ConfigureAwait(false);
+            string resource;
+            if (_wikipage != null)
+            {
+                resource = $"/api/v2/wikis/{_wikipage.Id}/sharedFiles/{Id}";
+            }
+            else
+            {
+                resource = $"/api/v2/projects/{Project.Id}/files/{Id}";
+            }
+
+            var response = await Project.Client.GetAsync(resource).ConfigureAwait(false);
             return await Project.Client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
                 data => new MemoryStream(data)).ConfigureAwait(false);
         }
+
+        private Wikipage _wikipage;
     }
 }

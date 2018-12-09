@@ -328,7 +328,29 @@ namespace NBacklog.DataTypes
         public bool allEvent { get; set; }
         public List<int> activityTypeIds { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
+        public _User updatedUser { get; set; }
+        public DateTime? updated { get; set; }
+    }
+
+    class _WikipageTag
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+    }
+
+    class _Wikipage
+    {
+        public int id { get; set; }
+        public int projectId { get; set; }
+        public string name { get; set; }
+        public string content { get; set; }
+        public List<_WikipageTag> tags { get; set; }
+        public List<_Attachment> attachments { get; set; }
+        public List<_SharedFile> sharedFiles { get; set; }
+        public List<_Star> stars { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime? created { get; set; }
         public _User updatedUser { get; set; }
         public DateTime? updated { get; set; }
     }

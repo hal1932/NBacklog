@@ -36,7 +36,7 @@ namespace NBacklog.DataTypes
             IsAllActivitiesHooked = data.allEvent;
             HookedActivities = data.activityTypeIds.Select(x => (ActivityType)x).ToArray();
             Creator = project.Client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, project.Client));
-            Created = data.created;
+            Created = data.created ?? default;
             LastUpdater = project.Client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
             LastUpdated = data.updated ?? default;
 

@@ -289,7 +289,7 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
-        #region custom filed
+        #region custom field
         public async Task<BacklogResponse<CustomField[]>> GetCustomFieldsAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
@@ -345,6 +345,91 @@ namespace NBacklog.DataTypes
                 response,
                 HttpStatusCode.OK,
                 data => Client.ItemsCache.Delete<Webhook>(data.id)).ConfigureAwait(false);
+        }
+        #endregion
+
+        #region wikipage
+        public async Task<BacklogResponse<int>> GetWikipageCountAsync()
+        {
+            var parameters = new
+            {
+                projectIdOrKey = Key,
+            };
+            var response = await Client.GetAsync($"/api/v2/count", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<int, _Count>(
+                response,
+                HttpStatusCode.OK,
+                data => data.count);
+        }
+
+        public async Task<BacklogResponse<Wikipage[]>> GetWikipagesAsync()
+        {
+            var parameters = new
+            {
+                projectIdOrKey = Key,
+            };
+            var response = await Client.GetAsync($"/api/v2/wikis", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Wikipage[], List<_Wikipage>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => new Wikipage(x, this)).ToArray()).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<string[]>> GetWikipageTagsAsync()
+        {
+            var parameters = new
+            {
+                projectIdOrKey = Key,
+            };
+            var response = await Client.GetAsync($"/api/v2/wikis/tags", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<string[], List<_WikipageTag>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => x.name).ToArray()).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Wikipage>> AddWikipageAsync(Wikipage wikipage, bool notifyByMail = false)
+        {
+            var parameters = new
+            {
+                projectId = Id,
+                name = wikipage.Name,
+                content = wikipage.Content,
+                mailNotify = notifyByMail,
+            };
+            var response = await Client.PostAsync($"/api/v2/wikis", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Wikipage, _Wikipage>(
+                response,
+                HttpStatusCode.Created,
+                data => new Wikipage(data, this)).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Wikipage>> UpdateWikipageAsync(Wikipage wikipage, bool notifyByMail = false)
+        {
+            var parameters = new
+            {
+                name = wikipage.Name,
+                content = wikipage.Content,
+                mailNotify = notifyByMail,
+            };
+            var response = await Client.PatchAsync($"/api/v2/wikis/{wikipage.Id}", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Wikipage, _Wikipage>(
+                response,
+                HttpStatusCode.OK,
+                data => new Wikipage(data, this)).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Wikipage>> DeleteWikipageAsync(Wikipage wikipage, bool notifyByMail = false)
+        {
+            var parameters = new
+            {
+                mailNotify = notifyByMail,
+            };
+            var response = await Client.DeleteAsync($"/api/v2/wikis/{wikipage.Id}", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Wikipage, _Wikipage>(
+                response,
+                HttpStatusCode.OK,
+                data => new Wikipage(data, this)).ConfigureAwait(false);
         }
         #endregion
 

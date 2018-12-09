@@ -158,13 +158,15 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
+            var wikis = proj.GetWikipagesAsync().Result.Content;
+            var wikiContent = wikis[0].GetContentAsync().Result.Content;
             //var tickets = await proj.GetTicketsAsync(new TicketQuery());
             //var projUses = await proj.GetUsersAsync();
             //var ticketTypes = await proj.GetTicketTypesAsync();
             //var categories = await proj.GetCategoriesAsync();
             //var miles = await proj.GetMilestonesAsync();
             //var customFields = await proj.GetCustomFieldsAsync();
-            var webhooks = proj.GetWebhooksAsync().Result.Content;
+            //var webhooks = proj.GetWebhooksAsync().Result.Content;
             //webhooks[0].HookUrl = "http://localhost";
             //await proj.UpdateWebhookAsync(webhooks[0]);
             //await proj.DeleteWebhookAsync(webhooks[1]);
