@@ -462,7 +462,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
         {
-            var response = await Client.GetAsync($"/api/v2/projects/{Id}/icon").ConfigureAwait(false); ;
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/icon").ConfigureAwait(false);
             return await Client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,

@@ -12,7 +12,7 @@ namespace NBacklog
             return await CreateResponseAsync<Space, _Space>(
                 response,
                 HttpStatusCode.OK,
-                data => new Space(data, this)).ConfigureAwait(false); ;
+                data => new Space(data, this)).ConfigureAwait(false);
         }
     }
 }

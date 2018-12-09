@@ -15,7 +15,7 @@ namespace NBacklog
                 response,
                 HttpStatusCode.OK,
                 data => data.Select(x => ItemsCache.Update(x.id, () => new User(x, this))).ToArray()
-                ).ConfigureAwait(false); ;
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> GetUserAsync(int id)
@@ -25,7 +25,7 @@ namespace NBacklog
                 response,
                 HttpStatusCode.OK,
                 data => ItemsCache.Update(data.id, () => new User(data, this))
-                ).ConfigureAwait(false); ;
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<AuthorizedUser>> GetAuthorizedUserAsync()
@@ -35,7 +35,7 @@ namespace NBacklog
                 response,
                 HttpStatusCode.OK,
                 data => ItemsCache.Update(data.id, () => new AuthorizedUser(data, this))
-                ).ConfigureAwait(false); ;
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user, string password)
@@ -54,7 +54,7 @@ namespace NBacklog
                 response,
                 HttpStatusCode.Created,
                 data => ItemsCache.Update(data.id, () => new User(data, this))
-                ).ConfigureAwait(false); ;
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> UpdateUserAsync(User user, string password = null)
@@ -85,7 +85,7 @@ namespace NBacklog
                 response,
                 HttpStatusCode.OK,
                 data => ItemsCache.Update(data.id, () => new User(data, this))
-                ).ConfigureAwait(false); ;
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(int id)
@@ -94,7 +94,7 @@ namespace NBacklog
             return await CreateResponseAsync<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Delete<User>(data.id)).ConfigureAwait(false); ;
+                data => ItemsCache.Delete<User>(data.id)).ConfigureAwait(false);
         }
     }
 }

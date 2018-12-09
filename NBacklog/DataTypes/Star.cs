@@ -28,7 +28,7 @@ namespace NBacklog.DataTypes
             return await client.CreateResponseAsync<Star, _Star>(
                 response,
                 HttpStatusCode.NoContent,
-                data => new Star(data, client)).ConfigureAwait(false); ;
+                data => new Star(data, client)).ConfigureAwait(false);
         }
     }
 }

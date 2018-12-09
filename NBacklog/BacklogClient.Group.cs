@@ -15,7 +15,7 @@ namespace NBacklog
             return await CreateResponseAsync<Group[], List<_Group>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Group(x, this)).ToArray()).ConfigureAwait(false); ;
+                data => data.Select(x => new Group(x, this)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Group>> AddGroupAsync(Group group)
@@ -30,7 +30,7 @@ namespace NBacklog
             return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.Created,
-                data => new Group(data, this)).ConfigureAwait(false); ;
+                data => new Group(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Group>> GetGroupAsync(int id)
@@ -39,7 +39,7 @@ namespace NBacklog
             return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this)).ConfigureAwait(false); ;
+                data => new Group(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Group>> UpdateGroupAsync(Group group)
@@ -54,7 +54,7 @@ namespace NBacklog
             return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this)).ConfigureAwait(false); ;
+                data => new Group(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Group>> DeleteGroupAsync(Group group)
@@ -63,7 +63,7 @@ namespace NBacklog
             return await CreateResponseAsync<Group, _Group>(
                 response,
                 HttpStatusCode.OK,
-                data => new Group(data, this)).ConfigureAwait(false); ;
+                data => new Group(data, this)).ConfigureAwait(false);
         }
     }
 }
