@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
@@ -13,9 +16,17 @@ namespace NBacklog.DataTypes
         public Star[] Stars { get; }
         public Notification[] Notifications { get; }
 
-        internal Comment(_Comment data, BacklogClient client)
+        public Comment(string content)
+            : base(-1)
+        {
+            Content = content;
+        }
+
+        internal Comment(_Comment data, Ticket ticket)
             : base(data.id)
         {
+            var client = ticket.Project.Client;
+
             Content = data.content;
             ChangeLogs = data.changeLog.Select(x => new ChangeLog(x)).ToArray();
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
@@ -23,7 +34,8 @@ namespace NBacklog.DataTypes
             LastUpdated = data.updated ?? default;
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
-            _client = client;
+
+            _ticket = ticket;
         }
 
         internal Comment(int id, string content)
@@ -32,6 +44,27 @@ namespace NBacklog.DataTypes
             Content = content;
         }
 
-        private BacklogClient _client;
+        public async Task<BacklogResponse<Notification[]>> AddNotificationsAsync(IEnumerable<User> users)
+        {
+            var parameters = new
+            {
+                notifiedUserId = users?.Select(x => x.Id).ToArray(),
+            };
+
+            var client = _ticket.Project.Client;
+            var response = await client.PostAsync($"/api/v2/issues/{_ticket.Id}/comments/{Id}/notifications", parameters).ConfigureAwait(false);
+            var result = await client.CreateResponseAsync<Comment, _Comment>(
+                response,
+                HttpStatusCode.OK,
+                data => new Comment(data, _ticket)).ConfigureAwait(false);
+
+            if (!result.IsSuccess)
+            {
+                return new BacklogResponse<Notification[]>(result.StatusCode, result.Errors);
+            }
+            return new BacklogResponse<Notification[]>(result.StatusCode, result.Content.Notifications);
+        }
+
+        private Ticket _ticket;
     }
 }

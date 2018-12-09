@@ -161,7 +161,7 @@ namespace NBacklog.DataTypes
                 attachmentId = attachments?.Select(x => x.Id).ToArray() ?? Array.Empty<int>(),
             };
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/", parameters).ConfigureAwait(false);
             return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.Created,
