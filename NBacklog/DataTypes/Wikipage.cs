@@ -56,7 +56,7 @@ namespace NBacklog.DataTypes
             var result = await client.CreateResponseAsync<Wikipage, _Wikipage>(
                 response,
                 HttpStatusCode.OK,
-                data => new Wikipage(data, Project));
+                data => new Wikipage(data, Project)).ConfigureAwait(false);
 
             if (!result.IsSuccess)
             {

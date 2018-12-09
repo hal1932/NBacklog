@@ -359,7 +359,7 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<int, _Count>(
                 response,
                 HttpStatusCode.OK,
-                data => data.count);
+                data => data.count).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Wikipage[]>> GetWikipagesAsync()

@@ -26,8 +26,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Ticket[]>> GetRecentlyViewedTickets()
         {
-            var response = await _client.
-                GetAsync("/api/v2/users/myself/recentlyViewedIssues")
+            var response = await _client.GetAsync("/api/v2/users/myself/recentlyViewedIssues")
                 .ConfigureAwait(false);
 
             return await _client.CreateResponseAsync<Ticket[], List<_Ticket>>(

@@ -124,7 +124,7 @@ namespace NBacklog
             var (response, httpRequest) = await _client.SendAsync(request).ConfigureAwait(false);
             if (_config.ThrowOnClientError && isClientError(response.StatusCode))
             {
-                var errors = await GetErrorContentAsync(response);
+                var errors = await GetErrorContentAsync(response).ConfigureAwait(false);
                 throw new BacklogExcetion(httpRequest, errors);
             }
 
@@ -144,7 +144,7 @@ namespace NBacklog
 
                 if (_config.ThrowOnClientError && isClientError(response.StatusCode))
                 {
-                    var errors = await GetErrorContentAsync(response);
+                    var errors = await GetErrorContentAsync(response).ConfigureAwait(false);
                     throw new BacklogExcetion(httpRequest, errors);
                 }
             }
@@ -156,7 +156,7 @@ namespace NBacklog
         {
             if (response.StatusCode != successfulStatusCode)
             {
-                var errors = await GetErrorContentAsync(response);
+                var errors = await GetErrorContentAsync(response).ConfigureAwait(false);
                 return new BacklogResponse<TApiData>(response.StatusCode, errors);
             }
             else
@@ -170,7 +170,7 @@ namespace NBacklog
         {
             if (response.StatusCode != successfulStatusCode)
             {
-                var errors = await GetErrorContentAsync(response);
+                var errors = await GetErrorContentAsync(response).ConfigureAwait(false);
                 return new BacklogResponse<T>(response.StatusCode, errors);
             }
             else

@@ -50,7 +50,7 @@ namespace NBacklog.OAuth2
             }
             else if (credentials.Expires < DateTime.Now)
             {
-                credentials = await UpdateCredentialsAsync(credentials, app, endPoint);
+                credentials = await UpdateCredentialsAsync(credentials, app, endPoint).ConfigureAwait(false);
             }
 
             return credentials;
