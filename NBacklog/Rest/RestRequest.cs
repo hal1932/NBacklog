@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,8 +9,30 @@ using System.Web;
 
 namespace NBacklog.Rest
 {
+    internal class ParameterValueSelector
+    {
+        public Func<bool, string> BoolSelector { get; set; } = x => x.ToString().ToLower();
+        public Func<DateTime, string> DateTimeSelector { get; set; } = x => x.ToString();
+        public Func<object, string> DefaultSelector { get; set; } = x => x.ToString();
+
+        public string Select<T>(T value)
+        {
+            switch (value)
+            {
+                case bool x: return BoolSelector(x);
+                case DateTime x: return DateTimeSelector(x);
+
+                default:
+                    return DefaultSelector(value);
+            }
+        }
+    }
+
     internal class RestRequest
     {
+        public ParameterValueSelector ParamValueSelector { get; set; } = new ParameterValueSelector();
+        public DataFormat ParametersFormatOnMultiPart { get; set; } = DataFormat.FormUrlEncoded;
+
         public RestRequest(string resource, Method method, DataFormat dataFormat = DataFormat.Json, JsonSerializer serializer = null)
         {
             _resource = resource;
@@ -43,7 +66,7 @@ namespace NBacklog.Rest
             {
                 var query = string.Join(
                     "&",
-                    _parameters.Select(x => $"{x.Key}={HttpUtility.UrlEncode(x.Value.ToString())}").ToArray());
+                    _parameters.Select(x => $"{x.Key}={HttpUtility.UrlEncode(ParamValueSelector.Select(x.Value))}").ToArray());
 
                 if (query.Length > 0)
                 {
@@ -52,27 +75,35 @@ namespace NBacklog.Rest
             }
             else
             {
+                StringContent getJsonParametersContent()
+                {
+                    var stringBuilder = new StringBuilder();
+                    using (var stringWriter = new StringWriter(stringBuilder))
+                    using (var jsonWriter = new JsonTextWriter(stringWriter))
+                    {
+                        _serializer.Serialize(jsonWriter, _parameters.ToDictionary(x => x.Key, x => ParamValueSelector.Select(x.Value)));
+                    }
+                    return new StringContent(stringBuilder.ToString(), Encoding.UTF8, "application/json");
+                };
+
+                FormUrlEncodedContent getFormParametersContent() =>
+                    new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair(ParamValueSelector)));
+
+                ByteArrayContent getFileContent(FileParameter file)
+                {
+                    var fileContent = new ByteArrayContent(File.ReadAllBytes(file.Path));
+                    fileContent.Headers.Add("Content-Type", file.ContentType);
+                    return fileContent;
+                };
+
                 switch (_dataFormat)
                 {
                     case DataFormat.Json:
-                        if (_parameters.Any())
-                        {
-                            var stringBuilder = new StringBuilder();
-                            using (var stringWriter = new StringWriter(stringBuilder))
-                            using (var jsonWriter = new JsonTextWriter(stringWriter))
-                            {
-                                _serializer.Serialize(jsonWriter, _parameters.ToDictionary(x => x.Key, x => x.Value));
-                            }
-
-                            content = new StringContent(stringBuilder.ToString(), Encoding.UTF8, "application/json");
-                        }
+                        content = _parameters.Any() ? getJsonParametersContent() : null;
                         break;
 
                     case DataFormat.FormUrlEncoded:
-                        if (_parameters.Any())
-                        {
-                            content = new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair()));
-                        }
+                        content = _parameters.Any() ? getFormParametersContent() : null;
                         break;
 
                     case DataFormat.MultiPart:
@@ -82,15 +113,26 @@ namespace NBacklog.Rest
 
                             if (_parameters.Any())
                             {
-                                multiContent.Add(new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair())));
+                                switch (ParametersFormatOnMultiPart)
+                                {
+                                    case DataFormat.FormUrlEncoded:
+                                        multiContent.Add(getFormParametersContent());
+                                        break;
+
+                                    case DataFormat.Json:
+                                        multiContent.Add(getJsonParametersContent());
+                                        break;
+
+                                    default:
+                                        throw new InvalidOperationException($"unsupported ParametersFormatOnMultiPart: {ParametersFormatOnMultiPart}");
+                                }
                             }
 
                             if (_files.Any())
                             {
                                 foreach (var file in _files)
                                 {
-                                    var fileContent = new ByteArrayContent(File.ReadAllBytes(file.Path));
-                                    fileContent.Headers.Add("Content-Type", file.ContentType);
+                                    var fileContent = getFileContent(file);
                                     multiContent.Add(fileContent, file.Key, Path.GetFileName(file.Path));
                                 }
                             }
@@ -134,10 +176,9 @@ namespace NBacklog.Rest
                 Value = value;
             }
 
-            public KeyValuePair<string, string> ToKeyValuePair()
+            public KeyValuePair<string, string> ToKeyValuePair(ParameterValueSelector valueSelector)
             {
-                var valueStr = (Value is bool) ? Value.ToString().ToLower() : Value.ToString();
-                return new KeyValuePair<string, string>(Key, valueStr);
+                return new KeyValuePair<string, string>(Key, valueSelector.Select(Value));
             }
         }
 

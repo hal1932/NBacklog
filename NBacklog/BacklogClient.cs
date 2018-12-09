@@ -107,6 +107,8 @@ namespace NBacklog
             bool isClientError(HttpStatusCode code) => (int)code / 100 == 4;
             bool isServerError(HttpStatusCode code) => (int)code / 100 == 5;
 
+            request.ParamValueSelector.DateTimeSelector = x => x.ToString("yyyy-MM-dd");
+
             var (response, httpRequest) = await _client.SendAsync(request).ConfigureAwait(false);
             if (_config.ThrowOnClientError && isClientError(response.StatusCode))
             {
