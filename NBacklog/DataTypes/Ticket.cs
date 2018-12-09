@@ -144,7 +144,7 @@ namespace NBacklog.DataTypes
             return await _client.CreateResponseAsync<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, _client)).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => new Comment(x, this)).ToArray()).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment>> AddCommentAsync(Comment comment, IEnumerable<User> notifiedUsers = null, IEnumerable<Attachment> attachments = null)
@@ -165,7 +165,7 @@ namespace NBacklog.DataTypes
             return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.Created,
-                data => new Comment(data, Project.Client)).ConfigureAwait(false);
+                data => new Comment(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment>> UpdateCommentAsync(Comment comment)
@@ -184,7 +184,7 @@ namespace NBacklog.DataTypes
             return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.OK,
-                data => new Comment(data, _client)).ConfigureAwait(false);
+                data => new Comment(data, this)).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Comment[]>> DeleteCommentAsync(Comment comment)
@@ -203,7 +203,7 @@ namespace NBacklog.DataTypes
             return await _client.CreateResponseAsync<Comment[], List<_Comment>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, _client)).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => new Comment(x, this)).ToArray()).ConfigureAwait(false);
         }
         #endregion
 
