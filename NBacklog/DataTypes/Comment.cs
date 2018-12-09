@@ -14,7 +14,7 @@ namespace NBacklog.DataTypes
         public DateTime Created { get; }
         public DateTime LastUpdated { get; }
         public Star[] Stars { get; }
-        public Notification[] Notifications { get; }
+        public Notification[] Notifications { get; private set; }
 
         public Comment(string content)
             : base(-1)
@@ -62,7 +62,9 @@ namespace NBacklog.DataTypes
             {
                 return new BacklogResponse<Notification[]>(result.StatusCode, result.Errors);
             }
-            return new BacklogResponse<Notification[]>(result.StatusCode, result.Content.Notifications);
+
+            Notifications = result.Content.Notifications;
+            return new BacklogResponse<Notification[]>(result.StatusCode, Notifications);
         }
 
         private Ticket _ticket;
