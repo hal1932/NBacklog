@@ -354,4 +354,28 @@ namespace NBacklog.DataTypes
         public _User updatedUser { get; set; }
         public DateTime? updated { get; set; }
     }
+
+    class _GitRepoSummary
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+    }
+
+    class _GitRepository
+    {
+        public int id { get; set; }
+        public int projectId { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public string hookUrl { get; set; }
+        public string httpUrl { get; set; }
+        public string sshUrl { get; set; }
+        public int displayOrder { get; set; }
+        public DateTime? pushedAt { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime? created { get; set; }
+        public _User updater { get; set; }
+        public DateTime? updated { get; set; }
+    }
 }

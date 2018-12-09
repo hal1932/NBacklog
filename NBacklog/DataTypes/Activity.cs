@@ -73,15 +73,15 @@ namespace NBacklog.DataTypes
                 case ActivityType.GitPullRequestCommented:
                 case ActivityType.GitPullRequestMerged:
                 case ActivityType.GitPullRequestUpdated:
-                    Content = new GitPullRequestActivityContent(contentData, client);
+                    Content = new GitPullRequestActivityContent(contentData, Project);
                     break;
 
                 case ActivityType.GitPushed:
-                    Content = new GitPushedActivityContent(contentData, client);
+                    Content = new GitPushedActivityContent(contentData, Project);
                     break;
 
                 case ActivityType.GitRepositoryCreated:
-                    Content = new GitRepositoryCreatedActivityContent(contentData, client);
+                    Content = new GitRepositoryCreatedActivityContent(contentData, Project);
                     break;
 
                 case ActivityType.NotifyAdded:
@@ -321,65 +321,21 @@ namespace NBacklog.DataTypes
         }
     }
 
-    public class GitRepogitory
-    {
-        public int Id { get; }
-        public int ProjectId { get; }
-        public string Name { get; }
-        public string Description { get; }
-        public string HookUrl { get; }
-        public string HttpUrl { get; }
-        public string SshUrl { get; }
-        public int DisplayOrder { get; }
-        public DateTime Pushed { get; }
-        public User Creator { get; }
-        public DateTime Created { get; }
-        public User Updater { get; }
-        public DateTime Updated { get; }
-
-        internal GitRepogitory(JObject data, BacklogClient client)
-        {
-            Id = data.Value<int>("id");
-            ProjectId = data.Value<int>("projectId");
-            Name = data.Value<string>("name");
-            Description = data.Value<string>("description");
-            HookUrl = data.Value<string>("hookUrl");
-            HttpUrl = data.Value<string>("httpUrl");
-            SshUrl = data.Value<string>("sshUrl");
-            DisplayOrder = data.Value<int>("displayOrder");
-            Pushed = data.Value<DateTime>("pushedAt");
-
-            var creator = data.Value<JObject>("createdUser");
-            if (creator != null)
-            {
-                Creator = client.ItemsCache.Update(creator.Value<int>("id"), () => new User(creator, client));
-            }
-            Created = data.Value<DateTime>("created");
-
-            var updater = data.Value<JObject>("updater");
-            if (updater != null)
-            {
-                Updater = client.ItemsCache.Update((int)updater["id"], () => new User(updater, client));
-            }
-            Updated = data.Value<DateTime>("updated");
-        }
-    }
-
     public class GitPushedActivityContent : ActivityContent
     {
         public string ChangeType { get; }
         public string Ref { get; }
         public string RevisionType { get; }
-        public GitRepogitory Repogitory { get; }
+        public GitRepoSummary Repository { get; }
         public GitRevision[] Revisions { get; }
         public int RevisionCount { get; }
 
-        internal GitPushedActivityContent(JObject data, BacklogClient client)
+        internal GitPushedActivityContent(JObject data, Project project)
         {
             ChangeType = data.Value<string>("change_type");
             Ref = data.Value<string>("ref");
             RevisionType = data.Value<string>("revision_type");
-            Repogitory = new GitRepogitory(data.Value<JObject>("repogitory"), client);
+            Repository = new GitRepoSummary(data["repository"].ToObject<_GitRepoSummary>(), project);
             Revisions = (data.Value<JArray>("revisions") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new GitRevision(x))
                 .ToArray();
@@ -389,11 +345,11 @@ namespace NBacklog.DataTypes
 
     public class GitRepositoryCreatedActivityContent : ActivityContent
     {
-        public GitRepogitory Repogitory { get; }
+        public GitRepoSummary Repository { get; }
 
-        internal GitRepositoryCreatedActivityContent(JObject data, BacklogClient client)
+        internal GitRepositoryCreatedActivityContent(JObject data, Project project)
         {
-            Repogitory = new GitRepogitory(data.Value<JObject>("repogitory"), client);
+            Repository = new GitRepoSummary(data["repository"].ToObject<_GitRepoSummary>(), project);
         }
     }
 
@@ -426,10 +382,10 @@ namespace NBacklog.DataTypes
         public string Description { get; }
         public Comment Comment { get; }
         public Change[] Changes { get; }
-        public GitRepogitory Repogitory { get; }
+        public GitRepoSummary Repository { get; }
         public Ticket Ticket { get; }
 
-        internal GitPullRequestActivityContent(JObject data, BacklogClient client)
+        internal GitPullRequestActivityContent(JObject data, Project project)
         {
             Id = data.Value<int>("id");
             Number = data.Value<int>("number");
@@ -446,7 +402,7 @@ namespace NBacklog.DataTypes
                 .Select(x => new Change(x))
                 .ToArray();
 
-            Repogitory = new GitRepogitory(data.Value<JObject>("repository"), client);
+            Repository = new GitRepoSummary(data["repository"].ToObject<_GitRepoSummary>(), project);
         }
     }
 

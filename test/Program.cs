@@ -144,8 +144,8 @@ namespace test
                 CredentialsCachePath = "oauth2cache.json",
             });
 
-            //var space = await client.GetSpaceAsync();
-            //var activities = await space.Content.GetActivitiesAsync();
+            var space = await client.GetSpaceAsync();
+            var activities = await space.Content.GetActivitiesAsync();
             //var spaceNotices = await space.Content.GetNotificationAsync();
             //var spaceDisk = await space.Content.GetDiskUsageAsync();
             //var users = await client.GetUsersAsync();
@@ -158,16 +158,19 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
-            var wiki = new Wikipage("name", "hoge", new[] { "tag1", "tag4" });
-            var tags = proj.GetWikipageTagsAsync().Result.Content;
-            wiki = proj.AddWikipageAsync(wiki).Result.Content;
-            tags = proj.GetWikipageTagsAsync().Result.Content;
-            wiki.GetContentAsync().Wait();
-            wiki.Content += "aaaaa";
-            wiki = proj.UpdateWikipageAsync(wiki).Result.Content;
-            tags = proj.GetWikipageTagsAsync().Result.Content;
-            wiki = proj.DeleteWikipageAsync(wiki).Result.Content;
-            tags = proj.GetWikipageTagsAsync().Result.Content;
+            var repos = proj.GetGitRepositoriesAsync().Result.Content;
+
+            //var wiki = new Wikipage("name", "hoge", new[] { "tag1", "tag4" });
+            //var tags = proj.GetWikipageTagsAsync().Result.Content;
+            //wiki = proj.AddWikipageAsync(wiki).Result.Content;
+            //tags = proj.GetWikipageTagsAsync().Result.Content;
+            //wiki.GetContentAsync().Wait();
+            //wiki.Content += "aaaaa";
+            //wiki = proj.UpdateWikipageAsync(wiki).Result.Content;
+            //tags = proj.GetWikipageTagsAsync().Result.Content;
+            //wiki = proj.DeleteWikipageAsync(wiki).Result.Content;
+            //tags = proj.GetWikipageTagsAsync().Result.Content;
+
             //var tickets = await proj.GetTicketsAsync(new TicketQuery());
             //var projUses = await proj.GetUsersAsync();
             //var ticketTypes = await proj.GetTicketTypesAsync();

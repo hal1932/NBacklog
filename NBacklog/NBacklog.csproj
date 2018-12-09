@@ -66,6 +66,7 @@
     <Compile Include="DataTypes\Comment.cs" />
     <Compile Include="DataTypes\CustomField.cs" />
     <Compile Include="DataTypes\Error.cs" />
+    <Compile Include="DataTypes\GitRepogitory.cs" />
     <Compile Include="DataTypes\Group.cs" />
     <Compile Include="DataTypes\Link.cs" />
     <Compile Include="DataTypes\Milestone.cs" />

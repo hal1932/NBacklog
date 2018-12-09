@@ -440,6 +440,17 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
+        #region git
+        public async Task<BacklogResponse<GitRepository[]>> GetGitRepositoriesAsync()
+        {
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/git/repositories").ConfigureAwait(false);
+            return await Client.CreateResponseAsync<GitRepository[], List<_GitRepository>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => new GitRepository(x, this)).ToArray()).ConfigureAwait(false);
+        }
+        #endregion
+
         public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
         {
             query = query ?? new SharedFileQuery();
