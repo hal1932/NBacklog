@@ -30,7 +30,7 @@ namespace NBacklog.DataTypes
         {
             IsAlreadyRead = data.alreadyRead;
             Reason = (NotificationReason)data.reason;
-            User = client.ItemsCache.Get(data.user?.id, () => new User(data.user, client));
+            User = client.ItemsCache.Update(data.user?.id, () => new User(data.user, client));
             IsResourceAlreadyRead = data.resourceAlreadyRead;
         }
     }

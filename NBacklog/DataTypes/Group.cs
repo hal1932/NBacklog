@@ -27,11 +27,11 @@ namespace NBacklog.DataTypes
             : base(data.id)
         {
             Name = data.name;
-            Members = data.members.Select(x => client.ItemsCache.Get(x.id, () => new User(x, client))).ToArray();
+            Members = data.members.Select(x => client.ItemsCache.Update(x.id, () => new User(x, client))).ToArray();
             DisplayOrder = data.displayOrder;
-            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser, client));
+            Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
-            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, client));
+            LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
             LastUpdated = data.updated ?? default;
             _client = client;
         }

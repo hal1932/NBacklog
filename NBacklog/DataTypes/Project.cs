@@ -59,7 +59,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<User[], List <_User>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new User(x, Client))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new User(x, Client))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
@@ -73,7 +74,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<User, _User>(
                 response,
                 HttpStatusCode.Created,
-                data => Client.ItemsCache.Update(new User(data, Client))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new User(data, Client))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<User>> DeleteUserAsync(User user)
@@ -87,7 +89,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<User, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new User(data, Client))).ConfigureAwait(false);
+                data => Client.ItemsCache.Delete<User>(data.id)
+                ).ConfigureAwait(false);
         }
         #endregion
 
@@ -101,7 +104,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Ticket[], List<_Ticket>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new Ticket(x, this, Client))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new Ticket(x, this, Client))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<int>> GetTicketCountAsync(TicketQuery query = null)
@@ -125,7 +129,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Ticket, _Ticket>(
                 response,
                 HttpStatusCode.Created,
-                data => Client.ItemsCache.Update(new Ticket(data, this, Client))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Ticket(data, this, Client))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Ticket>> UpdateTicketAsync(Ticket ticket)
@@ -137,7 +142,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Ticket, _Ticket>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Ticket(data, this, Client))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Ticket(data, this, Client))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Ticket>> DeleteTicketAsync(Ticket ticket)
@@ -146,7 +152,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Ticket, _Ticket>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new Ticket(data, this, Client))).ConfigureAwait(false);
+                data => Client.ItemsCache.Delete<Ticket>(data.id)
+                ).ConfigureAwait(false);
         }
         #endregion
 
@@ -157,7 +164,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<TicketType[], List<_TicketType>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new TicketType(x, this))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new TicketType(x, this))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<TicketType>> AddTicketTypeAsync(TicketType type)
@@ -167,7 +175,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new TicketType(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new TicketType(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<TicketType>> UpdateTicketTypeAsync(TicketType type)
@@ -177,7 +186,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new TicketType(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new TicketType(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<TicketType>> DeleteTicketAsync(TicketType type)
@@ -186,7 +196,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new TicketType(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Delete<TicketType>(data.id)
+                ).ConfigureAwait(false);
         }
         #endregion
 
@@ -197,7 +208,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Category[], List<_Category>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new Category(x))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new Category(x))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Category>> AddCategoryAsync(Category category)
@@ -207,7 +219,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Category(data))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Category(data))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Category>> UpdateCategoryAsync(Category category)
@@ -217,7 +230,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Category(data))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Category(data))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Category>> DeleteCategoryAsync(Category category)
@@ -227,7 +241,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Category(data))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Category(data))
+                ).ConfigureAwait(false);
         }
         #endregion
 
@@ -238,7 +253,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Milestone[], List<_Milestone>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new Milestone(x, this))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new Milestone(x, this))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Milestone>> AddMilestoneAsync(Milestone milestone)
@@ -248,7 +264,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Milestone, _Milestone>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Milestone(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Milestone(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Milestone>> UpdateMilestoneAsync(Milestone milestone)
@@ -258,7 +275,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Milestone, _Milestone>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Milestone(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Milestone(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Milestone>> DeleteMilestoneAsync(Milestone milestone)
@@ -267,7 +285,7 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Milestone, _Milestone>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new Milestone(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Delete<Milestone>(data.id)).ConfigureAwait(false);
         }
         #endregion
 
@@ -278,7 +296,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<CustomField[], List<_CustomField>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(CustomField.Create(x, this))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => CustomField.Create(x, this))).ToArray()
+                ).ConfigureAwait(false);
         }
         #endregion
 
@@ -289,7 +308,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Webhook[], List<_Webhook>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new Webhook(x, this))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new Webhook(x, this))).ToArray()
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Webhook>> AddWebhookAsync(Webhook hook)
@@ -300,7 +320,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Webhook(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Webhook(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Webhook>> UpdateWebhookAsync(Webhook hook)
@@ -311,7 +332,8 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Update(new Webhook(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Update(data.id, () => new Webhook(data, this))
+                ).ConfigureAwait(false);
         }
 
         public async Task<BacklogResponse<Webhook>> DeleteWebhookAsync(Webhook hook)
@@ -322,7 +344,7 @@ namespace NBacklog.DataTypes
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
                 response,
                 HttpStatusCode.OK,
-                data => Client.ItemsCache.Delete(new Webhook(data, this))).ConfigureAwait(false);
+                data => Client.ItemsCache.Delete<Webhook>(data.id)).ConfigureAwait(false);
         }
         #endregion
 
@@ -334,7 +356,8 @@ namespace NBacklog.DataTypes
             var result = await Client.CreateResponseAsync<SharedFile[], List<_SharedFile>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => Client.ItemsCache.Update(new SharedFile(x, this))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new SharedFile(x, this))).ToArray()
+                ).ConfigureAwait(false);
 
             if (result.Errors != null)
             {

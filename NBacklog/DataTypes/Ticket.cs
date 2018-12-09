@@ -87,24 +87,24 @@ namespace NBacklog.DataTypes
             ProjectId = data.projectId;
             Key = data.issueKey;
             KeyId = data.keyId;
-            Type = client.ItemsCache.Get(data.issueType?.id, () => new TicketType(data.issueType, project));
+            Type = client.ItemsCache.Update(data.issueType?.id, () => new TicketType(data.issueType, project));
             Summary = data.summary;
             Description = data.description;
-            Resolution = client.ItemsCache.Get(data.resolutions?.id, () => new Resolution(data.resolutions));
-            Priority = client.ItemsCache.Get(data.priority?.id, () => new Priority(data.priority));
-            Status = client.ItemsCache.Get(data.status?.id, () => new Status(data.status));
-            Assignee = client.ItemsCache.Get(data.assignee?.id, () => new User(data.assignee, client));
-            Categories = data.category.Select(x => client.ItemsCache.Get(x.id, () => new Category(x))).ToArray();
-            Versions = data.versions.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
-            Milestones = data.milestone.Select(x => client.ItemsCache.Get(x.id, () => new Milestone(x, project))).ToArray();
+            Resolution = client.ItemsCache.Update(data.resolutions?.id, () => new Resolution(data.resolutions));
+            Priority = client.ItemsCache.Update(data.priority?.id, () => new Priority(data.priority));
+            Status = client.ItemsCache.Update(data.status?.id, () => new Status(data.status));
+            Assignee = client.ItemsCache.Update(data.assignee?.id, () => new User(data.assignee, client));
+            Categories = data.category.Select(x => client.ItemsCache.Update(x.id, () => new Category(x))).ToArray();
+            Versions = data.versions.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
+            Milestones = data.milestone.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
             StartDate = data.startDate ?? default;
             DueDate = data.dueDate ?? default;
             EstimatedHours = data.estimatedHours ?? default;
             ActualHours = data.actualHours ?? default;
             ParentTicketId = data.parentIssueId ?? default;
-            Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser, client));
+            Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
-            LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, client));
+            LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
             LastUpdated = data.updated ?? default;
             CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
             Attachments = data.attachments.Select(x => new Attachment(x, this)).ToArray();
@@ -222,7 +222,8 @@ namespace NBacklog.DataTypes
             var result = await _client.CreateResponseAsync<SharedFile[], List<_SharedFile>>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => _client.ItemsCache.Update(new SharedFile(x, Project))).ToArray()).ConfigureAwait(false);
+                data => data.Select(x => _client.ItemsCache.Update(x.id, () => new SharedFile(x, Project))).ToArray()
+                ).ConfigureAwait(false);
 
             if (result.Content.Length > 0)
             {
@@ -243,7 +244,7 @@ namespace NBacklog.DataTypes
             var result = await _client.CreateResponseAsync<SharedFile, _SharedFile>(
                 response,
                 HttpStatusCode.OK,
-                data => _client.ItemsCache.Delete(new SharedFile(data, Project))).ConfigureAwait(false);
+                data => _client.ItemsCache.Delete<SharedFile>(data.id)).ConfigureAwait(false);
 
             if (result.Content != null)
             {

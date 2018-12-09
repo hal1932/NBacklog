@@ -12,24 +12,24 @@ namespace NBacklog
 
     internal class ItemsCache
     {
-        public T Get<T>(T source)
+        public T Update<T>(int? id, Func<T> selector)
             where T : CachableBacklogItem
         {
-            var key = (typeof(T), source.Id);
-
-            if (_data.TryGetValue(key, out var item))
+            if (!id.HasValue)
             {
-                return item as T;
+                return default;
             }
 
+            var item = selector();
             lock (_dataLockObj)
             {
-                _data[key] = source;
+                _data[(typeof(T), id.Value)] = item;
             }
-            return source;
+
+            return item as T;
         }
 
-        public T Get<T>(int? id, Func<T> selector)
+        public T Delete<T>(int? id)
             where T : CachableBacklogItem
         {
             if (!id.HasValue)
@@ -38,34 +38,6 @@ namespace NBacklog
             }
 
             var key = (typeof(T), id.Value);
-
-            if (!_data.TryGetValue(key, out var item))
-            {
-                item = selector();
-                lock (_dataLockObj)
-                {
-                    _data[key] = item;
-                }
-            }
-
-            return item as T;
-        }
-
-        public T Update<T>(T item)
-            where T : CachableBacklogItem
-        {
-            var key = (typeof(T), item.Id);
-            lock (_dataLockObj)
-            {
-                _data[key] = item;
-            }
-            return item;
-        }
-
-        public T Delete<T>(T item)
-            where T : CachableBacklogItem
-        {
-            var key = (typeof(T), item.Id);
 
             CachableBacklogItem deleted;
             lock (_dataLockObj)

@@ -54,9 +54,9 @@ namespace NBacklog.DataTypes
         internal Activity(_Activity data, BacklogClient client)
             : base(data.id)
         {
-            Project = client.ItemsCache.Get(data.project.id, () => new Project(data.project, client));
+            Project = client.ItemsCache.Update(data.project.id, () => new Project(data.project, client));
             Type = (ActivityType)data.type;
-            Creator = client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser, client));
+            Creator = client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, client));
             Created = data.created;
 
             var contentData = data.content;
@@ -352,14 +352,14 @@ namespace NBacklog.DataTypes
             var creator = data.Value<JObject>("createdUser");
             if (creator != null)
             {
-                Creator = client.ItemsCache.Get(creator.Value<int>("id"), () => new User(creator, client));
+                Creator = client.ItemsCache.Update(creator.Value<int>("id"), () => new User(creator, client));
             }
             Created = data.Value<DateTime>("created");
 
             var updater = data.Value<JObject>("updater");
             if (updater != null)
             {
-                Updater = client.ItemsCache.Get((int)updater["id"], () => new User(updater, client));
+                Updater = client.ItemsCache.Update((int)updater["id"], () => new User(updater, client));
             }
             Updated = data.Value<DateTime>("updated");
         }

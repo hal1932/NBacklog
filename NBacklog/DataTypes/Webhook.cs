@@ -35,9 +35,9 @@ namespace NBacklog.DataTypes
             HookUrl = data.hookUrl;
             IsAllActivitiesHooked = data.allEvent;
             HookedActivities = data.activityTypeIds.Select(x => (ActivityType)x).ToArray();
-            Creator = project.Client.ItemsCache.Get(data.createdUser.id, () => new User(data.createdUser, project.Client));
+            Creator = project.Client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, project.Client));
             Created = data.created;
-            LastUpdater = project.Client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
+            LastUpdater = project.Client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
             LastUpdated = data.updated ?? default;
 
             if (IsAllActivitiesHooked)
