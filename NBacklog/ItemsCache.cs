@@ -15,11 +15,13 @@ namespace NBacklog
         public bool TryGetValue<T>(int id, out T value)
             where T : CachableBacklogItem
         {
-            //return _data.TryGetValue((typeof(T), id), out value);
-            if (_data.TryGetValue((typeof(T), id), out var item))
+            if (_data.TryGetValue(typeof(T), out var items))
             {
-                value = item as T;
-                return true;
+                if (items.TryGetValue(id, out var item))
+                {
+                    value = item as T;
+                    return true;
+                }
             }
 
             value = default;
@@ -37,7 +39,12 @@ namespace NBacklog
             var item = selector();
             lock (_dataLockObj)
             {
-                _data[(typeof(T), id.Value)] = item;
+                if (!_data.TryGetValue(typeof(T), out var items))
+                {
+                    items = new Dictionary<int, CachableBacklogItem>();
+                    _data[typeof(T)] = items;
+                }
+                items[id.Value] = item;
             }
 
             return item as T;
@@ -51,20 +58,27 @@ namespace NBacklog
                 return default;
             }
 
-            var key = (typeof(T), id.Value);
-
             CachableBacklogItem deleted;
             lock (_dataLockObj)
             {
-                if (_data.TryGetValue(key, out deleted))
+                if (!_data.TryGetValue(typeof(T), out var items))
                 {
-                    _data.Remove(key);
+                    return default;
                 }
+
+                if (!items.TryGetValue(id.Value, out var item))
+                {
+                    return default;
+                }
+
+                deleted = item;
+                items.Remove(id.Value);
             }
+
             return deleted as T;
         }
 
-        private Dictionary<(Type, int), CachableBacklogItem> _data = new Dictionary<(Type, int), CachableBacklogItem>();
+        private Dictionary<Type, Dictionary<int, CachableBacklogItem>> _data = new Dictionary<Type, Dictionary<int, CachableBacklogItem>>();
         private object _dataLockObj = new object();
     }
 }
