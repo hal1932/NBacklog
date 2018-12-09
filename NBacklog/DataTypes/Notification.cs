@@ -55,7 +55,7 @@ namespace NBacklog.DataTypes
             : base(-1)
         {
             Content = data.content;
-            Updated = data.updated ?? default(DateTime);
+            Updated = data.updated ?? default;
         }
     }
 }

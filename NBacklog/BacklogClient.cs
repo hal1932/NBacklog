@@ -73,7 +73,7 @@ namespace NBacklog
             {
                 if (parameters is List<(string, object)>)
                 {
-                    foreach ((string key, object value) in parameters as List<(string, object)>)
+                    foreach (var (key, value) in parameters as List<(string, object)>)
                     {
                         request.AddParameter(key, value);
                     }

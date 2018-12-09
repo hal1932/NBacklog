@@ -4,9 +4,9 @@
     {
         public int Id { get; }
 
-        protected BacklogItem() { }
+        private protected BacklogItem() { }
 
-        protected BacklogItem(int id)
+        private protected BacklogItem(int id)
         {
             Id = id;
         }

@@ -108,7 +108,7 @@ namespace NBacklog.DataTypes
             Min = DateTime.Parse(data.min);
             Max = DateTime.Parse(data.max);
             InitialValueType = (DateCustomFieldInitialValueType)data.initialValueType;
-            InitialDate = data.initialDate ?? default(DateTime);
+            InitialDate = data.initialDate ?? default;
             InitialShift = data.initialShift;
         }
     }
@@ -241,8 +241,7 @@ namespace NBacklog.DataTypes
 
                 case JTokenType.String:
                     var value = data.Value<string>();
-                    DateTime date;
-                    if (DateTime.TryParse(value, out date))
+                    if (DateTime.TryParse(value, out var date))
                     {
                         _value = date;
                         ValueType = typeof(DateTime);
@@ -273,8 +272,7 @@ namespace NBacklog.DataTypes
             else if (data is string)
             {
                 var value = data as string;
-                DateTime date;
-                if (DateTime.TryParse(value, out date))
+                if (DateTime.TryParse(value, out var date))
                 {
                     _value = date;
                     ValueType = typeof(DateTime);

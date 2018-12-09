@@ -270,7 +270,7 @@ namespace NBacklog.DataTypes
             Name = data.Value<string>("name");
             Content = data.Value<string>("content");
             Diff = data.Value<string>("diff");
-            Version = data.Value<int?>("version") ?? default(int);
+            Version = data.Value<int?>("version") ?? default;
 
             Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new Attachment(x, null))

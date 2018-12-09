@@ -2,14 +2,11 @@
 using NBacklog.DataTypes;
 using NBacklog.Extensions;
 using NBacklog.OAuth2;
-using NBacklog.Query;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace test
@@ -22,9 +19,9 @@ namespace test
             public string client_secret { get; set; }
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            MainAsync1().Wait();
+            await MainAsync();
         }
 
         static async Task MainAsync1()
@@ -54,7 +51,7 @@ namespace test
             {
                 var tickets = await project.BatchGetTicketsAsync();
                 Console.WriteLine(tickets.Length);
-                Parallel.ForEach(tickets.OrderBy(x => x.ParentTicketId == default(int)), parallelOptions, ticket =>
+                Parallel.ForEach(tickets.OrderBy(x => x.ParentTicketId == default), parallelOptions, ticket =>
                 {
                     var deleteResult = project.DeleteTicketAsync(ticket).Result;
                     Console.WriteLine($"delete {ticket.Key} {deleteResult.StatusCode} {string.Join(", ", deleteResult.Errors?.Select(x => x.Message).ToArray() ?? Array.Empty<string>())}");

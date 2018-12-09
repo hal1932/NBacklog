@@ -6,20 +6,20 @@ namespace NBacklog.OAuth2
     {
         public abstract Task AuthorizeAsync(OAuth2App app);
 
-        protected async Task AuthorizeAsync(OAuth2App app, OAuth2EndPoint endPoint)
+        private protected async Task AuthorizeAsync(OAuth2App app, OAuth2EndPoint endPoint)
         {
             _app = app;
             _endPoint = endPoint;
             _credentials = await OAuth2Broker.AuthorizeAsync(app, endPoint).ConfigureAwait(false);
         }
 
-        protected async Task<string> GetAccessTokenAsync()
+        private protected async Task<string> GetAccessTokenAsync()
         {
             await UpdateCredentialsAsync().ConfigureAwait(false);
             return _credentials.AccessToken;
         }
 
-        protected async Task UpdateCredentialsAsync()
+        private protected async Task UpdateCredentialsAsync()
         {
             _credentials = await OAuth2Broker.UpdateCredentialsAsync(_credentials, _app, _endPoint).ConfigureAwait(false);
         }

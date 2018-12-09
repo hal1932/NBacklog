@@ -5,7 +5,7 @@ namespace NBacklog
 {
     public abstract class CachableBacklogItem : BacklogItem
     {
-        protected CachableBacklogItem(int id)
+        private protected CachableBacklogItem(int id)
             : base(id)
         { }
     }
@@ -17,8 +17,7 @@ namespace NBacklog
         {
             var key = (typeof(T), source.Id);
 
-            CachableBacklogItem item;
-            if (_data.TryGetValue(key, out item))
+            if (_data.TryGetValue(key, out var item))
             {
                 return item as T;
             }
@@ -35,13 +34,12 @@ namespace NBacklog
         {
             if (!id.HasValue)
             {
-                return default(T);
+                return default;
             }
 
             var key = (typeof(T), id.Value);
 
-            CachableBacklogItem item;
-            if (!_data.TryGetValue(key, out item))
+            if (!_data.TryGetValue(key, out var item))
             {
                 item = selector();
                 lock (_dataLockObj)

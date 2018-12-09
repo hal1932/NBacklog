@@ -80,14 +80,14 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => new Activity(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
-        public async Task<BacklogResponse<int>> GetStarCountAsync(DateTime since = default(DateTime), DateTime until = default(DateTime))
+        public async Task<BacklogResponse<int>> GetStarCountAsync(DateTime since = default, DateTime until = default(DateTime))
         {
             var query = new QueryParameters();
-            if (since != default(DateTime))
+            if (since != default)
             {
                 query.Add("since", since.ToString("yyyy-MM-dd"));
             }
-            if (until != default(DateTime))
+            if (until != default)
             {
                 query.Add("until", until.ToString("yyyy-MM-dd"));
             }
@@ -109,6 +109,6 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => new Star(x, _client)).ToArray()).ConfigureAwait(false);
         }
 
-        protected BacklogClient _client;
+        private protected BacklogClient _client;
     }
 }

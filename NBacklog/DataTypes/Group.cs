@@ -30,9 +30,9 @@ namespace NBacklog.DataTypes
             Members = data.members.Select(x => client.ItemsCache.Get(x.id, () => new User(x, client))).ToArray();
             DisplayOrder = data.displayOrder;
             Creator = client.ItemsCache.Get(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default(DateTime);
+            Created = data.created ?? default;
             LastUpdater = client.ItemsCache.Get(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated ?? default(DateTime);
+            LastUpdated = data.updated ?? default;
             _client = client;
         }
 
