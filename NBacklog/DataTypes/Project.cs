@@ -53,9 +53,14 @@ namespace NBacklog.DataTypes
         }
 
         #region users
-        public async Task<BacklogResponse<User[]>> GetUsersAsync()
+        public async Task<BacklogResponse<User[]>> GetUsersAsync(bool excludeGroupMembers = false)
         {
-            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users").ConfigureAwait(false);
+            var parameters = new
+            {
+                excludeGroupMembers,
+            };
+
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<User[], List <_User>>(
                 response,
                 HttpStatusCode.OK,
