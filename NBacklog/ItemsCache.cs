@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NBacklog
 {
@@ -25,6 +26,19 @@ namespace NBacklog
             }
 
             value = default;
+            return false;
+        }
+
+        public bool TryGetValues<T>(out T[] values)
+            where T : CachableBacklogItem
+        {
+            if (_data.TryGetValue(typeof(T), out var items))
+            {
+                values = items.Values.Cast<T>().ToArray();
+                return true;
+            }
+
+            values = Array.Empty<T>();
             return false;
         }
 

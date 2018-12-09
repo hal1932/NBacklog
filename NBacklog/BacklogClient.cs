@@ -43,6 +43,12 @@ namespace NBacklog
             return ItemsCache.TryGetValue(id, out value);
         }
 
+        public bool TryGetValuesFromCache<T>(Type type, out T[] values)
+            where T : CachableBacklogItem
+        {
+            return ItemsCache.TryGetValues(out values);
+        }
+
         public async Task<RestResponse> GetAsync(string resource, object parameters = null)
         {
             return await SendAsync(resource, Method.GET, parameters).ConfigureAwait(false);
