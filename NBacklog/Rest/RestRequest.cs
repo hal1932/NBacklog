@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,8 +57,6 @@ namespace NBacklog.Rest
                     case DataFormat.Json:
                         if (_parameters.Any())
                         {
-                            //AddHeader("Content-Type", "application/json");
-
                             var stringBuilder = new StringBuilder();
                             using (var stringWriter = new StringWriter(stringBuilder))
                             using (var jsonWriter = new JsonTextWriter(stringWriter))
@@ -74,7 +71,6 @@ namespace NBacklog.Rest
                     case DataFormat.FormUrlEncoded:
                         if (_parameters.Any())
                         {
-                            //AddHeader("Content-Type", "application/x-www-form-urlencoded");
                             content = new FormUrlEncodedContent(_parameters.Select(x => x.ToKeyValuePair()));
                         }
                         break;
@@ -82,7 +78,6 @@ namespace NBacklog.Rest
                     case DataFormat.MultiPart:
                         if (_parameters.Any() || _files.Any())
                         {
-                            //AddHeader("Content-Type", "multipart/form-data");
                             var multiContent = new MultipartFormDataContent();
 
                             if (_parameters.Any())
