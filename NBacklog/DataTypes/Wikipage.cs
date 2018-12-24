@@ -5,6 +5,23 @@ using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
+    public class WikipageSummary : BacklogItem
+    {
+        public string Name { get; }
+        public string Content { get; }
+        public Attachment[] Attachments { get; }
+        public SharedFile[] SharedFiles { get; }
+
+        public WikipageSummary(_WikipageSummary data)
+            : base(data.id)
+        {
+            Name = data.name;
+            Content = data.content;
+            Attachments = data.attachments.Select(x => new Attachment(x, null));
+
+        }
+    }
+
     public class Wikipage : BacklogItem
     {
         public Project Project { get; }

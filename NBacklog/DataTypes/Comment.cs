@@ -6,6 +6,35 @@ using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
+    public class CommentSummary : BacklogItem
+    {
+        public TicketSummary Ticket { get; }
+        public TicketSummary[] Tickets { get; }
+        public PullRequestSummary PullRequest { get; }
+        public string Content { get; }
+
+        internal CommentSummary(_CommentSummary data, TicketSummary ticket)
+            : base(data.id)
+        {
+            Content = data.content;
+            Ticket = ticket;
+        }
+
+        internal CommentSummary(_CommentSummary data, TicketSummary[] tickets)
+            : base(data.id)
+        {
+            Content = data.content;
+            Tickets = tickets;
+        }
+
+        internal CommentSummary(_CommentSummary data, PullRequestSummary pullRequest)
+            : base(data.id)
+        {
+            Content = data.content;
+            PullRequest = pullRequest;
+        }
+    }
+
     public class Comment : BacklogItem
     {
         public Ticket Ticket { get; }

@@ -71,6 +71,7 @@
     <Compile Include="DataTypes\Link.cs" />
     <Compile Include="DataTypes\Milestone.cs" />
     <Compile Include="DataTypes\Notification.cs" />
+    <Compile Include="DataTypes\PullRequest.cs" />
     <Compile Include="DataTypes\QueryParameters.cs" />
     <Compile Include="DataTypes\SharedFile.cs" />
     <Compile Include="DataTypes\Space.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="OAuth2\RestRequestExtensions.cs" />
     <Compile Include="Query\ActivityQuery.cs" />
     <Compile Include="Query\GroupQuery.cs" />
+    <Compile Include="Query\PullRequestQuery.cs" />
     <Compile Include="Query\StarQuery.cs" />
     <Compile Include="Query\CommentQuery.cs" />
     <Compile Include="Query\OrderType.cs" />

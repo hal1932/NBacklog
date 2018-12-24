@@ -36,6 +36,15 @@ namespace NBacklog.DataTypes
         public int displayOrder { get; set; }
     }
 
+    class _MilestoneSummary
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public DateTime? startDate { get; set; }
+        public DateTime? releaseDueDate { get; set; }
+    }
+
     class _Milestone
     {
         public int id { get; set; }
@@ -46,6 +55,14 @@ namespace NBacklog.DataTypes
         public DateTime? releaseDueDate { get; set; }
         public bool archived { get; set; }
         public int displayOrder { get; set; }
+    }
+
+    class _TicketSummary
+    {
+        public int id { get; set; }
+        public int keyId { get; set; }
+        public string summary { get; set; }
+        public string description { get; set; }
     }
 
     class _Ticket
@@ -77,6 +94,12 @@ namespace NBacklog.DataTypes
         public List<_Attachment> attachments { get; set; }
         public List<_SharedFile> sharedFiles { get; set; }
         public List<_Star> stars { get; set; }
+    }
+
+    class _CommentSummary
+    {
+        public int id { get; set; }
+        public string content { get; set; }
     }
 
     class _Comment
@@ -333,6 +356,15 @@ namespace NBacklog.DataTypes
         public DateTime? updated { get; set; }
     }
 
+    class _WikipageSummary
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public string content { get; set; }
+        public List<_Attachment> attachments { get; set; }
+        public List<_SharedFile> shared_files { get; set; }
+    }
+
     class _WikipageTag
     {
         public int id { get; set; }
@@ -377,5 +409,49 @@ namespace NBacklog.DataTypes
         public DateTime? created { get; set; }
         public _User updater { get; set; }
         public DateTime? updated { get; set; }
+    }
+
+    class _PullRequestSummary
+    {
+        public int id { get; set; }
+        public int number { get; set; }
+        public string summary { get; set; }
+        public string description { get; set; }
+    }
+
+    class _PullRequestStatus
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+    }
+
+    class _PullRequestIssue
+    {
+        public int id { get; set; }
+    }
+
+    class _PullRequest
+    {
+        public int id { get; set; }
+        public int projectId { get; set; }
+        public int repositoryId { get; set; }
+        public int number { get; set; }
+        public string summary { get; set; }
+        public string description { get; set; }
+        public string @base { get; set; }
+        public string branch { get; set; }
+        public _PullRequestStatus status { get; set; }
+        public _User assignee { get; set; }
+        public _PullRequestIssue issue { get; set; }
+        public string baseCommit { get; set; }
+        public string branchCommit { get; set; }
+        public DateTime? closeAt { get; set; }
+        public DateTime? mergeAt { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime? created { get; set; }
+        public _User updatedUser { get; set; }
+        public DateTime? updated { get; set; }
+        public List<_Attachment> attachments { get; set; }
+        public List<_Star> stars { get; set; }
     }
 }

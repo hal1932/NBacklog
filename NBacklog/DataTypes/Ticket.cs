@@ -7,6 +7,21 @@ using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
+    public class TicketSummary : BacklogItem
+    {
+        public int KeyId { get; }
+        public string Summary { get; }
+        public string Description { get; }
+
+        internal TicketSummary(_TicketSummary data)
+            : base(data.id)
+        {
+            KeyId = data.keyId;
+            Summary = data.summary;
+            Description = data.description;
+        }
+    }
+
     public class Status : CachableBacklogItem
     {
         public string Name { get; set; }
@@ -154,14 +169,27 @@ namespace NBacklog.DataTypes
                 throw new InvalidOperationException("ticket retrieved not from the server");
             }
 
-            var parameters = new
+            var parameters = new List<(string, object)>
             {
-                content = comment.Content,
-                notifiedUserId = notifiedUsers?.Select(x => x.Id).ToArray() ?? Array.Empty<int>(),
-                attachmentId = attachments?.Select(x => x.Id).ToArray() ?? Array.Empty<int>(),
+                ("content", comment.Content),
             };
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/", parameters).ConfigureAwait(false);
+            if (notifiedUsers != null)
+            {
+                foreach (var user in notifiedUsers)
+                {
+                    parameters.Add(("notifiedUserId[]", user.Id));
+                }
+            }
+            if (attachments != null)
+            {
+                foreach (var attachment in attachments)
+                {
+                    parameters.Add(("attachmentId[]", attachment.Id));
+                }
+            }
+
+            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments", parameters).ConfigureAwait(false);
             return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.Created,

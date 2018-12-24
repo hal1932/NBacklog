@@ -36,6 +36,12 @@ namespace NBacklog.DataTypes
             _wikipage = wikipage;
         }
 
+        internal Attachment(_Attachment data, PullRequest pullRequest)
+            : this(data, pullRequest.Repository.Project.Client)
+        {
+            _pullRequest = pullRequest;
+        }
+
         internal Attachment(JObject data, Ticket ticket)
             : this(data)
         {
@@ -49,6 +55,7 @@ namespace NBacklog.DataTypes
             Size = data.size;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
+            _client = client;
         }
 
         internal Attachment(JObject data)
@@ -60,34 +67,39 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<MemoryStream>> DownloadAsync()
         {
-            BacklogClient client = default;
             string resource = default;
             if (_ticket != null)
             {
-                client = _ticket.Project.Client;
                 resource = $"/api/v2/issues/{_ticket.Id}/attachments/{Id}";
             }
             else if (_wikipage != null)
             {
-                client = _wikipage.Project.Client;
                 resource = $"/api/v2/wikis/{_wikipage.Id}/attachments/{Id}";
             }
+            else if (_pullRequest != null)
+            {
+                var repo = _pullRequest.Repository;
+                var proj = repo.Project;
+                resource = $"/api/v2/projects/{proj.Id}/git/repositories/{repo.Id}/pullRequests/{_pullRequest.Id}/attachments/{Id}";
+            }
 
-            if (client == default || resource != default)
+            if (resource != default)
             {
                 throw new InvalidOperationException("invalid client or resource");
             }
 
-            var response = await client.GetAsync(resource).ConfigureAwait(false);
+            var response = await _client.GetAsync(resource).ConfigureAwait(false);
 
-            return await _ticket.Project.Client.CreateResponseAsync(
+            return await _client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,
                 data => new MemoryStream(data))
                 .ConfigureAwait(false);
         }
 
+        private BacklogClient _client;
         private Ticket _ticket;
         private Wikipage _wikipage;
+        private PullRequest _pullRequest;
     }
 }

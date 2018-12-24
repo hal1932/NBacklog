@@ -2,6 +2,7 @@
 using NBacklog.DataTypes;
 using NBacklog.Extensions;
 using NBacklog.OAuth2;
+using NBacklog.Query;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -159,6 +160,7 @@ namespace test
 
             var proj = projs.Content[0];
             var repos = proj.GetGitRepositoriesAsync().Result.Content;
+            var pullReqs = repos[0].GetPullRequestsAsync().Result.Content;
 
             //var repo = proj.GetGitRepositoryAsync((activities[0].Content as GitRepositoryCreatedActivityContent).Repository).Result.Content;
 
@@ -173,7 +175,8 @@ namespace test
             //wiki = proj.DeleteWikipageAsync(wiki).Result.Content;
             //tags = proj.GetWikipageTagsAsync().Result.Content;
 
-            //var tickets = await proj.GetTicketsAsync(new TicketQuery());
+            var tickets = proj.GetTicketsAsync(new TicketQuery()).Result.Content;
+            //var comment = tickets[0].AddCommentAsync(new Comment("hoge", tickets[0])).Result.Content;
             //var projUses = await proj.GetUsersAsync();
             //var ticketTypes = await proj.GetTicketTypesAsync();
             //var categories = await proj.GetCategoriesAsync();

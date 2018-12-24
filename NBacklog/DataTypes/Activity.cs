@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace NBacklog.DataTypes
 {
-    public enum ActivityType
+    public enum ActivityEvent
     {
         Undefined = -1,
         TicketCreated = 1,
@@ -35,18 +35,33 @@ namespace NBacklog.DataTypes
         ProjectGroupRemoved = 26,
     }
 
+    public enum ActivityAction
+    {
+        Created,
+        Added,
+        NotifyAdded,
+        Updated,
+        MultiUpdated,
+        Merged,
+        Pushed,
+        Commited,
+        Commented,
+        Removed,
+        Deleted,
+    }
+
     public class Activity : BacklogItem
     {
         public Project Project { get; }
-        public ActivityType Type { get; }
+        public ActivityEvent Type { get; }
         public ActivityContent Content { get; }
         public User Creator { get; }
         public DateTime Created { get; }
 
-        public static ActivityType[] GetAllTypes()
+        public static ActivityEvent[] GetAllTypes()
         {
-            return Enum.GetValues(typeof(ActivityType))
-                .Cast<ActivityType>()
+            return Enum.GetValues(typeof(ActivityEvent))
+                .Cast<ActivityEvent>()
                 .Where(x => x > 0)
                 .ToArray();
         }
@@ -55,7 +70,7 @@ namespace NBacklog.DataTypes
             : base(data.id)
         {
             Project = client.ItemsCache.Update(data.project.id, () => new Project(data.project, client));
-            Type = (ActivityType)data.type;
+            Type = (ActivityEvent)data.type;
             Creator = client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, client));
             Created = data.created;
 
@@ -63,76 +78,123 @@ namespace NBacklog.DataTypes
 
             switch (Type)
             {
-                case ActivityType.FileAdded:
-                case ActivityType.FileDeleted:
-                case ActivityType.FileUpdated:
-                    Content = new FileActivityContent(contentData);
+                #region File
+                case ActivityEvent.FileAdded:
+                    Content = new FileActivityContent(contentData, ActivityAction.Added);
                     break;
 
-                case ActivityType.GitPullRequestAdded:
-                case ActivityType.GitPullRequestCommented:
-                case ActivityType.GitPullRequestMerged:
-                case ActivityType.GitPullRequestUpdated:
-                    Content = new GitPullRequestActivityContent(contentData, Project);
+                case ActivityEvent.FileDeleted:
+                    Content = new FileActivityContent(contentData, ActivityAction.Deleted);
                     break;
 
-                case ActivityType.GitPushed:
+                case ActivityEvent.FileUpdated:
+                    Content = new FileActivityContent(contentData, ActivityAction.Updated);
+                    break;
+                #endregion
+
+                #region Git
+                case ActivityEvent.GitPullRequestAdded:
+                    Content = new GitPullRequestActivityContent(contentData, Project, ActivityAction.Added);
+                    break;
+
+                case ActivityEvent.GitPullRequestCommented:
+                    Content = new GitPullRequestActivityContent(contentData, Project, ActivityAction.Commented);
+                    break;
+
+                case ActivityEvent.GitPullRequestMerged:
+                    Content = new GitPullRequestActivityContent(contentData, Project, ActivityAction.Merged);
+                    break;
+
+                case ActivityEvent.GitPullRequestUpdated:
+                    Content = new GitPullRequestActivityContent(contentData, Project, ActivityAction.Updated);
+                    break;
+
+                case ActivityEvent.GitPushed:
                     Content = new GitPushedActivityContent(contentData, Project);
                     break;
 
-                case ActivityType.GitRepositoryCreated:
+                case ActivityEvent.GitRepositoryCreated:
                     Content = new GitRepositoryCreatedActivityContent(contentData, Project);
                     break;
+                #endregion
 
-                case ActivityType.NotifyAdded:
-                    Content = new NotifyAddedActivityContent(contentData);
-                    break;
-
-                case ActivityType.ProjectUserAdded:
-                case ActivityType.ProjectUserRemoved:
-                    Content = new ProjectUserActivityContent(contentData, client);
-                    break;
-
-                case ActivityType.SvnCommitted:
+                #region SVN
+                case ActivityEvent.SvnCommitted:
                     Content = new SvnCommittedActivityContent(contentData);
                     break;
+                #endregion
 
-                case ActivityType.TicketCommented:
-                    Content = new TicketCommentedActivityContent(contentData);
+                #region Project
+                case ActivityEvent.ProjectUserAdded:
+                    Content = new ProjectUserActivityContent(contentData, client, ActivityAction.Added);
                     break;
 
-                case ActivityType.TicketCreated:
-                    Content = new TicketCreatedActivityContent(contentData);
+                case ActivityEvent.ProjectUserRemoved:
+                    Content = new ProjectUserActivityContent(contentData, client, ActivityAction.Removed);
                     break;
 
-                case ActivityType.TicketDeleted:
-                    Content = new TicketDeletedActivityContent(contentData);
+                case ActivityEvent.ProjectGroupAdded:
+                    Content = new GroupActivityContent(contentData, client, ActivityAction.Added);
                     break;
 
-                case ActivityType.TicketMultiUpdated:
-                    Content = new TicketMultiUpdatedActivityContent(contentData);
+                case ActivityEvent.ProjectGroupRemoved:
+                    Content = new GroupActivityContent(contentData, client, ActivityAction.Removed);
+                    break;
+                #endregion
+
+                #region Ticket
+                case ActivityEvent.NotifyAdded:
+                    Content = new TicketActivityContent(contentData, ActivityAction.NotifyAdded);
                     break;
 
-                case ActivityType.TicketUpdated:
-                    Content = new TicketUpdatedActivityContent(contentData);
+                case ActivityEvent.TicketCommented:
+                    Content = new TicketActivityContent(contentData, ActivityAction.Commented);
                     break;
 
-                case ActivityType.WikiCreated:
-                case ActivityType.WikiDeleted:
-                case ActivityType.WikiUpdated:
-                    Content = new WikiActivityContent(contentData, Project);
+                case ActivityEvent.TicketCreated:
+                    Content = new TicketActivityContent(contentData, ActivityAction.Created);
                     break;
 
-                case ActivityType.MilestoneAdded:
-                case ActivityType.MilestoneDeleted:
-                case ActivityType.MilestoneUpdated:
-                    Content = new MilestoneActivityContent(contentData);
+                case ActivityEvent.TicketDeleted:
+                    Content = new TicketActivityContent(contentData, ActivityAction.Deleted);
                     break;
 
-                case ActivityType.ProjectGroupAdded:
-                case ActivityType.ProjectGroupRemoved:
-                    Content = new GroupActivityContent(contentData, client);
+                case ActivityEvent.TicketMultiUpdated:
+                    Content = new TicketActivityContent(contentData, ActivityAction.MultiUpdated);
                     break;
+
+                case ActivityEvent.TicketUpdated:
+                    Content = new TicketActivityContent(contentData, ActivityAction.Updated);
+                    break;
+                #endregion
+
+                #region Wiki
+                case ActivityEvent.WikiCreated:
+                    Content = new WikiActivityContent(contentData, Project, ActivityAction.Created);
+                    break;
+
+                case ActivityEvent.WikiDeleted:
+                    Content = new WikiActivityContent(contentData, Project, ActivityAction.Deleted);
+                    break;
+
+                case ActivityEvent.WikiUpdated:
+                    Content = new WikiActivityContent(contentData, Project, ActivityAction.Updated);
+                    break;
+                #endregion
+
+                #region Milestone
+                case ActivityEvent.MilestoneAdded:
+                    Content = new MilestoneActivityContent(contentData, ActivityAction.Added);
+                    break;
+
+                case ActivityEvent.MilestoneDeleted:
+                    Content = new MilestoneActivityContent(contentData, ActivityAction.Deleted);
+                    break;
+
+                case ActivityEvent.MilestoneUpdated:
+                    Content = new MilestoneActivityContent(contentData, ActivityAction.Updated);
+                    break;
+                #endregion
 
                 default:
                     throw new ArgumentException($"invalid content type: {Type}");
@@ -142,21 +204,12 @@ namespace NBacklog.DataTypes
 
 
     public abstract class ActivityContent
-    { }
-
-    public class TicketCreatedActivityContent : ActivityContent
     {
-        public int Id { get; }
-        public int KeyId { get; }
-        public string Summary { get; }
-        public string Description { get; }
+        public ActivityAction Action { get; }
 
-        internal TicketCreatedActivityContent(JObject data)
+        internal protected ActivityContent(ActivityAction action)
         {
-            Id = data.Value<int>("id");
-            KeyId = data.Value<int>("key_id");
-            Summary = data.Value<string>("summary");
-            Description = data.Value<string>("description");
+            Action = action;
         }
     }
 
@@ -176,27 +229,51 @@ namespace NBacklog.DataTypes
         }
     }
 
-    public class TicketUpdatedActivityContent : ActivityContent
+    public class TicketActivityContent : ActivityContent
     {
-        public int Id { get; }
-        public int KeyId { get; }
-        public string Summary { get; }
-        public string Description { get; }
-        public Comment Comment { get; }
+        // チケット単体に対する操作
+        public TicketSummary Ticket { get; }
+
+        // チケット複数に対する操作
+        public int TransactionId { get; }
+        public TicketSummary[] Tickets { get; }
+
+        // 共通
+        public CommentSummary Comment { get; }
         public Attachment[] Attachments { get; }
         public Change[] Changes { get; }
 
-        internal TicketUpdatedActivityContent(JObject data)
+        internal TicketActivityContent(JObject data, ActivityAction action)
+            : base(action)
         {
-            Id = data.Value<int>("id");
-            KeyId = data.Value<int>("key_id");
-            Summary = data.Value<string>("summary");
-            Description = data.Value<string>("description");
-
-            var comment = data.Value<JObject>("comment");
-            if (comment != null)
+            if (action == ActivityAction.MultiUpdated)
             {
-                Comment = new Comment(comment.Value<int>("id"), comment.Value<string>("content"));
+                TransactionId = data.Value<int>("tx_id");
+
+                Tickets = (data.Value<JArray>("link") ?? Enumerable.Empty<object>()).Cast<JObject>()
+                    .Select(x => new TicketSummary(new _TicketSummary()
+                    {
+                        id = x.Value<int>("id"),
+                        keyId = x.Value<int>("key_id"),
+                        summary = x.Value<string>("title"),
+                    }))
+                    .ToArray();
+            }
+            else
+            {
+                Ticket = new TicketSummary(new _TicketSummary()
+                {
+                    id = data.Value<int>("id"),
+                    keyId = data.Value<int>("key_id"),
+                    summary = data.Value<string>("summary"),
+                    description = data.Value<string>("description"),
+                });
+            }
+
+            var comment = data.Value<JObject>("comment")?.ToObject<_CommentSummary>();
+            if (comment?.id != default)
+            {
+                Comment = new CommentSummary(comment, Ticket);
             }
 
             Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
@@ -206,78 +283,31 @@ namespace NBacklog.DataTypes
             Changes = (data.Value<JArray>("changes") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new Change(x))
                 .ToArray();
-        }
-    }
-
-    public class TicketCommentedActivityContent : TicketUpdatedActivityContent
-    {
-        internal TicketCommentedActivityContent(JObject data)
-            : base(data)
-        { }
-    }
-
-    public class TicketMultiUpdatedActivityContent : ActivityContent
-    {
-        public int TxId { get; }
-        public Comment Comment { get; }
-        public Link[] Links { get; }
-        public Change[] Changes { get; }
-
-        internal TicketMultiUpdatedActivityContent(JObject data)
-        {
-            TxId = data.Value<int>("tx_id");
-
-            var comment = data.Value<JObject>("comment");
-            if (comment != null)
-            {
-                Comment = new Comment(comment.Value<int>("id"), comment.Value<string>("content"));
-            }
-
-            Links = (data.Value<JArray>("link") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Link(x))
-                .ToArray();
-            Changes = (data.Value<JArray>("changes") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Change(x))
-                .ToArray();
-        }
-    }
-
-    public class TicketDeletedActivityContent : ActivityContent
-    {
-        public int Id { get; }
-        public int KeyId { get; }
-
-        internal TicketDeletedActivityContent(JObject data)
-        {
-            Id = data.Value<int>("id");
-            KeyId = data.Value<int>("key_id");
         }
     }
 
     public class WikiActivityContent : ActivityContent
     {
-        public int Id { get; }
-        public string Name { get; }
-        public string Content { get; }
+        public WikipageSummary Wikipage { get; }
         public string Diff { get; }
         public int Version { get; }
-        public Attachment[] Attachments { get; }
-        public SharedFile[] SharedFiles { get; }
 
-        internal WikiActivityContent(JObject data, Project project)
+        internal WikiActivityContent(JObject data, Project project, ActivityAction action)
+            : base(action)
         {
-            Id = data.Value<int>("id");
-            Name = data.Value<string>("name");
-            Content = data.Value<string>("content");
+            Wikipage = new WikipageSummary(data.ToObject<_WikipageSummary>());
+            //Id = data.Value<int>("id");
+            //Name = data.Value<string>("name");
+            //Content = data.Value<string>("content");
             Diff = data.Value<string>("diff");
             Version = data.Value<int?>("version") ?? default;
 
-            Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Attachment(x, null))
-                .ToArray();
-            SharedFiles = (data.Value<JArray>("shared_files") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new SharedFile(x.Value<int>("id"), x.Value<string>("name"), x.Value<long>("size"), project))
-                .ToArray();
+            //Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
+            //    .Select(x => new Attachment(x, null))
+            //    .ToArray();
+            //SharedFiles = (data.Value<JArray>("shared_files") ?? Enumerable.Empty<object>()).Cast<JObject>()
+            //    .Select(x => new SharedFile(x.Value<int>("id"), x.Value<string>("name"), x.Value<long>("size"), project))
+            //    .ToArray();
         }
     }
 
@@ -288,7 +318,8 @@ namespace NBacklog.DataTypes
         public string Name { get; }
         public long Size { get; }
 
-        internal FileActivityContent(JObject data)
+        internal FileActivityContent(JObject data, ActivityAction action)
+            : base(action)
         {
             Id = data.Value<int>("id");
             Directory = data.Value<string>("dir");
@@ -303,6 +334,7 @@ namespace NBacklog.DataTypes
         public string Comment { get; }
 
         internal SvnCommittedActivityContent(JObject data)
+            : base(ActivityAction.Commited)
         {
             Revision = data.Value<int>("rev");
             Comment = data.Value<string>("comment");
@@ -331,6 +363,7 @@ namespace NBacklog.DataTypes
         public int RevisionCount { get; }
 
         internal GitPushedActivityContent(JObject data, Project project)
+            : base(ActivityAction.Pushed)
         {
             ChangeType = data.Value<string>("change_type");
             Ref = data.Value<string>("ref");
@@ -348,6 +381,7 @@ namespace NBacklog.DataTypes
         public GitRepoSummary Repository { get; }
 
         internal GitRepositoryCreatedActivityContent(JObject data, Project project)
+            : base(ActivityAction.Created)
         {
             Repository = new GitRepoSummary(data["repository"].ToObject<_GitRepoSummary>(), project);
         }
@@ -358,7 +392,8 @@ namespace NBacklog.DataTypes
         public User[] Users { get; }
         public string Comment { get; }
 
-        internal ProjectUserActivityContent(JObject data, BacklogClient client)
+        internal ProjectUserActivityContent(JObject data, BacklogClient client, ActivityAction action)
+            : base(action)
         {
             Users = (data.Value<JArray>("revisions") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new User(x, client))
@@ -367,60 +402,40 @@ namespace NBacklog.DataTypes
         }
     }
 
-    public class NotifyAddedActivityContent : TicketCommentedActivityContent
-    {
-        internal NotifyAddedActivityContent(JObject data)
-            : base(data)
-        { }
-    }
-
     public class GitPullRequestActivityContent : ActivityContent
     {
-        public int Id { get; }
-        public int Number { get; }
-        public string Summary { get; }
-        public string Description { get; }
-        public Comment Comment { get; }
+        public PullRequestSummary PullRequest { get; }
+        public CommentSummary Comment { get; }
         public Change[] Changes { get; }
         public GitRepoSummary Repository { get; }
-        public Ticket Ticket { get; }
+        public TicketSummary Ticket { get; }
 
-        internal GitPullRequestActivityContent(JObject data, Project project)
+        internal GitPullRequestActivityContent(JObject data, Project project, ActivityAction action)
+            : base(action)
         {
-            Id = data.Value<int>("id");
-            Number = data.Value<int>("number");
-            Summary = data.Value<string>("summary");
-            Description = data.Value<string>("description");
-
-            var comment = data.Value<JObject>("comment");
-            if (comment != null)
-            {
-                Comment = new Comment(comment.Value<int>("id"), comment.Value<string>("content"));
-            }
-
             Changes = (data.Value<JArray>("changes") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new Change(x))
                 .ToArray();
 
             Repository = new GitRepoSummary(data["repository"].ToObject<_GitRepoSummary>(), project);
+            PullRequest = new PullRequestSummary(data.ToObject<_PullRequestSummary>(), Repository);
+
+            var comment = data["comment"].ToObject<_CommentSummary>();
+            if (comment?.id != default)
+            {
+                Comment = new CommentSummary(comment, PullRequest);
+            }
         }
     }
 
     public class MilestoneActivityContent : ActivityContent
     {
-        public int Id { get; }
-        public string Name { get; }
-        public string Description { get; }
-        public DateTime StartDate { get; }
-        public DateTime DueDate { get; }
+        public MilestoneSummary Milestone { get; }
 
-        internal MilestoneActivityContent(JObject data)
+        internal MilestoneActivityContent(JObject data, ActivityAction action)
+            : base(action)
         {
-            Id = data.Value<int>("id");
-            Name = data.Value<string>("name");
-            Description = data.Value<string>("description");
-            StartDate = data.Value<DateTime>("start_date");
-            DueDate = data.Value<DateTime>("reference_date");
+            Milestone = new MilestoneSummary(data.ToObject<_MilestoneSummary>());
         }
     }
 
@@ -428,7 +443,8 @@ namespace NBacklog.DataTypes
     {
         public Group[] Groups { get; }
 
-        internal GroupActivityContent(JObject data, BacklogClient client)
+        internal GroupActivityContent(JObject data, BacklogClient client, ActivityAction action)
+            : base(action)
         {
             Groups = (data.Value<JArray>("parties") ?? Enumerable.Empty<object>()).Cast<JObject>()
                 .Select(x => new Group(x.Value<int>("id"), x.Value<string>("name"), client))

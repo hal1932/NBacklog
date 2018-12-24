@@ -2,6 +2,23 @@
 
 namespace NBacklog.DataTypes
 {
+    public class MilestoneSummary : BacklogItem
+    {
+        public string Name { get; }
+        public string Description { get; }
+        public DateTime StartDate { get; }
+        public DateTime DueDate { get; }
+
+        internal MilestoneSummary(_MilestoneSummary data)
+            : base(data.id)
+        {
+            Name = data.name;
+            Description = data.description;
+            StartDate = data?.startDate ?? default;
+            DueDate = data?.releaseDueDate ?? default;
+        }
+    }
+
     public class Milestone : CachableBacklogItem
     {
         public Project Project { get; }

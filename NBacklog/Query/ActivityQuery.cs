@@ -6,7 +6,7 @@ namespace NBacklog.Query
     {
         public const int MaxCount = 100;
 
-        public ActivityQuery Type(ActivityType type)
+        public ActivityQuery Type(ActivityEvent type)
         {
             return AddParameter("activityTypeId[]", type);
         }

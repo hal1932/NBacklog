@@ -1,4 +1,9 @@
-﻿using System;
+﻿using NBacklog.Query;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
@@ -52,6 +57,71 @@ namespace NBacklog.DataTypes
             Updated = data.updated ?? default;
 
             Project = project;
+        }
+
+        public async Task<BacklogResponse<int>> GetPullRequestCountAsync(PullRequestQuery query = null)
+        {
+            query = query ?? new PullRequestQuery();
+
+            var client = Project.Client;
+            var response = await client.GetAsync($"/api/v2/projects/{Project.Id}/git/repositories/{Id}/pullRequests/count", query.Build()).ConfigureAwait(false);
+            return await client.CreateResponseAsync<int, _Count>(
+                response,
+                HttpStatusCode.OK,
+                data => data.count).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<PullRequest[]>> GetPullRequestsAsync(PullRequestQuery query = null)
+        {
+            query = query ?? new PullRequestQuery();
+
+            var client = Project.Client;
+            var response = await client.GetAsync($"/api/v2/projects/{Project.Id}/git/repositories/{Id}/pullRequests", query.Build()).ConfigureAwait(false);
+            return await client.CreateResponseAsync<PullRequest[], List<_PullRequest>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => new PullRequest(x, this)).ToArray()).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<PullRequest>> AddPullRequestAsync(PullRequest pullRequest, IEnumerable<User> notifiedUsers = null, IEnumerable<Attachment> attachments = null)
+        {
+            var parameters = new List<(string, object)>()
+            {
+                ("sumary", pullRequest.Summary),
+                ("description", pullRequest.Description),
+                ("base", pullRequest.Base),
+                ("branch", pullRequest.Branch),
+            };
+
+            if (pullRequest.TicketId != default)
+            {
+                parameters.Add(("issueId", pullRequest.TicketId));
+            }
+            if (pullRequest.Assignee != default)
+            {
+                parameters.Add(("assigneeId", pullRequest.Assignee.Id));
+            }
+            if (notifiedUsers != null)
+            {
+                foreach (var user in notifiedUsers)
+                {
+                    parameters.Add(("notifiedUserId[]", user.Id));
+                }
+            }
+            if (attachments != null)
+            {
+                foreach (var attachment in attachments)
+                {
+                    parameters.Add(("attachmentId[]", attachment.Id));
+                }
+            }
+
+            var client = Project.Client;
+            var response = await client.PostAsync($"/api/v2/projects/{Project.Id}/git/repositories/{Id}/pullRequests", parameters).ConfigureAwait(false);
+            return await client.CreateResponseAsync<PullRequest, _PullRequest>(
+                response,
+                HttpStatusCode.OK,
+                data => new PullRequest(data, this)).ConfigureAwait(false);
         }
     }
 }
