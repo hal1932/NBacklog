@@ -9,16 +9,16 @@ namespace NBacklog.DataTypes
     {
         public string Name { get; }
         public string Content { get; }
-        public Attachment[] Attachments { get; }
-        public SharedFile[] SharedFiles { get; }
+        public AttachmentSummary[] Attachments { get; }
+        public SharedFileSummary[] SharedFiles { get; }
 
-        public WikipageSummary(_WikipageSummary data)
+        internal WikipageSummary(_WikipageSummary data)
             : base(data.id)
         {
             Name = data.name;
             Content = data.content;
-            Attachments = data.attachments.Select(x => new Attachment(x, null));
-
+            Attachments = data.attachments.Select(x => new AttachmentSummary(x)).ToArray();
+            SharedFiles = data.shared_files.Select(x => new SharedFileSummary(x)).ToArray();
         }
     }
 

@@ -6,6 +6,17 @@ using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
+    public class GroupSummary : BacklogItem
+    {
+        public string Name { get; set; }
+
+        internal GroupSummary(_GroupSummary data)
+            : base(data.id)
+        {
+            Name = data.name;
+        }
+    }
+
     public class Group : CachableBacklogItem
     {
         public string Name { get; set; }
@@ -15,13 +26,6 @@ namespace NBacklog.DataTypes
         public DateTime Created { get; }
         public User LastUpdater { get; }
         public DateTime LastUpdated { get; }
-
-        public Group(string name, User[] members)
-            : base(-1)
-        {
-            Name = name;
-            Members = members;
-        }
 
         internal Group(_Group data, BacklogClient client)
             : base(data.id)

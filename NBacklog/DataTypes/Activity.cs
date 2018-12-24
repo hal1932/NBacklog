@@ -240,7 +240,7 @@ namespace NBacklog.DataTypes
 
         // 共通
         public CommentSummary Comment { get; }
-        public Attachment[] Attachments { get; }
+        public AttachmentSummary[] Attachments { get; }
         public Change[] Changes { get; }
 
         internal TicketActivityContent(JObject data, ActivityAction action)
@@ -277,7 +277,7 @@ namespace NBacklog.DataTypes
             }
 
             Attachments = (data.Value<JArray>("attachments") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Attachment(x, null))
+                .Select(x => new AttachmentSummary(x.ToObject<_Attachment>()))
                 .ToArray();
 
             Changes = (data.Value<JArray>("changes") ?? Enumerable.Empty<object>()).Cast<JObject>()
@@ -389,14 +389,15 @@ namespace NBacklog.DataTypes
 
     public class ProjectUserActivityContent : ActivityContent
     {
-        public User[] Users { get; }
+        public UserSummary[] Users { get; }
         public string Comment { get; }
 
         internal ProjectUserActivityContent(JObject data, BacklogClient client, ActivityAction action)
             : base(action)
         {
             Users = (data.Value<JArray>("revisions") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new User(x, client))
+                .Select(x => x.ToObject<_User>())
+                .Select(x => client.ItemsCache.Update(x.id, () => new UserSummary(x)))
                 .ToArray();
             Comment = data.Value<string>("comment");
         }
@@ -441,13 +442,13 @@ namespace NBacklog.DataTypes
 
     public class GroupActivityContent : ActivityContent
     {
-        public Group[] Groups { get; }
+        public GroupSummary[] Groups { get; }
 
         internal GroupActivityContent(JObject data, BacklogClient client, ActivityAction action)
             : base(action)
         {
             Groups = (data.Value<JArray>("parties") ?? Enumerable.Empty<object>()).Cast<JObject>()
-                .Select(x => new Group(x.Value<int>("id"), x.Value<string>("name"), client))
+                .Select(x => new GroupSummary(x.ToObject<_GroupSummary>()))
                 .ToArray();
         }
     }

@@ -19,9 +19,25 @@ namespace NBacklog.DataTypes
         GuestViewer = 6,
     }
 
-    /// <summary>
-    /// 一般ユーザー
-    /// </summary>
+    public class UserSummary : CachableBacklogItem
+    {
+        public string UserId { get; }
+        public string Name { get; set; }
+        public UserRole Role { get; set; }
+        public string Language { get; }
+        public string MailAddress { get; set; }
+
+        internal UserSummary(_User data)
+            : base(data.id)
+        {
+            UserId = data.userId;
+            Name = data.name;
+            Role = (UserRole)data.roleType;
+            Language = data.lang;
+            MailAddress = data.mailAddress;
+        }
+    }
+
     public class User : CachableBacklogItem
     {
         public string UserId { get; }

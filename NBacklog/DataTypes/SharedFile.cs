@@ -12,6 +12,40 @@ namespace NBacklog.DataTypes
         File,
     }
 
+    public class SharedFileSummary : BacklogItem
+    {
+        public SharedFileType Type { get; }
+        public string TypeName { get; }
+        public string Dir { get; }
+        public string Name { get; }
+        public long Size { get; }
+        public UserSummary Creator { get; }
+        public DateTime Created { get; }
+        public UserSummary LastUpdater { get; }
+        public DateTime LastUpdated { get; }
+
+        internal SharedFileSummary(_SharedFile data)
+            : base(data.id)
+        {
+            TypeName = data.type;
+            switch (TypeName)
+            {
+                case "file": Type = SharedFileType.File; break;
+                case "directory": Type = SharedFileType.Directory; break;
+                default:
+                    throw new ArgumentException($"unsupported file type: {Type}");
+            }
+
+            Dir = data.dir;
+            Name = data.name;
+            Size = data.size ?? default;
+            Creator = (data.createdUser != null) ? new UserSummary(data.createdUser) : null;
+            Created = data.created ?? default;
+            LastUpdated = data.updated ?? default;
+            LastUpdater = (data.updatedUser != null) ? new UserSummary(data.updatedUser) : null;
+        }
+    }
+
     public class SharedFile : CachableBacklogItem
     {
         public Project Project { get; }

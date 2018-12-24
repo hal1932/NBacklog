@@ -192,6 +192,12 @@ namespace NBacklog.DataTypes
         public DateTime? created { get; set; }
     }
 
+    class _GroupSummary
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+    }
+
     class _Group
     {
         public int id { get; set; }

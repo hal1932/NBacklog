@@ -17,6 +17,23 @@ namespace NBacklog.DataTypes
         }
     }
 
+    public class AttachmentSummary : BacklogItem
+    {
+        public string Name { get; set; }
+        public long Size { get; set; }
+        public UserSummary Creator { get; }
+        public DateTime Created { get; }
+
+        internal AttachmentSummary(_Attachment data)
+            : base(data.id)
+        {
+            Name = data.name;
+            Size = data.size;
+            Creator = (data.createdUser != null) ? new UserSummary(data.createdUser) : null;
+            Created = data.created ?? default;
+        }
+    }
+
     public class Attachment : BacklogItem
     {
         public string Name { get; set; }
