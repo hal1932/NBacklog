@@ -6,19 +6,7 @@ using System.Threading.Tasks;
 
 namespace NBacklog.DataTypes
 {
-    public class GroupSummary : BacklogItem
-    {
-        public string Name { get; set; }
-
-        internal GroupSummary(_GroupSummary data)
-            : base(data.id)
-        {
-            Name = data.name;
-        }
-    }
-
-    [Obsolete]
-    public class Group : CachableBacklogItem
+    public class Team : CachableBacklogItem
     {
         public string Name { get; set; }
         public User[] Members { get; set; }
@@ -28,7 +16,7 @@ namespace NBacklog.DataTypes
         public User LastUpdater { get; }
         public DateTime LastUpdated { get; }
 
-        internal Group(_Group data, BacklogClient client)
+        internal Team(_Team data, BacklogClient client)
             : base(data.id)
         {
             Name = data.name;
@@ -41,15 +29,9 @@ namespace NBacklog.DataTypes
             _client = client;
         }
 
-        internal Group(int id, string name, BacklogClient client)
-            : base(id)
-        {
-            Name = name;
-        }
-
         public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
         {
-            var response = await _client.GetAsync($"/api/v2/groups/{Id}/icon").ConfigureAwait(false);
+            var response = await _client.GetAsync($"/api/v2/teams/{Id}/icon").ConfigureAwait(false);
             return await _client.CreateResponseAsync(
                 response,
                 HttpStatusCode.OK,

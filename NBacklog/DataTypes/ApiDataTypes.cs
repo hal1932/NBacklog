@@ -210,6 +210,18 @@ namespace NBacklog.DataTypes
         public DateTime? updated { get; set; }
     }
 
+    class _Team
+    {
+        public int id { get; set; }
+        public string name { get; set; }
+        public List<_User> members { get; set; }
+        public int displayOrder { get; set; }
+        public _User createdUser { get; set; }
+        public DateTime? created { get; set; }
+        public _User updatedUser { get; set; }
+        public DateTime? updated { get; set; }
+    }
+
     class _Status
     {
         public int id { get; set; }

@@ -1,5 +1,6 @@
 ﻿using NBacklog.DataTypes;
 using NBacklog.Query;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,6 +10,7 @@ namespace NBacklog
 {
     public partial class BacklogClient
     {
+        [Obsolete]
         public async Task<BacklogResponse<Group[]>> GetGroupsAsync(GroupQuery query = null)
         {
             query = query ?? new GroupQuery();
@@ -20,6 +22,7 @@ namespace NBacklog
                 data => data.Select(x => new Group(x, this)).ToArray()).ConfigureAwait(false);
         }
 
+        [Obsolete]
         public async Task<BacklogResponse<Group>> AddGroupAsync(Group group)
         {
             var parameters = new
@@ -35,6 +38,7 @@ namespace NBacklog
                 data => new Group(data, this)).ConfigureAwait(false);
         }
 
+        [Obsolete]
         public async Task<BacklogResponse<Group>> GetGroupAsync(int id)
         {
             var response = await GetAsync($"/api/v2/groups/{id}").ConfigureAwait(false);
@@ -44,6 +48,7 @@ namespace NBacklog
                 data => new Group(data, this)).ConfigureAwait(false);
         }
 
+        [Obsolete]
         public async Task<BacklogResponse<Group>> UpdateGroupAsync(Group group)
         {
             var parameters = new
@@ -59,6 +64,7 @@ namespace NBacklog
                 data => new Group(data, this)).ConfigureAwait(false);
         }
 
+        [Obsolete]
         public async Task<BacklogResponse<Group>> DeleteGroupAsync(Group group)
         {
             var response = await DeleteAsync($"/api/v2/groups/{group.Id}").ConfigureAwait(false);

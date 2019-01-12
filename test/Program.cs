@@ -159,8 +159,11 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
-            var repos = proj.GetGitRepositoriesAsync().Result.Content;
-            var pullReqs = repos[0].GetPullRequestsAsync().Result.Content;
+            //var repos = proj.GetGitRepositoriesAsync().Result.Content;
+            //var pullReqs = repos[0].GetPullRequestsAsync().Result.Content;
+
+            var teams = await client.GetTeamsAsync();
+            var projTeams = await proj.GetTeamsAsync();
 
             //var repo = proj.GetGitRepositoryAsync((activities[0].Content as GitRepositoryCreatedActivityContent).Repository).Result.Content;
 

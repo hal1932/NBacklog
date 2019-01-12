@@ -460,6 +460,49 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
+        #region team
+        public async Task<BacklogResponse<Team[]>> GetTeamsAsync(TeamQuery query = null)
+        {
+            query = query ?? new TeamQuery();
+
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/teams ", query.Build()).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Team[], List<_Team>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => new Team(x, Client)).ToArray()).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Team>> AddTeamAsync(Team team)
+        {
+            var parameters = new
+            {
+                userId = team.Id,
+            };
+
+            var response = await Client.PostAsync($"/api/v2/projects/{Id}/teams", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Team, _Team>(
+                response,
+                HttpStatusCode.Created,
+                data => Client.ItemsCache.Update(data.id, () => new Team(data, Client))
+                ).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Team>> DeleteTeamAsync(Team team)
+        {
+            var parameters = new
+            {
+                userId = team.Id,
+            };
+
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/teams", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Team, _Team>(
+                response,
+                HttpStatusCode.OK,
+                data => Client.ItemsCache.Delete<Team>(data.id)
+                ).ConfigureAwait(false);
+        }
+        #endregion
+
         public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
         {
             query = query ?? new SharedFileQuery();
