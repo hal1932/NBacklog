@@ -16,5 +16,10 @@ namespace NBacklog
                 int.Parse(value.Substring(2, 2), NumberStyles.HexNumber),
                 int.Parse(value.Substring(4, 2), NumberStyles.HexNumber));
         }
+
+        public static string WebColorStrFromColor(Color value)
+        {
+            return $"#{value.R:X2}{value.G:X2}{value.B:X2}";
+        }
     }
 }

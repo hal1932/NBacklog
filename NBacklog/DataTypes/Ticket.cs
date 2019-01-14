@@ -112,8 +112,8 @@ namespace NBacklog.DataTypes
             Categories = data.category.Select(x => client.ItemsCache.Update(x.id, () => new Category(x))).ToArray();
             Versions = data.versions.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
             Milestones = data.milestone.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
-            StartDate = data.startDate ?? default;
-            DueDate = data.dueDate ?? default;
+            StartDate = data.startDate?.Date ?? default;
+            DueDate = data.dueDate?.Date ?? default;
             EstimatedHours = data.estimatedHours ?? default;
             ActualHours = data.actualHours ?? default;
             ParentTicketId = data.parentIssueId ?? default;

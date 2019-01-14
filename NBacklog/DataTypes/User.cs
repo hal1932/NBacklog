@@ -46,6 +46,10 @@ namespace NBacklog.DataTypes
         public string Language { get; }
         public string MailAddress { get; set; }
 
+        public User(int id)
+            : base(id)
+        { }
+
         public User(string userId, string name, UserRole role, string mailAddress)
             : base(-1)
         {

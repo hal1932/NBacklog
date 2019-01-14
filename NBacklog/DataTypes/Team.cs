@@ -29,6 +29,13 @@ namespace NBacklog.DataTypes
             _client = client;
         }
 
+        public Team(string name)
+            : base(-1)
+        {
+            Name = name;
+            Members = Array.Empty<User>();
+        }
+
         public async Task<BacklogResponse<MemoryStream>> GetIconAsync()
         {
             var response = await _client.GetAsync($"/api/v2/teams/{Id}/icon").ConfigureAwait(false);

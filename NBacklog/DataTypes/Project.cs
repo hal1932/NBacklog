@@ -52,6 +52,10 @@ namespace NBacklog.DataTypes
             Client = client;
         }
 
+        public Project(int id = -1)
+            : base(id)
+        { }
+
         #region users
         public async Task<BacklogResponse<User[]>> GetUsersAsync(bool excludeGroupMembers = false)
         {
@@ -78,7 +82,7 @@ namespace NBacklog.DataTypes
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<User, _User>(
                 response,
-                HttpStatusCode.Created,
+                HttpStatusCode.OK,
                 data => Client.ItemsCache.Update(data.id, () => new User(data, Client))
                 ).ConfigureAwait(false);
         }
@@ -195,9 +199,14 @@ namespace NBacklog.DataTypes
                 ).ConfigureAwait(false);
         }
 
-        public async Task<BacklogResponse<TicketType>> DeleteTicketAsync(TicketType type)
+        public async Task<BacklogResponse<TicketType>> DeleteTicketTypeAsync(TicketType type, TicketType substituteType)
         {
-            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/issueTypes/{type.Id}").ConfigureAwait(false);
+            var parameters = new
+            {
+                substituteIssueTypeId = substituteType.Id,
+            };
+
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/issueTypes/{type.Id}", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
                 HttpStatusCode.OK,
@@ -230,8 +239,11 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Category>> UpdateCategoryAsync(Category category)
         {
-            var parameters = category.ToApiParameters();
-            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/categories", parameters.Build()).ConfigureAwait(false);
+            var parameters = new
+            {
+                name = category.Name,
+            };
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/categories/{category.Id}", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
                 HttpStatusCode.OK,
@@ -241,8 +253,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Category>> DeleteCategoryAsync(Category category)
         {
-            var parameters = category.ToApiParameters();
-            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/categories/{category.Id}").ConfigureAwait(false);
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
                 HttpStatusCode.OK,
@@ -477,12 +488,29 @@ namespace NBacklog.DataTypes
             var parameters = new
             {
                 userId = team.Id,
+                members = team.Members.Select(x => x.Id).ToArray(),
             };
 
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/teams", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Team, _Team>(
                 response,
                 HttpStatusCode.Created,
+                data => Client.ItemsCache.Update(data.id, () => new Team(data, Client))
+                ).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Team>> UpdateTeamAsync(Team team)
+        {
+            var parameters = new
+            {
+                userId = team.Id,
+                members = team.Members.Select(x => x.Id).ToArray(),
+            };
+
+            var response = await Client.PatchAsync($"/api/v2/projects/{Id}/teams", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Team, _Team>(
+                response,
+                HttpStatusCode.OK,
                 data => Client.ItemsCache.Update(data.id, () => new Team(data, Client))
                 ).ConfigureAwait(false);
         }

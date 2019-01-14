@@ -4,16 +4,18 @@ namespace NBacklog.DataTypes
 {
     public enum TicketColor
     {
-        Red = 0xe30000,
-        Orange = 0x990000,
-        Pink = 0x934981,
-        Purple = 0x814fbc,
-        Blue = 0x2779ca,
-        Green = 0x007e9a,
-        YellowGreen = 0x7ea800,
-        Yellow = 0xff9200,
-        PinkRed = 0xff3265,
-        Black = 0x666665,
+        Red = -1900544,     // 0xffe30000,
+        Orange = -6750208,  // 0xff990000,
+        Pink = -7124607,    // 0xff934981,
+        Purple = -8302660,  // 0xff814fbc,
+
+        Blue = -14190134,   // 0xff2779ca,
+        Green = -16744806,  // 0xff007e9a,
+        YellowGreen = -8476672, // 0xff7ea800,
+        Yellow = -28160,    // 0xffff9200,
+
+        PinkRed = -52635,   // 0xffff3265,
+        Black = -10066331,  // 0xff666665,
     }
 
     public class TicketType : CachableBacklogItem
@@ -22,6 +24,10 @@ namespace NBacklog.DataTypes
         public string Name { get; set; }
         public Color Color { get; set; }
         public int DisplayOrder { get; }
+
+        public TicketType(int id)
+            : base(id)
+        { }
 
         public TicketType(Project project, string name, TicketColor color)
             : base(-1)
@@ -44,7 +50,7 @@ namespace NBacklog.DataTypes
         {
             var parameters = new QueryParameters();
             parameters.Add("name", Name);
-            parameters.Add("color", $"#{Color.R:D2}{Color.G:D2}{Color.B:D2}");
+            parameters.Add("color", Utils.WebColorStrFromColor(Color).ToLower());
             return parameters;
         }
     }

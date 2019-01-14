@@ -26,7 +26,7 @@ namespace NBacklog
                 data => data.Select(x => new Resolution(x)).ToArray()).ConfigureAwait(false);
         }
 
-        public async Task<BacklogResponse<Priority[]>> GetPriorityTypeAsync()
+        public async Task<BacklogResponse<Priority[]>> GetPriorityTypesAsync()
         {
             var response = await GetAsync("/api/v2/priorities").ConfigureAwait(false);
             return await CreateResponseAsync<Priority[], List<_Priority>>(

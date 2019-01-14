@@ -52,19 +52,15 @@ namespace NBacklog.DataTypes
 
     public class Activity : BacklogItem
     {
+        public static readonly ActivityEvent[] AllEvents = 
+            Enum.GetValues(typeof(ActivityEvent)).Cast<ActivityEvent>().Where(x => x > 0).ToArray();
+        public static readonly int EventCount = AllEvents.Length;
+
         public Project Project { get; }
         public ActivityEvent Type { get; }
         public ActivityContent Content { get; }
         public User Creator { get; }
         public DateTime Created { get; }
-
-        public static ActivityEvent[] GetAllTypes()
-        {
-            return Enum.GetValues(typeof(ActivityEvent))
-                .Cast<ActivityEvent>()
-                .Where(x => x > 0)
-                .ToArray();
-        }
 
         internal Activity(_Activity data, BacklogClient client)
             : base(data.id)

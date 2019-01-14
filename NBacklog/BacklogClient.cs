@@ -87,14 +87,21 @@ namespace NBacklog
                 {
                     foreach (var (key, value) in parameters as List<(string, object)>)
                     {
-                        request.AddParameter(key, value);
+                        if (value != null)
+                        {
+                            request.AddParameter(key, value);
+                        }
                     }
                 }
                 else
                 {
                     foreach (var prop in parameters.GetType().GetProperties())
                     {
-                        request.AddParameter(prop.Name, prop.GetValue(parameters));
+                        var value = prop.GetValue(parameters);
+                        if (value != null)
+                        {
+                            request.AddParameter(prop.Name, value);
+                        }
                     }
                 }
             }

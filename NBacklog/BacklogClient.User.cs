@@ -28,13 +28,13 @@ namespace NBacklog
                 ).ConfigureAwait(false);
         }
 
-        public async Task<BacklogResponse<AuthorizedUser>> GetAuthorizedUserAsync()
+        public async Task<BacklogResponse<LoginUser>> GetLoginUserAsync()
         {
             var response = await GetAsync($"/api/v2/users/myself").ConfigureAwait(false);
-            return await CreateResponseAsync<AuthorizedUser, _User>(
+            return await CreateResponseAsync<LoginUser, _User>(
                 response,
                 HttpStatusCode.OK,
-                data => ItemsCache.Update(data.id, () => new AuthorizedUser(data, this))
+                data => ItemsCache.Update(data.id, () => new LoginUser(data, this))
                 ).ConfigureAwait(false);
         }
 

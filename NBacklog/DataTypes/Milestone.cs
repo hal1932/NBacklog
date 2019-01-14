@@ -21,6 +21,8 @@ namespace NBacklog.DataTypes
 
     public class Milestone : CachableBacklogItem
     {
+        public static DateTime MinDate = new DateTime(2000, 1, 1);
+
         public Project Project { get; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -29,10 +31,13 @@ namespace NBacklog.DataTypes
         public bool IsArchived { get; set; }
         public int DisplayOrder { get; }
 
-        public Milestone(Project project, string name)
+        public Milestone(int id)
+            : base(id)
+        { }
+
+        public Milestone(string name)
             : base(-1)
         {
-            Project = project;
             Name = name;
         }
 
@@ -42,8 +47,8 @@ namespace NBacklog.DataTypes
             Project = project;
             Name = data.name;
             Description = data.description;
-            StartDate = data.startDate ?? default;
-            DueDate = data.releaseDueDate ?? default;
+            StartDate = data.startDate?.Date ?? default;
+            DueDate = data.releaseDueDate?.Date ?? default;
             IsArchived = data.archived;
             DisplayOrder = data.displayOrder;
         }
@@ -52,9 +57,9 @@ namespace NBacklog.DataTypes
         {
             var parameters = new QueryParameters();
             parameters.Add("name", Name);
-            if (Description != null) parameters.Add("description", Description);
-            if (StartDate != default) parameters.Add("startDate", StartDate.ToString("yyyy-MM-dd"));
-            if (DueDate != default) parameters.Add("releaseDueData", DueDate.ToString("yyyy-MM-dd"));
+            parameters.Add("description", Description ?? string.Empty);
+            parameters.Add("startDate", (StartDate != default) ? StartDate.ToString("yyyy-MM-dd") : string.Empty);
+            parameters.Add("releaseDueDate", (DueDate != default) ? DueDate.ToString("yyyy-MM-dd") : string.Empty);
             return parameters;
         }
     }

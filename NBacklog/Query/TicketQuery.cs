@@ -147,22 +147,22 @@ namespace NBacklog.Query
 
         public TicketQuery StartDateSince(DateTime value)
         {
-            return ReplaceParameter("startDateSince", value);
+            return ReplaceParameter("startDateSince", value.Date);
         }
 
         public TicketQuery StartDateUntil(DateTime value)
         {
-            return ReplaceParameter("startDateUntil", value);
+            return ReplaceParameter("startDateUntil", value.Date);
         }
 
         public TicketQuery DueDateSince(DateTime value)
         {
-            return ReplaceParameter("dueDateSince", value);
+            return ReplaceParameter("dueDateSince", value.Date);
         }
 
         public TicketQuery DueDateUntil(DateTime value)
         {
-            return ReplaceParameter("dueDateUntil", value);
+            return ReplaceParameter("dueDateUntil", value.Date);
         }
 
         public TicketQuery Ids(params int[] values)

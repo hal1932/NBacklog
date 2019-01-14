@@ -43,7 +43,7 @@ namespace test
 
             var project = client.GetProjectAsync("TEST").Result.Content;
             var types = project.GetTicketTypesAsync().Result.Content;
-            var priorities = client.GetPriorityTypeAsync().Result.Content;
+            var priorities = client.GetPriorityTypesAsync().Result.Content;
             var categories = project.GetCategoriesAsync().Result.Content;
             var milestones = project.GetMilestonesAsync().Result.Content;
             var users = project.GetUsersAsync().Result.Content;
@@ -159,6 +159,11 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
+            foreach (var ticket in await proj.BatchGetTicketsAsync())
+            {
+                await proj.DeleteTicketAsync(ticket);
+                Console.WriteLine($"delete ticket: {ticket.Key}");
+            }
             //var repos = proj.GetGitRepositoriesAsync().Result.Content;
             //var pullReqs = repos[0].GetPullRequestsAsync().Result.Content;
 

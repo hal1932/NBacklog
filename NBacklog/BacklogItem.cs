@@ -39,7 +39,16 @@ namespace NBacklog
 
             foreach (var prop in thisType.GetProperties())
             {
-                if (prop.GetValue(this) != prop.GetValue(other))
+                var value = prop.GetValue(this);
+                var otherValue = prop.GetValue(other);
+                if (value == null)
+                {
+                    if (otherValue != null)
+                    {
+                        return false;
+                    }
+                }
+                else if (!value.Equals(otherValue))
                 {
                     return false;
                 }
@@ -59,7 +68,11 @@ namespace NBacklog
             var code = thisType.GetHashCode();
             foreach (var prop in thisType.GetProperties())
             {
-                code ^= prop.GetValue(this).GetHashCode();
+                var value = prop.GetValue(this);
+                if (value != null)
+                {
+                    code ^= value.GetHashCode();
+                }
             }
             return code;
         }

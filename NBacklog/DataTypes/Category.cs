@@ -5,6 +5,10 @@
         public string Name { get; set; }
         public int DisplayOrder { get; }
 
+        public Category(int id)
+            : base(id)
+        { }
+
         public Category(string name)
             : base(-1)
         {

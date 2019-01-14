@@ -8,9 +8,9 @@ namespace NBacklog.DataTypes
     /// <summary>
     /// API との認証に使用しているユーザー
     /// </summary>
-    public class AuthorizedUser : User
+    public class LoginUser : User
     {
-        internal AuthorizedUser(_User data, BacklogClient client)
+        internal LoginUser(_User data, BacklogClient client)
             : base(data, client)
         { }
 
