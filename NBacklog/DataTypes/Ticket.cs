@@ -72,15 +72,15 @@ namespace NBacklog.DataTypes
         public Category[] Categories { get; set; }
         public Milestone[] Versions { get; set; }
         public Milestone[] Milestones { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime DueDate { get; set; }
-        public double EstimatedHours { get; set; }
-        public double ActualHours { get; set; }
-        public int ParentTicketId { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? DueDate { get; set; }
+        public double? EstimatedHours { get; set; }
+        public double? ActualHours { get; set; }
+        public int? ParentTicketId { get; set; }
         public User Creator { get; }
         public DateTime Created { get; }
         public User LastUpdater { get; }
-        public DateTime LastUpdated { get; }
+        public DateTime? LastUpdated { get; }
         public CustomFieldValue[] CustomFields { get; set; }
         public Attachment[] Attachments { get; set; }
         public SharedFile[] SharedFiles { get; private set; }
@@ -112,15 +112,15 @@ namespace NBacklog.DataTypes
             Categories = data.category.Select(x => client.ItemsCache.Update(x.id, () => new Category(x))).ToArray();
             Versions = data.versions.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
             Milestones = data.milestone.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
-            StartDate = data.startDate?.Date ?? default;
-            DueDate = data.dueDate?.Date ?? default;
-            EstimatedHours = data.estimatedHours ?? default;
-            ActualHours = data.actualHours ?? default;
-            ParentTicketId = data.parentIssueId ?? default;
+            StartDate = data.startDate?.Date ?? null;
+            DueDate = data.dueDate?.Date ?? null;
+            EstimatedHours = data.estimatedHours;
+            ActualHours = data.actualHours;
+            ParentTicketId = data.parentIssueId;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
             LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated ?? default;
+            LastUpdated = data.updated;
             CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
             Attachments = data.attachments.Select(x => new Attachment(x, this)).ToArray();
             SharedFiles = data.sharedFiles.Select(x => new SharedFile(x, project)).ToArray();
@@ -292,17 +292,26 @@ namespace NBacklog.DataTypes
             if (Priority != null) parameters.Add("priorityId", Priority.Id);
             if (Description != null) parameters.Add("description", Description);
             if (Status != null) parameters.Add("statusId", Status.Id);
-            if (StartDate != default) parameters.Add("startDate", StartDate.ToString("yyyy-MM-dd"));
-            if (DueDate != default) parameters.Add("dueDate", DueDate.ToString("yyyy-MM-dd"));
-            if (Categories != null) parameters.AddRange("categoryId[]", Categories.Select(x => x.Id));
-            if (Versions != null) parameters.AddRange("versionId[]", Versions.Select(x => x.Id));
-            if (Milestones != null) parameters.AddRange("milestoneId[]", Milestones.Select(x => x.Id));
-            if (Attachments != null) parameters.AddRange("attachmentId[]", Attachments.Select(x => x.Id));
+            if (StartDate.HasValue) parameters.Add("startDate", StartDate.Value.ToString("yyyy-MM-dd"));
+            if (DueDate.HasValue) parameters.Add("dueDate", DueDate.Value.ToString("yyyy-MM-dd"));
             if (ParentTicketId > 0) parameters.Add("parentIssueId", ParentTicketId);
             if (Resolution != null) parameters.Add("resolutionId", Resolution.Id);
-            if (EstimatedHours > 0) parameters.Add("estimatedHours", EstimatedHours);
-            if (ActualHours > 0) parameters.Add("actualHours", ActualHours);
             if (Assignee != null) parameters.Add("assigneeId", Assignee.Id);
+
+            parameters.Add("estimatedHours", EstimatedHours);
+            parameters.Add("actualHours", ActualHours);
+
+            void SetParamArray<T>(string key, T[] values)
+                where T : BacklogItem
+            {
+                if (values.Any()) parameters.AddRange(key, values.Select(x => x.Id));
+                else parameters.Add(key, 0);
+            }
+
+            if (Categories != null) SetParamArray("categoryId[]", Categories);
+            if (Versions != null) SetParamArray("versionId[]", Versions);
+            if (Milestones != null) SetParamArray("milestoneId[]", Milestones);
+            if (Attachments != null) SetParamArray("attachmentId[]", Attachments);
 
             if (CustomFields != null)
             {

@@ -7,7 +7,7 @@ namespace NBacklog.DataTypes
 {
     public enum CustomFieldType
     {
-        Text = 1,
+        String = 1,
         TextArea = 2,
         Numeric = 3,
         Date = 4,
@@ -37,7 +37,7 @@ namespace NBacklog.DataTypes
         {
             switch ((CustomFieldType)data.typeId)
             {
-                case CustomFieldType.Text:
+                case CustomFieldType.String:
                 case CustomFieldType.TextArea:
                     return new TextCustomField(data, project);
 
@@ -79,37 +79,37 @@ namespace NBacklog.DataTypes
 
     public class NumericCustomField : CustomField
     {
-        public double Min { get; set; }
-        public double Max { get; set; }
-        public double InitialValue { get; set; }
-        public string Unit { get; set; }
+        public double? Min { get; set; }
+        public double? Max { get; set; }
+        public double? InitialValue { get; set; }
+        public double? Unit { get; set; }
 
         internal NumericCustomField(_CustomField data, Project project)
             : base(data, project)
         {
-            Min = double.Parse(data.min);
-            Max = double.Parse(data.max);
+            if (data.min != null) Min = double.Parse(data.min);
+            if (data.max != null) Max = double.Parse(data.max);
             InitialValue = data.initialValue;
-            Unit = data.unit;
+            if (data.unit != null) Unit = double.Parse(data.unit);
         }
     }
 
     public class DateCustomField : CustomField
     {
-        public DateTime Min { get; set; }
-        public DateTime Max { get; set; }
+        public DateTime? Min { get; set; }
+        public DateTime? Max { get; set; }
         public DateCustomFieldInitialValueType InitialValueType { get; set; }
-        public DateTime InitialDate { get; set; }
-        public int InitialShift { get; set; }
+        public DateTime? InitialDate { get; set; }
+        public int? InitialShift { get; set; }
 
         internal DateCustomField(_CustomField data, Project project)
             : base(data, project)
         {
-            Min = DateTime.Parse(data.min);
-            Max = DateTime.Parse(data.max);
-            InitialValueType = (DateCustomFieldInitialValueType)data.initialValueType;
-            InitialDate = data.initialDate ?? default;
-            InitialShift = data.initialShift;
+            if (data.min != default) Min = DateTime.Parse(data.min);
+            if (data.max != default) Max = DateTime.Parse(data.max);
+            InitialValueType = (DateCustomFieldInitialValueType)data.initialDate.id;
+            InitialDate = data.initialDate.date;
+            InitialShift = data.initialDate.shift;
         }
     }
 
@@ -123,8 +123,8 @@ namespace NBacklog.DataTypes
             : base(data, project)
         {
             Items = data.items.Select(x => new ListCustomFieldItem(x)).ToArray();
-            IsDirectInputAllowed = data.allowInput;
-            IsAdditionAllowed = data.allowAddItem;
+            IsDirectInputAllowed = data.allowInput ?? false;
+            IsAdditionAllowed = data.allowAddItem.Value;
         }
     }
 
@@ -145,7 +145,7 @@ namespace NBacklog.DataTypes
     {
         public CustomFieldType Type { get; set; }
         public string Name { get; set; }
-        public CustomFieldValueItem Value => Values[0];
+        public CustomFieldValueItem Value => (Values.Length > 0) ? Values[0] : null;
         public CustomFieldValueItem[] Values { get; set; }
         public string OtherValue { get; set; }
 
@@ -158,7 +158,7 @@ namespace NBacklog.DataTypes
 
             if (data.value == null)
             {
-                Values = new CustomFieldValueItem[] { null };
+                Values = Array.Empty<CustomFieldValueItem>();
             }
             else
             {
@@ -184,7 +184,7 @@ namespace NBacklog.DataTypes
         {
             switch (Type)
             {
-                case CustomFieldType.Text:
+                case CustomFieldType.String:
                 case CustomFieldType.TextArea:
                 case CustomFieldType.Numeric:
                 case CustomFieldType.Date:
@@ -207,6 +207,8 @@ namespace NBacklog.DataTypes
         public string Name { get; set; }
         public int DisplayOrder { get; set; }
 
+        public bool HasValue => ValueType != default;
+
         public Type ValueType { get; }
         public int IntValue => (int)_value;
         public double DoubleValue => (double)_value;
@@ -226,7 +228,7 @@ namespace NBacklog.DataTypes
             {
                 case JTokenType.Integer:
                     _value = (int)data.Value<long>();
-                    ValueType = typeof(long);
+                    ValueType = typeof(int);
                     break;
 
                 case JTokenType.Float:
@@ -260,32 +262,30 @@ namespace NBacklog.DataTypes
 
         internal CustomFieldValueItem(object data)
         {
-            if (data is long)
+            switch (data)
             {
-                _value = (int)(long)data;
-                ValueType = typeof(int);
-            }
-            else if (data is double)
-            {
-                _value = (double)data;
-            }
-            else if (data is string)
-            {
-                var value = data as string;
-                if (DateTime.TryParse(value, out var date))
-                {
-                    _value = date;
+                case long l:
+                    _value = (int)l;
+                    ValueType = typeof(int);
+                    break;
+
+                case double d:
+                    _value = d;
+                    ValueType = typeof(double);
+                    break;
+
+                case DateTime dt:
+                    _value = dt;
                     ValueType = typeof(DateTime);
-                }
-                else
-                {
-                    _value = value;
+                    break;
+
+                case string s:
+                    _value = s;
                     ValueType = typeof(string);
-                }
-            }
-            else
-            {
-                throw new ArgumentException($"invalid data type: {data.GetType()}");
+                    break;
+
+                default:
+                    throw new ArgumentException($"invalid data type: {data.GetType()}");
             }
         }
 

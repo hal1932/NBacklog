@@ -24,7 +24,7 @@ namespace NBacklog.Tests
                 ThrowOnClientError = true,
             };
 
-            var client = new BacklogClient("hal1932", "backlog.com", config);
+            var client = new BacklogClient("nbacklog", "backlog.com", config);
             client.AuthorizeAsync(new OAuth2App()
             {
                 ClientId = settings.client_id,

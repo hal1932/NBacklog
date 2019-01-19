@@ -18,11 +18,11 @@ namespace NBacklog.DataTypes
         public string TypeName { get; }
         public string Dir { get; }
         public string Name { get; }
-        public long Size { get; }
+        public long? Size { get; }
         public UserSummary Creator { get; }
         public DateTime Created { get; }
         public UserSummary LastUpdater { get; }
-        public DateTime LastUpdated { get; }
+        public DateTime? LastUpdated { get; }
 
         internal SharedFileSummary(_SharedFile data)
             : base(data.id)
@@ -38,7 +38,7 @@ namespace NBacklog.DataTypes
 
             Dir = data.dir;
             Name = data.name;
-            Size = data.size ?? default;
+            Size = data.size;
             Creator = (data.createdUser != null) ? new UserSummary(data.createdUser) : null;
             Created = data.created ?? default;
             LastUpdated = data.updated ?? default;

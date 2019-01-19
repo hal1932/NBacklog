@@ -43,7 +43,7 @@ namespace NBacklog.DataTypes
         public ChangeLog[] ChangeLogs { get;}
         public User Creator { get; }
         public DateTime Created { get; }
-        public DateTime LastUpdated { get; }
+        public DateTime? LastUpdated { get; }
         public Star[] Stars { get; }
         public Notification[] Notifications { get; private set; }
 
@@ -63,7 +63,7 @@ namespace NBacklog.DataTypes
             ChangeLogs = data.changeLog.Select(x => new ChangeLog(x)).ToArray();
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
-            LastUpdated = data.updated ?? default;
+            LastUpdated = data.updated ?? null;
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
 

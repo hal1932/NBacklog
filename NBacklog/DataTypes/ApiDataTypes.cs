@@ -131,7 +131,7 @@ namespace NBacklog.DataTypes
         public int type { get; set; }
         public Newtonsoft.Json.Linq.JObject content { get; set; }
         public _User createdUser { get; set; }
-        public DateTime created { get; set; }
+        public DateTime? created { get; set; }
     }
 
     class _AttachmentInfo
@@ -313,28 +313,35 @@ namespace NBacklog.DataTypes
         public string mailAddress { get; set; }
     }
 
+    class _CustomFieldInitialDate
+    {
+        public int id { get; set; }
+        public int? shift { get; set; }
+        public DateTime? date { get; set; }
+    }
+
     class _CustomField
     {
         public int id { get; set; }
         public int typeId { get; set; }
+        public long version { get; set; }
         public string name { get; set; }
         public string description { get; set; }
         public bool required { get; set; }
+        public bool useIssueType { get; set; }
         public List<int> applicableIssueTypes { get; set; }
 
         public string min { get; set; }
         public string max { get; set; }
 
-        public double initialValue { get; set; }
+        public double? initialValue { get; set; }
         public string unit { get; set; }
 
-        public int initialValueType { get; set; }
-        public DateTime? initialDate { get; set; }
-        public int initialShift { get; set; }
+        public _CustomFieldInitialDate initialDate { get; set; }
 
         public List<_ListCustomFieldItem> items { get; set; }
-        public bool allowAddItem { get; set; }
-        public bool allowInput { get; set; }
+        public bool? allowAddItem { get; set; }
+        public bool? allowInput { get; set; }
     }
 
     class _ListCustomFieldItem

@@ -136,7 +136,7 @@ namespace test
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
 
             //var client = new TestClient("hal1932", "backlog.com");
-            var client = new BacklogClient("hal1932", "backlog.com");
+            var client = new BacklogClient("nbacklog", "backlog.com");
             await client.AuthorizeAsync(new OAuth2App()
             {
                 ClientId = settings.client_id,
@@ -159,16 +159,18 @@ namespace test
             var projs = await client.GetProjectsAsync();
 
             var proj = projs.Content[0];
-            foreach (var ticket in await proj.BatchGetTicketsAsync())
-            {
-                await proj.DeleteTicketAsync(ticket);
-                Console.WriteLine($"delete ticket: {ticket.Key}");
-            }
+            //foreach (var ticket in await proj.BatchGetTicketsAsync())
+            //{
+            //    await proj.DeleteTicketAsync(ticket);
+            //    Console.WriteLine($"delete ticket: {ticket.Key}");
+            //}
             //var repos = proj.GetGitRepositoriesAsync().Result.Content;
             //var pullReqs = repos[0].GetPullRequestsAsync().Result.Content;
 
-            var teams = await client.GetTeamsAsync();
-            var projTeams = await proj.GetTeamsAsync();
+            var customFields = proj.GetCustomFieldsAsync().Result.Content;
+
+            //var teams = await client.GetTeamsAsync();
+            //var projTeams = await proj.GetTeamsAsync();
 
             //var repo = proj.GetGitRepositoryAsync((activities[0].Content as GitRepositoryCreatedActivityContent).Repository).Result.Content;
 

@@ -63,7 +63,7 @@ namespace NBacklog.DataTypes
         public string ReportSendTime { get; set; }
         public string TextFormattingRule { get; set; }
         public DateTime Created { get; set; }
-        public DateTime Updated { get; set; }
+        public DateTime? Updated { get; set; }
 
         internal Space(_Space data, BacklogClient client)
             : base(-1)
@@ -77,7 +77,7 @@ namespace NBacklog.DataTypes
             ReportSendTime = data.reportSendTime;
             TextFormattingRule = data.textFormattingRule;
             Created = data.created ?? default;
-            Updated = data.updated ?? default;
+            Updated = data.updated ?? null;
         }
 
         public async Task<BacklogResponse<SpaceNotification>> GetNotificationAsync()

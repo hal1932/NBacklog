@@ -16,10 +16,10 @@ namespace NBacklog.Tests
         {
             var space = _client.GetSpaceAsync().Result.Content;
             Assert.AreNotEqual(space, null);
-            Assert.AreEqual(space.Key, "hal1932");
+            Assert.AreEqual(space.Key, "nbacklog");
             Assert.AreEqual(space.Language, "ja");
-            Assert.AreEqual(space.Name, "テスト組織");
-            Assert.AreEqual(space.OwnerId, 3943);
+            Assert.AreEqual(space.Name, "freelance");
+            Assert.AreEqual(space.OwnerId, 17053);
             Assert.AreEqual(space.TextFormattingRule, "markdown");
             Assert.AreEqual(space.TimeZone, "Asia/Tokyo");
         }

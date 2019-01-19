@@ -14,7 +14,7 @@ namespace NBacklog.DataTypes
         public User Creator { get; }
         public DateTime Created { get; }
         public User LastUpdater { get; }
-        public DateTime LastUpdated { get; }
+        public DateTime? LastUpdated { get; }
 
         internal Team(_Team data, BacklogClient client)
             : base(data.id)
@@ -25,7 +25,7 @@ namespace NBacklog.DataTypes
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
             LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated ?? default;
+            LastUpdated = data.updated ?? null;
             _client = client;
         }
 

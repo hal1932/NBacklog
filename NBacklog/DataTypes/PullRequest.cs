@@ -48,12 +48,12 @@ namespace NBacklog.DataTypes
         public int TicketId { get; set; }
         public string BaseCommit { get; }
         public string BranchCommit { get; }
-        public DateTime Closed { get; }
-        public DateTime Merged { get; }
+        public DateTime? Closed { get; }
+        public DateTime? Merged { get; }
         public User Creator { get; }
         public DateTime Created { get; }
         public User Updater { get; }
-        public DateTime Updated { get; }
+        public DateTime? Updated { get; }
         public Attachment[] Attachments { get; }
         public Star[] Stars { get; }
 
@@ -74,12 +74,12 @@ namespace NBacklog.DataTypes
             TicketId = data.issue.id;
             BaseCommit = data.baseCommit;
             BranchCommit = data.branchCommit;
-            Closed = data.closeAt ?? default;
-            Merged = data.mergeAt ?? default;
+            Closed = data.closeAt ?? null;
+            Merged = data.mergeAt ?? null;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
             Updater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            Updated = data.updated ?? default;
+            Updated = data.updated ?? null;
             Attachments = data.attachments.Select(x => new Attachment(x, this)).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
         }

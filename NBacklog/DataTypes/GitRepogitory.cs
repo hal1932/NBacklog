@@ -32,11 +32,11 @@ namespace NBacklog.DataTypes
         public string HttpUrl { get; }
         public string SshUrl { get; }
         public int DisplayOrder { get; }
-        public DateTime Pushed { get; }
+        public DateTime? Pushed { get; }
         public User Creator { get; }
         public DateTime Created { get; }
         public User Updater { get; }
-        public DateTime Updated { get; }
+        public DateTime? Updated { get; }
 
         internal GitRepository(_GitRepository data, Project project)
             : base(data.id)
@@ -50,11 +50,11 @@ namespace NBacklog.DataTypes
             HttpUrl = data.httpUrl;
             SshUrl = data.sshUrl;
             DisplayOrder = data.displayOrder;
-            Pushed = data.pushedAt ?? default;
+            Pushed = data.pushedAt ?? null;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
             Created = data.created ?? default;
             Updater = client.ItemsCache.Update(data.updater?.id, () => new User(data.updater, client));
-            Updated = data.updated ?? default;
+            Updated = data.updated ?? null;
 
             Project = project;
         }

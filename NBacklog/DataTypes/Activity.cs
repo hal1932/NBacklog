@@ -68,7 +68,7 @@ namespace NBacklog.DataTypes
             Project = client.ItemsCache.Update(data.project.id, () => new Project(data.project, client));
             Type = (ActivityEvent)data.type;
             Creator = client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, client));
-            Created = data.created;
+            Created = data.created ?? default;
 
             var contentData = data.content;
 

@@ -20,7 +20,7 @@ namespace NBacklog.Tests
 
             var team = teams[0];
             Assert.AreNotEqual(team, null);
-            Assert.AreEqual(team.Id, 5390);
+            Assert.AreEqual(team.Id, 5881);
             Assert.AreEqual(team.Name, "test_team_1");
             Assert.AreEqual(team.Creator, null);    // Backlogの仕様(?)でユーザー情報が返ってこない
             Assert.AreEqual(team.LastUpdater, null);// Backlogの仕様(?)でユーザー情報が返ってこない
@@ -31,7 +31,7 @@ namespace NBacklog.Tests
 
             team = teams[1];
             Assert.AreNotEqual(team, null);
-            Assert.AreEqual(team.Id, 5392);
+            Assert.AreEqual(team.Id, 5886);
             Assert.AreEqual(team.Name, "test_team_2");
             Assert.AreEqual(team.Creator, null);
             Assert.AreEqual(team.LastUpdater, null);
@@ -50,7 +50,7 @@ namespace NBacklog.Tests
             var team = new Team("_test_team_3");
             team.Members = new[] 
             {
-                new User(3943),
+                new User(17053),
             };
             var newTeam = _client.AddTeamAsync(team).Result.Content;
 
@@ -73,9 +73,9 @@ namespace NBacklog.Tests
         [TestMethod()]
         public void GetTeamAsyncTest()
         {
-            var team = _client.GetTeamAsync(5390).Result.Content;
+            var team = _client.GetTeamAsync(5881).Result.Content;
             Assert.AreNotEqual(team, null);
-            Assert.AreEqual(team.Id, 5390);
+            Assert.AreEqual(team.Id, 5881);
             Assert.AreEqual(team.Name, "test_team_1");
             Assert.AreEqual(team.Creator, null);
             Assert.AreEqual(team.LastUpdater, null);
@@ -96,8 +96,8 @@ namespace NBacklog.Tests
             var team = new Team("test_team_1");
             team.Members = new[]
             {
-                new User(3943),
-                new User(16877),
+                new User(18731),
+                new User(17053),
             };
 
             var updatedTeam = _client.UpdateTeamAsync(team).Result.Content;

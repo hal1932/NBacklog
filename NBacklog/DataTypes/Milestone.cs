@@ -26,8 +26,8 @@ namespace NBacklog.DataTypes
         public Project Project { get; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime DueDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? DueDate { get; set; }
         public bool IsArchived { get; set; }
         public int DisplayOrder { get; }
 
@@ -47,8 +47,8 @@ namespace NBacklog.DataTypes
             Project = project;
             Name = data.name;
             Description = data.description;
-            StartDate = data.startDate?.Date ?? default;
-            DueDate = data.releaseDueDate?.Date ?? default;
+            StartDate = data.startDate?.Date ?? null;
+            DueDate = data.releaseDueDate?.Date ?? null;
             IsArchived = data.archived;
             DisplayOrder = data.displayOrder;
         }
@@ -58,8 +58,8 @@ namespace NBacklog.DataTypes
             var parameters = new QueryParameters();
             parameters.Add("name", Name);
             parameters.Add("description", Description ?? string.Empty);
-            parameters.Add("startDate", (StartDate != default) ? StartDate.ToString("yyyy-MM-dd") : string.Empty);
-            parameters.Add("releaseDueDate", (DueDate != default) ? DueDate.ToString("yyyy-MM-dd") : string.Empty);
+            parameters.Add("startDate", (StartDate.HasValue) ? StartDate.Value.ToString("yyyy-MM-dd") : string.Empty);
+            parameters.Add("releaseDueDate", (DueDate.HasValue) ? DueDate.Value.ToString("yyyy-MM-dd") : string.Empty);
             return parameters;
         }
     }

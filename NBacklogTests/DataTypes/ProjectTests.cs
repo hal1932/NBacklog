@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NBacklog.DataTypes;
+using NBacklog.Query;
 using NBacklog.Tests;
 using System;
 using System.Collections.Generic;
@@ -26,27 +27,27 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             var users = _project.GetUsersAsync(true).Result.Content.OrderBy(x => x.Name).ToArray();
             Assert.AreEqual(users.Length, 1);
             var user = users[0];
-            Assert.AreEqual(user.Id, 3943);
+            Assert.AreEqual(user.Id, 17053);
             Assert.AreEqual(user.Name, "test_user_12345");
             Assert.AreEqual(user.MailAddress, "yu.arai.19@gmail.com");
-            Assert.AreEqual(user.UserId, "6hMjddYcib");
+            Assert.AreEqual(user.UserId, "gxMGPhkOdy");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.Admin);
 
             users = _project.GetUsersAsync(false).Result.Content.OrderBy(x => x.Name).ToArray();
             Assert.AreEqual(users.Length, 2);
             user = users[0];
-            Assert.AreEqual(user.Id, 16877);
+            Assert.AreEqual(user.Id, 18731);
             Assert.AreEqual(user.Name, "test_account");
-            Assert.AreEqual(user.MailAddress, "kvhn1h1u6sjk@sute.jp");
-            Assert.AreEqual(user.UserId, "*AWMVaKoRkG");
+            Assert.AreEqual(user.MailAddress, "iufd5b8ckjej@sute.jp");
+            Assert.AreEqual(user.UserId, "*cT1xIAu4Vh");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.User);
             user = users[1];
-            Assert.AreEqual(user.Id, 3943);
+            Assert.AreEqual(user.Id, 17053);
             Assert.AreEqual(user.Name, "test_user_12345");
             Assert.AreEqual(user.MailAddress, "yu.arai.19@gmail.com");
-            Assert.AreEqual(user.UserId, "6hMjddYcib");
+            Assert.AreEqual(user.UserId, "gxMGPhkOdy");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.Admin);
         }
@@ -54,7 +55,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void AddDeleteUserAsyncTest()
         {
-            var user = new User(16877);
+            var user = new User(18731);
 
             var newUser = _project.AddUserAsync(user).Result.Content;
             Assert.AreNotEqual(newUser, null);
@@ -78,6 +79,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             var categories = _project.GetCategoriesAsync().Result.Content;
             var milestones = _project.GetMilestonesAsync().Result.Content;
             var sharedFiles = _project.GetSharedFilesAsync().Result.Content;
+            var statuses = _client.GetStatusTypesAsync().Result.Content;
 
             foreach (var ticket in _project.GetTicketsAsync().Result.Content)
             {
@@ -108,6 +110,8 @@ namespace NBacklog.DataTypes.Tests.DataTypes
                 Assert.AreNotEqual(newTicket, null);
                 Assert.AreSame(newTicket.Project, ticket.Project);
                 Assert.AreEqual(newTicket.Summary, ticket.Summary);
+                Assert.AreEqual(newTicket.Description, ticket.Description);
+                Assert.AreEqual(newTicket.Status.Name, "未対応");
                 Assert.AreEqual(newTicket.Type, ticket.Type);
                 Assert.AreEqual(newTicket.Priority, ticket.Priority);
                 Assert.AreEqual(newTicket.Assignee, ticket.Assignee);
@@ -127,7 +131,45 @@ namespace NBacklog.DataTypes.Tests.DataTypes
 
             Assert.AreEqual(newTickets.Count, tickets.Count);
 
+            var updatedTickets = new List<Ticket>();
             foreach (var ticket in newTickets)
+            {
+                if (rand.Next(2) == 0) ticket.Summary = $"updated_{ticket.Summary}";
+                if (rand.Next(2) == 0) ticket.Type = types[rand.Next(types.Length - 1)];
+                if (rand.Next(2) == 0) ticket.Priority = priorities[rand.Next(priorities.Length - 1)];
+                if (rand.Next(2) == 0) ticket.Assignee = users[rand.Next(0, users.Length - 1)];
+                if (rand.Next(2) == 0) ticket.Categories = Enumerable.Range(0, rand.Next(3)).Select(_ => categories[rand.Next(categories.Length - 1)]).Distinct().ToArray();
+                if (rand.Next(2) == 0) ticket.Description = $"updated_{ticket.Description}";
+                if (rand.Next(2) == 0) ticket.Status = statuses[rand.Next(0, statuses.Length - 1)];
+                if (rand.Next(2) == 0) ticket.DueDate = (DateTime.Now + TimeSpan.FromDays(rand.Next(10))).Date;
+                if (rand.Next(2) == 0) ticket.EstimatedHours = rand.Next(10);
+                if (rand.Next(2) == 0) ticket.Milestones = Enumerable.Range(0, rand.Next(3)).Select(_ => milestones[rand.Next(milestones.Length - 1)]).Distinct().ToArray();
+                if (rand.Next(2) == 0) ticket.StartDate = (DateTime.Now - TimeSpan.FromDays(rand.Next(10))).Date;
+                if (rand.Next(2) == 0) ticket.Versions = Enumerable.Range(0, rand.Next(3)).Select(_ => milestones[rand.Next(milestones.Length - 1)]).Distinct().ToArray();
+
+                var updatedTicket = _project.UpdateTicketAsync(ticket).Result.Content;
+                Assert.AreNotEqual(updatedTicket, null);
+                Assert.AreEqual(updatedTicket.Id, ticket.Id);
+                Assert.AreEqual(updatedTicket.Key, ticket.Key);
+                Assert.AreEqual(updatedTicket.KeyId, ticket.KeyId);
+                Assert.AreSame(updatedTicket.Project, ticket.Project);
+                Assert.AreEqual(updatedTicket.Summary, ticket.Summary);
+                Assert.AreEqual(updatedTicket.Description, ticket.Description);
+                Assert.AreEqual(updatedTicket.Status, ticket.Status);
+                Assert.AreEqual(updatedTicket.Type, ticket.Type);
+                Assert.AreEqual(updatedTicket.Priority, ticket.Priority);
+                Assert.AreEqual(updatedTicket.Assignee, ticket.Assignee);
+                CollectionAssert.AreEquivalent(updatedTicket.Categories, ticket.Categories);
+                Assert.AreEqual(updatedTicket.DueDate, ticket.DueDate);
+                Assert.AreEqual(updatedTicket.EstimatedHours, ticket.EstimatedHours);
+                CollectionAssert.AreEquivalent(updatedTicket.Milestones, ticket.Milestones);
+                Assert.AreEqual(updatedTicket.StartDate, ticket.StartDate);
+                CollectionAssert.AreEquivalent(updatedTicket.Versions, ticket.Versions);
+
+                updatedTickets.Add(updatedTicket);
+            }
+
+            foreach (var ticket in updatedTickets)
             {
                 var deletedTicket = _project.DeleteTicketAsync(ticket).Result.Content;
                 Assert.AreNotEqual(deletedTicket, null);
@@ -136,6 +178,8 @@ namespace NBacklog.DataTypes.Tests.DataTypes
                 Assert.AreEqual(deletedTicket.KeyId, ticket.KeyId);
                 Assert.AreSame(deletedTicket.Project, ticket.Project);
                 Assert.AreEqual(deletedTicket.Summary, ticket.Summary);
+                Assert.AreEqual(deletedTicket.Description, ticket.Description);
+                Assert.AreEqual(deletedTicket.Status, ticket.Status);
                 Assert.AreSame(deletedTicket.Type, ticket.Type);
                 Assert.AreSame(deletedTicket.Priority, ticket.Priority);
                 Assert.AreSame(deletedTicket.Assignee, ticket.Assignee);
@@ -159,25 +203,25 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(types.Length, 4);
 
             var type = types[0];
-            Assert.AreEqual(type.Id, 7407);
+            Assert.AreEqual(type.Id, 31953);
             Assert.AreEqual(type.Name, "バグ");
             Assert.AreEqual(type.Color.ToArgb(), (int)TicketColor.Orange);
             Assert.AreSame(type.Project, _project);
 
             type = types[1];
-            Assert.AreEqual(type.Id, 7408);
+            Assert.AreEqual(type.Id, 31954);
             Assert.AreEqual(type.Name, "タスク");
             Assert.AreEqual(type.Color.ToArgb(), (int)TicketColor.YellowGreen);
             Assert.AreSame(type.Project, _project);
 
             type = types[2];
-            Assert.AreEqual(type.Id, 7409);
+            Assert.AreEqual(type.Id, 31955);
             Assert.AreEqual(type.Name, "要望");
             Assert.AreEqual(type.Color.ToArgb(), (int)TicketColor.Yellow);
             Assert.AreSame(type.Project, _project);
 
             type = types[3];
-            Assert.AreEqual(type.Id, 7410);
+            Assert.AreEqual(type.Id, 31956);
             Assert.AreEqual(type.Name, "その他");
             Assert.AreEqual(type.Color.ToArgb(), (int)TicketColor.Blue);
             Assert.AreSame(type.Project, _project);
@@ -193,7 +237,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(newType.Name, type.Name);
             Assert.AreEqual(newType.Color, type.Color);
 
-            var subType = new TicketType(7410);
+            var subType = new TicketType(31953);
             var deletedType = _project.DeleteTicketTypeAsync(newType, subType).Result.Content;
             Assert.AreEqual(deletedType, newType);
         }
@@ -201,7 +245,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void UpdateTicketTypeAsyncTest()
         {
-            var type = new TicketType(7407)
+            var type = new TicketType(31953)
             {
                 Name = "バグ1",
                 Color = Color.FromArgb((int)TicketColor.Blue),
@@ -231,15 +275,15 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(categories.Length, 3);
 
             var category = categories[0];
-            Assert.AreEqual(category.Id, 3070);
+            Assert.AreEqual(category.Id, 10706);
             Assert.AreEqual(category.Name, "サブシステムA");
 
             category = categories[1];
-            Assert.AreEqual(category.Id, 3071);
+            Assert.AreEqual(category.Id, 10707);
             Assert.AreEqual(category.Name, "リサーチ");
 
             category = categories[2];
-            Assert.AreEqual(category.Id, 3072);
+            Assert.AreEqual(category.Id, 10708);
             Assert.AreEqual(category.Name, "デザイン");
         }
 
@@ -259,7 +303,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void UpdateCategoryAsyncTest()
         {
-            var category = new Category(3070)
+            var category = new Category(10706)
             {
                 Name = "サブシステムB",
             };
@@ -283,7 +327,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(milestones.Length, 3);
 
             var milestone = milestones[0];
-            Assert.AreEqual(milestone.Id, 1591);
+            Assert.AreEqual(milestone.Id, 5977);
             Assert.AreEqual(milestone.Name, "1.0-M1");
             Assert.AreEqual(milestone.Description, "バージョン1.0のマイルストーンリリース第１弾");
             Assert.AreEqual(milestone.StartDate, new DateTime(2018, 11, 1));
@@ -291,7 +335,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(milestone.IsArchived, false);
 
             milestone = milestones[1];
-            Assert.AreEqual(milestone.Id, 1952);
+            Assert.AreEqual(milestone.Id, 5978);
             Assert.AreEqual(milestone.Name, "test1");
             Assert.AreEqual(milestone.Description, null);
             Assert.AreEqual(milestone.StartDate, new DateTime(2018, 11, 1));
@@ -299,7 +343,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(milestone.IsArchived, false);
 
             milestone = milestones[2];
-            Assert.AreEqual(milestone.Id, 3324);
+            Assert.AreEqual(milestone.Id, 5979);
             Assert.AreEqual(milestone.Name, "test2");
             Assert.AreEqual(milestone.Description, "test2");
             Assert.AreEqual(milestone.StartDate, new DateTime(2018, 12, 11));
@@ -336,7 +380,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void UpdateMilestoneAsyncTest()
         {
-            var milestone = new Milestone(1952)
+            var milestone = new Milestone(5978)
             {
                 Name = "test1",
                 Description = null,
@@ -378,37 +422,38 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void GetWebhooksAsyncTest()
         {
-            var user = new User(3943);
+            var user = new User(17053);
 
             var hooks = _project.GetWebhooksAsync().Result.Content.OrderBy(x => x.Id).ToArray();
             Assert.AreEqual(hooks.Length, 2);
 
             var hook = hooks[0];
-            Assert.AreEqual(hook.Id, 74);
+            Assert.AreEqual(hook.Id, 191);
             Assert.AreEqual(hook.Name, "test1");
             Assert.AreEqual(hook.Description, "test1_desc");
             Assert.AreEqual(hook.HookUrl, "http://localhost");
             Assert.AreEqual(hook.Creator.Id, user.Id);
-            Assert.AreEqual(hook.Created, new DateTime(2018, 12, 2, 0, 29, 56));
+            Assert.AreEqual(hook.Created, new DateTime(2019, 1, 19, 13, 03, 43));
             Assert.AreEqual(hook.LastUpdater.Id, user.Id);
-            Assert.AreEqual(hook.LastUpdated, new DateTime(2018, 12, 2, 5, 18, 11));
+            Assert.AreEqual(hook.LastUpdated, hook.Created);
             Assert.AreEqual(hook.HookedActivities.Length, Enum.GetValues(typeof(ActivityEvent)).Length - 1);
             Assert.AreEqual(hook.IsAllActivitiesHooked, true);
 
             hook = hooks[1];
-            Assert.AreEqual(hook.Id, 76);
-            Assert.AreEqual(hook.Name, "test3");
-            Assert.AreEqual(hook.Description, "test3_desc");
+            Assert.AreEqual(hook.Id, 192);
+            Assert.AreEqual(hook.Name, "test2");
+            Assert.AreEqual(hook.Description, "test2_desc");
             Assert.AreEqual(hook.HookUrl, "http://localhost");
             Assert.AreEqual(hook.Creator.Id, user.Id);
-            Assert.AreEqual(hook.Created, new DateTime(2018, 12, 2, 0, 30, 30));
+            Assert.AreEqual(hook.Created, new DateTime(2019, 1, 19, 13, 4, 8));
             Assert.AreEqual(hook.LastUpdater.Id, user.Id);
-            Assert.AreEqual(hook.LastUpdated, hook.Created);
+            Assert.AreEqual(hook.LastUpdated, new DateTime(2019, 1, 19, 13, 4, 52));
             var activities = hook.HookedActivities.OrderBy(x => (int)x).ToArray();
-            Assert.AreEqual(activities.Length, 3);
-            Assert.AreEqual(activities[0], ActivityEvent.WikiDeleted);
+            Assert.AreEqual(activities.Length, 4);
+            Assert.AreEqual(activities[0], ActivityEvent.WikiUpdated);
             Assert.AreEqual(activities[1], ActivityEvent.FileUpdated);
-            Assert.AreEqual(activities[2], ActivityEvent.GitPullRequestUpdated);
+            Assert.AreEqual(activities[2], ActivityEvent.SvnCommitted);
+            Assert.AreEqual(activities[3], ActivityEvent.GitPullRequestUpdated);
             Assert.AreEqual(hook.IsAllActivitiesHooked, false);
         }
 
@@ -434,7 +479,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void UpdateWebhookAsyncTest()
         {
-            var hook = new Webhook(74);
+            var hook = new Webhook(191);
 
             hook.Name = "test";
             hook.Description = "test_desc";
@@ -524,16 +569,15 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(teams.Length, 1);
 
             var team = teams[0];
-            Assert.AreEqual(team.Id, 5390);
+            Assert.AreEqual(team.Id, 5881);
             Assert.AreEqual(team.Name, "test_team_1");
             Assert.AreEqual(team.Creator, null);
-            Assert.AreEqual(team.Created, new DateTime(2019, 1, 12, 16, 14, 1));
+            Assert.AreEqual(team.Created, new DateTime(2019, 1, 19, 12, 53, 30));
             Assert.AreEqual(team.LastUpdater, null);
-            Assert.AreEqual(team.LastUpdated, new DateTime(2019, 1, 12, 18, 0, 2));
+            Assert.AreEqual(team.LastUpdated, new DateTime(2019, 1, 19, 12, 55, 39));
             var members = team.Members.OrderBy(x => x.Id).ToArray();
-            Assert.AreEqual(members.Length, 2);
-            Assert.AreEqual(members[0].Id, 3943);
-            Assert.AreEqual(members[1].Id, 16877);
+            Assert.AreEqual(members.Length, 1);
+            Assert.AreEqual(members[0].Id, 18731);
         }
 
         [TestMethod()]
@@ -545,7 +589,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             }
 
             var team = new Team("test");
-            team.Members = new[] { new User(5390) };
+            team.Members = new[] { new User(18731) };
 
             var newTeam = _project.AddTeamAsync(team).Result.Content;
         }
@@ -564,7 +608,27 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void GetCustomFieldsAsyncTest()
         {
-            Assert.Fail();
+            var fields = _project.GetCustomFieldsAsync().Result.Content.OrderBy(x => x.Id).ToArray();
+            Assert.AreEqual(fields.Length, 10);
+
+            var field = fields[0];
+            Assert.AreEqual(field.Id, 1423);
+            Assert.AreSame(field.Project, _project);
+            Assert.AreEqual(field.Name, "test_str");
+            Assert.AreEqual(field.Type, CustomFieldType.String);
+            Assert.AreEqual(field.Description, "test");
+            Assert.AreEqual(field.IsRequired, false);
+            Assert.AreEqual(field.ApplicableTicketTypeIds.Length, 0);
+
+            field = fields[1];
+            Assert.AreEqual(field.Id, 1424);
+            Assert.AreSame(field.Project, _project);
+            Assert.AreEqual(field.Name, "test_text");
+            Assert.AreEqual(field.Type, CustomFieldType.TextArea);
+            Assert.AreEqual(field.Description, "");
+            Assert.AreEqual(field.IsRequired, false);
+            Assert.AreEqual(field.ApplicableTicketTypeIds.Length, 2);
+            CollectionAssert.AreEquivalent(field.ApplicableTicketTypeIds, new[] { 31953, 31955 });
         }
 
         [TestMethod()]

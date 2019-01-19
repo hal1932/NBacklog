@@ -19,18 +19,18 @@ namespace NBacklog.Tests
             Assert.AreEqual(users.Length, 2);
 
             var user = users[0];
-            Assert.AreEqual(user.Id, 16877);
+            Assert.AreEqual(user.Id, 18731);
             Assert.AreEqual(user.Name, "test_account");
-            Assert.AreEqual(user.MailAddress, "kvhn1h1u6sjk@sute.jp");
-            Assert.AreEqual(user.UserId, "*AWMVaKoRkG");
+            Assert.AreEqual(user.MailAddress, "iufd5b8ckjej@sute.jp");
+            Assert.AreEqual(user.UserId, "*cT1xIAu4Vh");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.User);
 
             user = users[1];
-            Assert.AreEqual(user.Id, 3943);
+            Assert.AreEqual(user.Id, 17053);
             Assert.AreEqual(user.Name, "test_user_12345");
             Assert.AreEqual(user.MailAddress, "yu.arai.19@gmail.com");
-            Assert.AreEqual(user.UserId, "6hMjddYcib");
+            Assert.AreEqual(user.UserId, "gxMGPhkOdy");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.Admin);
         }
@@ -38,12 +38,11 @@ namespace NBacklog.Tests
         [TestMethod()]
         public void GetUserAsyncTest()
         {
-            var user = _client.GetUserAsync(3943).Result.Content;
+            var user = _client.GetUserAsync(17053).Result.Content;
             Assert.AreNotEqual(user, null);
-            Assert.AreEqual(user.Id, 3943);
             Assert.AreEqual(user.Name, "test_user_12345");
             Assert.AreEqual(user.MailAddress, "yu.arai.19@gmail.com");
-            Assert.AreEqual(user.UserId, "6hMjddYcib");
+            Assert.AreEqual(user.UserId, "gxMGPhkOdy");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.Admin);
         }
@@ -53,10 +52,10 @@ namespace NBacklog.Tests
         {
             var user = _client.GetLoginUserAsync().Result.Content;
             Assert.AreNotEqual(user, null);
-            Assert.AreEqual(user.Id, 3943);
+            Assert.AreEqual(user.Id, 17053);
             Assert.AreEqual(user.Name, "test_user_12345");
             Assert.AreEqual(user.MailAddress, "yu.arai.19@gmail.com");
-            Assert.AreEqual(user.UserId, "6hMjddYcib");
+            Assert.AreEqual(user.UserId, "gxMGPhkOdy");
             Assert.AreEqual(user.Language, "ja");
             Assert.AreEqual(user.Role, UserRole.Admin);
         }

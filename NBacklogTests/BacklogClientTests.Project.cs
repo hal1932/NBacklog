@@ -19,37 +19,37 @@ namespace NBacklog.Tests
             Assert.AreEqual(projects.Length, 1);
 
             var project = projects[0];
-            Assert.AreEqual(project.Id, 1775);
+            Assert.AreEqual(project.Id, 7352);
             Assert.AreEqual(project.Name, "test");
             Assert.AreEqual(project.Key, "TEST");
             Assert.AreEqual(project.IsArchived, false);
             Assert.AreEqual(project.CanProjectLeaderEditProjectLeader, false);
-            Assert.AreEqual(project.IsChartEnabled, false);
-            Assert.AreEqual(project.IsSubtaskingEnabled, false);
+            Assert.AreEqual(project.IsChartEnabled, true);
+            Assert.AreEqual(project.IsSubtaskingEnabled, true);
             Assert.AreEqual(project.TextFormattingRule, "markdown");
         }
 
         [TestMethod()]
         public void GetProjectAsyncTest()
         {
-            var project = _client.GetProjectAsync(1775).Result.Content;
-            Assert.AreEqual(project.Id, 1775);
+            var project = _client.GetProjectAsync(7352).Result.Content;
+            Assert.AreEqual(project.Id, 7352);
             Assert.AreEqual(project.Name, "test");
             Assert.AreEqual(project.Key, "TEST");
             Assert.AreEqual(project.IsArchived, false);
             Assert.AreEqual(project.CanProjectLeaderEditProjectLeader, false);
-            Assert.AreEqual(project.IsChartEnabled, false);
-            Assert.AreEqual(project.IsSubtaskingEnabled, false);
+            Assert.AreEqual(project.IsChartEnabled, true);
+            Assert.AreEqual(project.IsSubtaskingEnabled, true);
             Assert.AreEqual(project.TextFormattingRule, "markdown");
 
             project = _client.GetProjectAsync("TEST").Result.Content;
-            Assert.AreEqual(project.Id, 1775);
+            Assert.AreEqual(project.Id, 7352);
             Assert.AreEqual(project.Name, "test");
             Assert.AreEqual(project.Key, "TEST");
             Assert.AreEqual(project.IsArchived, false);
             Assert.AreEqual(project.CanProjectLeaderEditProjectLeader, false);
-            Assert.AreEqual(project.IsChartEnabled, false);
-            Assert.AreEqual(project.IsSubtaskingEnabled, false);
+            Assert.AreEqual(project.IsChartEnabled, true);
+            Assert.AreEqual(project.IsSubtaskingEnabled, true);
             Assert.AreEqual(project.TextFormattingRule, "markdown");
         }
 

@@ -145,9 +145,8 @@ namespace NBacklog.DataTypes
         public async Task<BacklogResponse<Ticket>> UpdateTicketAsync(Ticket ticket)
         {
             var parameters = ticket.ToApiParameters();
-            parameters.Replace("projectId", Id);
 
-            var response = await Client.GetAsync($"/api/v2/issues/{ticket.Id}", parameters.Build()).ConfigureAwait(false);
+            var response = await Client.PatchAsync($"/api/v2/issues/{ticket.Id}", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Ticket, _Ticket>(
                 response,
                 HttpStatusCode.OK,
