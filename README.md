@@ -32,11 +32,6 @@ namespace test
 
         static async Task Main(string[] args)
         {
-            await MainAsync();
-        }
-
-        static async Task MainAsync1()
-        {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
             var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 3 };
 
