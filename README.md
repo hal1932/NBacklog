@@ -1,6 +1,7 @@
 # NBacklog
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 C# wrapper for the Nulab's Backlog API v3.
 
 http://developer.nulab-inc.com/docs/backlog
