@@ -6,6 +6,11 @@ namespace NBacklog.Extensions
     {
         public static bool CanContinueBatchJobs<T>(this BacklogResponse<T> response, ErrorHandler onError)
         {
+            if (response.IsSuccess)
+            {
+                return true;
+            }
+
             if (onError == null || !response.Errors.Any())
             {
                 return true;
