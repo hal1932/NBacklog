@@ -129,6 +129,18 @@ namespace NBacklog.DataTypes
                 data => data.count).ConfigureAwait(false);
         }
 
+        public async Task<BacklogResponse<Ticket>> GetTicketAsync(string key)
+        {
+            var response = await Client.GetAsync($"/api/v2/issues/{key}").ConfigureAwait(false);
+            return await Client.CreateResponseAsync<Ticket, _Ticket>(
+                response,
+                HttpStatusCode.OK,
+                data => new Ticket(data, this, Client)).ConfigureAwait(false);
+        }
+
+        public async Task<BacklogResponse<Ticket>> GetTicketAsync(int id)
+            => await GetTicketAsync(id.ToString()).ConfigureAwait(false);
+
         public async Task<BacklogResponse<Ticket>> AddTicketAsync(Ticket ticket)
         {
             var parameters = ticket.ToApiParameters();

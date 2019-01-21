@@ -37,7 +37,7 @@ namespace NBacklog.DataTypes
 
     public class Comment : BacklogItem
     {
-        public Ticket Ticket { get; }
+        public Ticket Ticket { get; internal set; }
 
         public string Content { get; set; }
         public ChangeLog[] ChangeLogs { get;}
@@ -47,11 +47,14 @@ namespace NBacklog.DataTypes
         public Star[] Stars { get; }
         public Notification[] Notifications { get; private set; }
 
-        public Comment(string content, Ticket ticket)
+        public Comment(int id)
+            : base(id)
+        { }
+
+        public Comment(string content)
             : base(-1)
         {
             Content = content;
-            Ticket = ticket;
         }
 
         internal Comment(_Comment data, Ticket ticket)

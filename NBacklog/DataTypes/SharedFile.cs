@@ -59,6 +59,10 @@ namespace NBacklog.DataTypes
         public User LastUpdater { get; }
         public DateTime LastUpdated { get; }
 
+        public SharedFile(int id)
+            : base(id)
+        { }
+
         internal SharedFile(_SharedFile data, Wikipage wikipage)
             : this(data, wikipage.Project)
         {

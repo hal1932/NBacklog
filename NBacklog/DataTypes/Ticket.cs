@@ -130,7 +130,7 @@ namespace NBacklog.DataTypes
         }
 
         #region comment
-        public async Task<BacklogResponse<int>> GetCommentCount(CommentQuery query = null)
+        public async Task<BacklogResponse<int>> GetCommentCountAsync(CommentQuery query = null)
         {
             if (Id < 0)
             {
@@ -139,7 +139,7 @@ namespace NBacklog.DataTypes
 
             query = query ?? new CommentQuery();
 
-            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments/comment", query.Build()).ConfigureAwait(false);
+            var response = await _client.GetAsync($"/api/v2/issues/{Id}/comments/count", query.Build()).ConfigureAwait(false);
             return await _client.CreateResponseAsync<int, _Count>(
                 response,
                 HttpStatusCode.OK,
@@ -208,14 +208,14 @@ namespace NBacklog.DataTypes
                 content = comment.Content,
             };
 
-            var response = await _client.PostAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
+            var response = await _client.PatchAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
             return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.OK,
                 data => new Comment(data, this)).ConfigureAwait(false);
         }
 
-        public async Task<BacklogResponse<Comment[]>> DeleteCommentAsync(Comment comment)
+        public async Task<BacklogResponse<Comment>> DeleteCommentAsync(Comment comment)
         {
             if (Id < 0)
             {
@@ -228,10 +228,10 @@ namespace NBacklog.DataTypes
             };
 
             var response = await _client.DeleteAsync($"/api/v2/issues/{Id}/comments/{comment.Id}", parameters).ConfigureAwait(false);
-            return await _client.CreateResponseAsync<Comment[], List<_Comment>>(
+            return await _client.CreateResponseAsync<Comment, _Comment>(
                 response,
                 HttpStatusCode.OK,
-                data => data.Select(x => new Comment(x, this)).ToArray()).ConfigureAwait(false);
+                data => new Comment(data, this)).ConfigureAwait(false);
         }
         #endregion
 

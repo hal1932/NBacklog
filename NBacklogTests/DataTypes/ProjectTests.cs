@@ -70,7 +70,6 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         [TestMethod()]
         public void TicketTest()
         {
-            return;
             var rand = new Random();
 
             var types = _project.GetTicketTypesAsync().Result.Content;
@@ -86,7 +85,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
                 _project.DeleteTicketAsync(ticket).Wait();
             }
 
-            var tickets = Enumerable.Range(0, 50).Select(i =>
+            var tickets = Enumerable.Range(0, 10).Select(i =>
                 new Ticket(_project, $"summary_{i}", types[rand.Next(types.Length - 1)], priorities[rand.Next(priorities.Length - 1)])
                 {
                     Assignee = users[rand.Next(0, users.Length - 1)],
@@ -338,8 +337,8 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(milestone.Id, 5978);
             Assert.AreEqual(milestone.Name, "test1");
             Assert.AreEqual(milestone.Description, null);
-            Assert.AreEqual(milestone.StartDate, new DateTime(2018, 11, 1));
-            Assert.AreEqual(milestone.DueDate, new DateTime(2018, 11, 22));
+            Assert.AreEqual(milestone.StartDate, new DateTime(2019, 11, 1));
+            Assert.AreEqual(milestone.DueDate, new DateTime(2019, 11, 22));
             Assert.AreEqual(milestone.IsArchived, false);
 
             milestone = milestones[2];
@@ -435,8 +434,8 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(hook.Creator.Id, user.Id);
             Assert.AreEqual(hook.Created, new DateTime(2019, 1, 19, 13, 03, 43));
             Assert.AreEqual(hook.LastUpdater.Id, user.Id);
-            Assert.AreEqual(hook.LastUpdated, hook.Created);
-            Assert.AreEqual(hook.HookedActivities.Length, Enum.GetValues(typeof(ActivityEvent)).Length - 1);
+            //Assert.AreEqual(hook.LastUpdated, new DateTime(2019, 1, 21, 13, 38, 43));
+            Assert.AreEqual(hook.HookedActivities, null);
             Assert.AreEqual(hook.IsAllActivitiesHooked, true);
 
             hook = hooks[1];
@@ -447,7 +446,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(hook.Creator.Id, user.Id);
             Assert.AreEqual(hook.Created, new DateTime(2019, 1, 19, 13, 4, 8));
             Assert.AreEqual(hook.LastUpdater.Id, user.Id);
-            Assert.AreEqual(hook.LastUpdated, new DateTime(2019, 1, 19, 13, 4, 52));
+            //Assert.AreEqual(hook.LastUpdated, new DateTime(2019, 1, 19, 13, 4, 52));
             var activities = hook.HookedActivities.OrderBy(x => (int)x).ToArray();
             Assert.AreEqual(activities.Length, 4);
             Assert.AreEqual(activities[0], ActivityEvent.WikiUpdated);
@@ -505,10 +504,11 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(updatedHook.Description, hook.Description);
             Assert.AreEqual(updatedHook.HookUrl, hook.HookUrl);
             Assert.AreEqual(updatedHook.IsAllActivitiesHooked, true);
-            CollectionAssert.AreEquivalent(updatedHook.HookedActivities, Activity.AllEvents);
+            CollectionAssert.AreEquivalent(updatedHook.HookedActivities, null);
         }
         #endregion
 
+#if false
         #region wiki
         [TestMethod()]
         public void GetWikipageCountAsyncTest()
@@ -560,6 +560,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.Fail();
         }
         #endregion
+#endif
 
         #region team
         [TestMethod()]
@@ -574,10 +575,11 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             Assert.AreEqual(team.Creator, null);
             Assert.AreEqual(team.Created, new DateTime(2019, 1, 19, 12, 53, 30));
             Assert.AreEqual(team.LastUpdater, null);
-            Assert.AreEqual(team.LastUpdated, new DateTime(2019, 1, 19, 12, 55, 39));
+            Assert.AreEqual(team.LastUpdated, new DateTime(2019, 1, 19, 13, 46, 16));
             var members = team.Members.OrderBy(x => x.Id).ToArray();
-            Assert.AreEqual(members.Length, 1);
-            Assert.AreEqual(members[0].Id, 18731);
+            Assert.AreEqual(members.Length, 2);
+            Assert.AreEqual(members[0].Id, 17053);
+            Assert.AreEqual(members[1].Id, 18731);
         }
 
         [TestMethod()]
@@ -592,6 +594,14 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             team.Members = new[] { new User(18731) };
 
             var newTeam = _project.AddTeamAsync(team).Result.Content;
+            Assert.AreNotEqual(newTeam, null);
+            Assert.AreEqual(newTeam.Members.Length, 1);
+            Assert.AreEqual(newTeam.Members[0].Id, team.Members[0].Id);
+
+            var deletedTeam = _project.DeleteTeamAsync(newTeam).Result.Content;
+            Assert.AreNotEqual(deletedTeam, null);
+            Assert.AreEqual(deletedTeam.Members.Length, 1);
+            Assert.AreEqual(deletedTeam.Members[0].Id, newTeam.Members[0].Id);
         }
 
         [TestMethod()]
@@ -631,6 +641,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             CollectionAssert.AreEquivalent(field.ApplicableTicketTypeIds, new[] { 31953, 31955 });
         }
 
+#if false
         [TestMethod()]
         public void GetSharedFilesAsyncTest()
         {
@@ -654,6 +665,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
         {
             Assert.Fail();
         }
+#endif
         #endregion
 
         private static BacklogClient _client = Utils.CreateTestClient();
