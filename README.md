@@ -1,6 +1,7 @@
 # NBacklog
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 C# wrapper for the Nulab's Backlog API v3.
 
 http://developer.nulab-inc.com/docs/backlog
@@ -30,11 +31,6 @@ namespace test
         }
 
         static async Task Main(string[] args)
-        {
-            await MainAsync();
-        }
-
-        static async Task MainAsync1()
         {
             var settings = JsonConvert.DeserializeObject<_Settings>(File.ReadAllText("client.json"));
             var parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = 3 };
