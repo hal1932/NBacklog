@@ -19,5 +19,10 @@ namespace NBacklog.DataTypes
         {
             return AddParameterRange(key, values);
         }
+
+        public QueryParameters Remove(string key)
+        {
+            return RemoveParameter(key);
+        }
     }
 }

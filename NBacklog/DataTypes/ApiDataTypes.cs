@@ -74,7 +74,7 @@ namespace NBacklog.DataTypes
         public _TicketType issueType { get; set; }
         public string summary { get; set; }
         public string description { get; set; }
-        public _Resolution resolutions { get; set; }
+        public _Resolution resolution { get; set; }
         public _Priority priority { get; set; }
         public _Status status { get; set; }
         public _User assignee { get; set; }

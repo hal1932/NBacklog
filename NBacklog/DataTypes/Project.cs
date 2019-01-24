@@ -145,6 +145,7 @@ namespace NBacklog.DataTypes
         {
             var parameters = ticket.ToApiParameters();
             parameters.Replace("projectId", Id);
+            parameters.Remove("statusId");
 
             var response = await Client.PostAsync("/api/v2/issues", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Ticket, _Ticket>(

@@ -54,6 +54,27 @@ namespace NBacklog.Query
             return this as T;
         }
 
+        private protected T RemoveParameter(string key)
+        {
+            var indices = new List<int>();
+            for (var i = 0; i < _parameters.Count; ++i)
+            {
+                if (_parameters[i].Item1 == key)
+                {
+                    indices.Add(i);
+                }
+            }
+
+            indices.Reverse();
+
+            foreach (var i in indices)
+            {
+                _parameters.RemoveAt(i);
+            }
+
+            return this as T;
+        }
+
         private protected string GetEnumDesc<TEnum>(TEnum value)
             where TEnum : Enum
         {

@@ -105,7 +105,7 @@ namespace NBacklog.DataTypes
             Type = client.ItemsCache.Update(data.issueType?.id, () => new TicketType(data.issueType, project));
             Summary = data.summary;
             Description = data.description;
-            Resolution = client.ItemsCache.Update(data.resolutions?.id, () => new Resolution(data.resolutions));
+            Resolution = client.ItemsCache.Update(data.resolution?.id, () => new Resolution(data.resolution));
             Priority = client.ItemsCache.Update(data.priority?.id, () => new Priority(data.priority));
             Status = client.ItemsCache.Update(data.status?.id, () => new Status(data.status));
             Assignee = client.ItemsCache.Update(data.assignee?.id, () => new User(data.assignee, client));
