@@ -22,10 +22,10 @@
             DisplayOrder = data.displayOrder;
         }
 
-        internal QueryParameters ToApiParameters()
+        internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
-            parameters.Add("name", Name);
+            parameters.Add("name", Name, toCreate);
             return parameters;
         }
     }

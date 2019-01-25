@@ -143,7 +143,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Ticket>> AddTicketAsync(Ticket ticket)
         {
-            var parameters = ticket.ToApiParameters();
+            var parameters = ticket.ToApiParameters(true);
             parameters.Replace("projectId", Id);
             parameters.Remove("statusId");
 
@@ -157,7 +157,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Ticket>> UpdateTicketAsync(Ticket ticket)
         {
-            var parameters = ticket.ToApiParameters();
+            var parameters = ticket.ToApiParameters(false);
 
             var response = await Client.PatchAsync($"/api/v2/issues/{ticket.Id}", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Ticket, _Ticket>(
@@ -191,7 +191,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<TicketType>> AddTicketTypeAsync(TicketType type)
         {
-            var parameters = type.ToApiParameters();
+            var parameters = type.ToApiParameters(true);
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/issueTypes", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
@@ -202,7 +202,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<TicketType>> UpdateTicketTypeAsync(TicketType type)
         {
-            var parameters = type.ToApiParameters();
+            var parameters = type.ToApiParameters(false);
             var response = await Client.PatchAsync($"/api/v2/projects/{Id}/issueTypes/{type.Id}", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<TicketType, _TicketType>(
                 response,
@@ -240,7 +240,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Category>> AddCategoryAsync(Category category)
         {
-            var parameters = category.ToApiParameters();
+            var parameters = category.ToApiParameters(true);
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/categories", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
@@ -251,10 +251,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Category>> UpdateCategoryAsync(Category category)
         {
-            var parameters = new
-            {
-                name = category.Name,
-            };
+            var parameters = category.ToApiParameters(false);
             var response = await Client.PatchAsync($"/api/v2/projects/{Id}/categories/{category.Id}", parameters).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Category, _Category>(
                 response,
@@ -287,7 +284,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Milestone>> AddMilestoneAsync(Milestone milestone)
         {
-            var parameters = milestone.ToApiParameters();
+            var parameters = milestone.ToApiParameters(true);
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/versions", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Milestone, _Milestone>(
                 response,
@@ -298,7 +295,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Milestone>> UpdateMilestoneAsync(Milestone milestone)
         {
-            var parameters = milestone.ToApiParameters();
+            var parameters = milestone.ToApiParameters(false);
             var response = await Client.PatchAsync($"/api/v2/projects/{Id}/versions/{milestone.Id}", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Milestone, _Milestone>(
                 response,
@@ -342,7 +339,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Webhook>> AddWebhookAsync(Webhook hook)
         {
-            var parameters = hook.ToApiParameters();
+            var parameters = hook.ToApiParameters(true);
 
             var response = await Client.PostAsync($"/api/v2/projects/{Id}/webhooks", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
@@ -354,7 +351,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Webhook>> UpdateWebhookAsync(Webhook hook)
         {
-            var parameters = hook.ToApiParameters();
+            var parameters = hook.ToApiParameters(false);
 
             var response = await Client.PatchAsync($"/api/v2/projects/{Id}/webhooks/{hook.Id}", parameters.Build()).ConfigureAwait(false);
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
@@ -366,9 +363,7 @@ namespace NBacklog.DataTypes
 
         public async Task<BacklogResponse<Webhook>> DeleteWebhookAsync(Webhook hook)
         {
-            var parameters = hook.ToApiParameters();
-
-            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/webhooks/{hook.Id}", parameters.Build()).ConfigureAwait(false);
+            var response = await Client.DeleteAsync($"/api/v2/projects/{Id}/webhooks/{hook.Id}").ConfigureAwait(false);
             return await Client.CreateResponseAsync<Webhook, _Webhook>(
                 response,
                 HttpStatusCode.OK,

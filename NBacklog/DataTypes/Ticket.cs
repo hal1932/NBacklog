@@ -283,23 +283,25 @@ namespace NBacklog.DataTypes
         }
         #endregion
 
-        internal QueryParameters ToApiParameters()
+        internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
+            
+            parameters.Add("summary", Summary, toCreate);
+            parameters.Add("issueTypeId", Type?.Id, toCreate);
+            parameters.Add("priorityId", Priority?.Id, toCreate);
 
-            if (Summary != null) parameters.Add("summary", Summary);
-            if (Type != null) parameters.Add("issueTypeId", Type.Id);
-            if (Priority != null) parameters.Add("priorityId", Priority.Id);
-            if (Description != null) parameters.Add("description", Description);
-            if (Status != null) parameters.Add("statusId", Status.Id);
-            if (StartDate.HasValue) parameters.Add("startDate", StartDate.Value.ToString("yyyy-MM-dd"));
-            if (DueDate.HasValue) parameters.Add("dueDate", DueDate.Value.ToString("yyyy-MM-dd"));
-            if (ParentTicketId > 0) parameters.Add("parentIssueId", ParentTicketId);
-            if (Resolution != null) parameters.Add("resolutionId", Resolution.Id);
-            if (Assignee != null) parameters.Add("assigneeId", Assignee.Id);
+            parameters.Add("description", Description ?? "");
+            parameters.Add("statusId", Status?.Id.ToString() ?? "");
+            parameters.Add("resolutionId", Resolution?.Id.ToString() ?? "");
+            parameters.Add("assigneeId", Assignee?.Id.ToString() ?? "");
 
-            parameters.Add("estimatedHours", EstimatedHours);
-            parameters.Add("actualHours", ActualHours);
+            parameters.Add("startDate", StartDate != default ? StartDate.Value.ToString("yyyy-MM-dd") : "");
+            parameters.Add("dueDate", DueDate != default ? DueDate.Value.ToString("yyyy-MM-dd") : "");
+
+            parameters.Add("parentIssueId", ParentTicketId != default ? ParentTicketId.ToString() : "");
+            parameters.Add("estimatedHours", EstimatedHours != default ? EstimatedHours.ToString() : "");
+            parameters.Add("actualHours", ActualHours != default ? ActualHours.ToString() : "");
 
             void SetParamArray<T>(string key, T[] values)
                 where T : BacklogItem

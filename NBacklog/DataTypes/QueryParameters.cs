@@ -1,12 +1,17 @@
 ﻿using NBacklog.Query;
+using System;
 using System.Collections.Generic;
 
 namespace NBacklog.DataTypes
 {
     public class QueryParameters : Query<QueryParameters>
     {
-        public QueryParameters Add<T>(string key, T value)
+        public QueryParameters Add<T>(string key, T value, bool throwOnDefaultValue = false)
         {
+            if (throwOnDefaultValue && value == default)
+            {
+                throw new ArgumentException($"{key} must not be {value}");
+            }
             return AddParameter(key, value);
         }
 

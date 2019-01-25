@@ -46,11 +46,11 @@ namespace NBacklog.DataTypes
             DisplayOrder = data.displayOrder;
         }
 
-        internal QueryParameters ToApiParameters()
+        internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
-            parameters.Add("name", Name);
-            parameters.Add("color", Utils.WebColorStrFromColor(Color).ToLower());
+            parameters.Add("name", Name, toCreate);
+            parameters.Add("color", Utils.WebColorStrFromColor(Color).ToLower(), toCreate);
             return parameters;
         }
     }

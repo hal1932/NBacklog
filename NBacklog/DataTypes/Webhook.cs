@@ -43,13 +43,14 @@ namespace NBacklog.DataTypes
             HookedActivities = (data.allEvent) ? null : data.activityTypeIds.Select(x => (ActivityEvent)x).ToArray();
         }
 
-        internal QueryParameters ToApiParameters()
+        internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
 
-            parameters.Add("name", Name);
+            parameters.Add("name", Name, toCreate);
+            parameters.Add("hookUrl", HookUrl, toCreate);
+
             parameters.Add("description", Description);
-            parameters.Add("hookUrl", HookUrl);
             parameters.Add("allEvent", IsAllActivitiesHooked);
 
             if (!IsAllActivitiesHooked)

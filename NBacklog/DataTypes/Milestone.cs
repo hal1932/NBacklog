@@ -53,10 +53,10 @@ namespace NBacklog.DataTypes
             DisplayOrder = data.displayOrder;
         }
 
-        internal QueryParameters ToApiParameters()
+        internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
-            parameters.Add("name", Name);
+            parameters.Add("name", Name, toCreate);
             parameters.Add("description", Description ?? string.Empty);
             parameters.Add("startDate", (StartDate.HasValue) ? StartDate.Value.ToString("yyyy-MM-dd") : string.Empty);
             parameters.Add("releaseDueDate", (DueDate.HasValue) ? DueDate.Value.ToString("yyyy-MM-dd") : string.Empty);
