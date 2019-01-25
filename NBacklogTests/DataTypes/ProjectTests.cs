@@ -86,7 +86,7 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             }
 
             var tickets = Enumerable.Range(0, 10).Select(i =>
-                new Ticket(_project, $"summary_{i}", types[rand.Next(types.Length - 1)], priorities[rand.Next(priorities.Length - 1)])
+                new Ticket($"summary_{i}", types[rand.Next(types.Length - 1)], priorities[rand.Next(priorities.Length - 1)])
                 {
                     Assignee = users[rand.Next(0, users.Length - 1)],
                     Categories = Enumerable.Range(0, rand.Next(3)).Select(_ => categories[rand.Next(categories.Length - 1)]).Distinct().ToArray(),
@@ -107,7 +107,6 @@ namespace NBacklog.DataTypes.Tests.DataTypes
             {
                 var newTicket = _project.AddTicketAsync(ticket).Result.Content;
                 Assert.AreNotEqual(newTicket, null);
-                Assert.AreSame(newTicket.Project, ticket.Project);
                 Assert.AreEqual(newTicket.Summary, ticket.Summary);
                 Assert.AreEqual(newTicket.Description, ticket.Description);
                 Assert.AreEqual(newTicket.Status.Name, "未対応");

@@ -58,7 +58,6 @@ namespace NBacklog.DataTypes
     public class Ticket : CachableBacklogItem
     {
         public Project Project { get; }
-        public int ProjectId { get; }
 
         public string Key { get; }
         public int KeyId { get; }
@@ -86,10 +85,19 @@ namespace NBacklog.DataTypes
         public SharedFile[] SharedFiles { get; private set; }
         public Star[] Stars { get; }
 
-        public Ticket(Project project, string summary, TicketType type, Priority priority)
+        public Ticket(int id)
+            : base(id)
+        { }
+
+        public Ticket(string key)
             : base(-1)
         {
-            Project = project;
+            Key = key;
+        }
+
+        public Ticket(string summary, TicketType type, Priority priority)
+            : base(-1)
+        {
             Summary = summary;
             Type = type;
             Priority = priority;
@@ -99,7 +107,6 @@ namespace NBacklog.DataTypes
             : base(data.id)
         {
             Project = project;
-            ProjectId = data.projectId;
             Key = data.issueKey;
             KeyId = data.keyId;
             Type = client.ItemsCache.Update(data.issueType?.id, () => new TicketType(data.issueType, project));
