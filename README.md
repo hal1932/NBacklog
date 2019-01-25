@@ -85,7 +85,7 @@ namespace test
                     var r = rand.Next(i);
                     var parentTicketId = tickets.Any() ? tickets[r % tickets.Count].Id : -1;
 
-                    var ticket = new Ticket(project, $"summary_{i}", type, priority);
+                    var ticket = new Ticket($"summary_{i}", type, priority);
                     if (rand.Next(3) == 0) ticket.Description = $"desc_{i}";
                     if (rand.Next(3) == 0) ticket.Assignee = assignee;
                     if (rand.Next(3) == 0) ticket.Categories = new[] { category };
