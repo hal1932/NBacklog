@@ -73,34 +73,19 @@ namespace NBacklog.DataTypes
                 ).ConfigureAwait(false);
         }
 #endif
-        public async Task<BacklogResponse<User[]>> GetUsersAsync(bool includeTeamUsers = true)
+        public async Task<BacklogResponse<User[]>> GetUsersAsync(bool excludeTeamMembers = false)
         {
-            // プロジェクトに直接追加されたユーザー
-            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users").ConfigureAwait(false);
-            var result = await Client.CreateResponseAsync<User[], List<_User>>(
+            var parameters = new
+            {
+                excludeGroupMembers = excludeTeamMembers,
+            };
+
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users", parameters).ConfigureAwait(false);
+            return await Client.CreateResponseAsync<User[], List<_User>>(
                 response,
                 HttpStatusCode.OK,
                 data => data.Select(x => Client.ItemsCache.Update(x.id, () => new User(x, Client))).ToArray()
                 ).ConfigureAwait(false);
-
-            if (!includeTeamUsers || !result.IsSuccess)
-            {
-                return result;
-            }
-
-            // チーム経由で追加されたユーザー
-            var teamResult = await GetTeamsAsync().ConfigureAwait(false);
-            if (teamResult.IsSuccess)
-            {
-                var members = teamResult.Content.SelectMany(x => x.Members);
-                result.Content = result.Content.Concat(members).Distinct().ToArray();
-            }
-            else
-            {
-                result = new BacklogResponse<User[]>(teamResult.StatusCode, teamResult.Errors);
-            }
-
-            return result;
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
