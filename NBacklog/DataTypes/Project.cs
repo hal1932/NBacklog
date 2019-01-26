@@ -57,6 +57,7 @@ namespace NBacklog.DataTypes
         { }
 
         #region users
+#if false
         public async Task<BacklogResponse<User[]>> GetUsersAsync(bool excludeGroupMembers = false)
         {
             var parameters = new
@@ -70,6 +71,36 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => data.Select(x => Client.ItemsCache.Update(x.id, () => new User(x, Client))).ToArray()
                 ).ConfigureAwait(false);
+        }
+#endif
+        public async Task<BacklogResponse<User[]>> GetUsersAsync(bool includeTeamUsers = true)
+        {
+            // プロジェクトに直接追加されたユーザー
+            var response = await Client.GetAsync($"/api/v2/projects/{Id}/users").ConfigureAwait(false);
+            var result = await Client.CreateResponseAsync<User[], List<_User>>(
+                response,
+                HttpStatusCode.OK,
+                data => data.Select(x => Client.ItemsCache.Update(x.id, () => new User(x, Client))).ToArray()
+                ).ConfigureAwait(false);
+
+            if (!includeTeamUsers || !result.IsSuccess)
+            {
+                return result;
+            }
+
+            // チーム経由で追加されたユーザー
+            var teamResult = await GetTeamsAsync().ConfigureAwait(false);
+            if (teamResult.IsSuccess)
+            {
+                var members = teamResult.Content.SelectMany(x => x.Members);
+                result.Content = result.Content.Concat(members).Distinct().ToArray();
+            }
+            else
+            {
+                result = new BacklogResponse<User[]>(teamResult.StatusCode, teamResult.Errors);
+            }
+
+            return result;
         }
 
         public async Task<BacklogResponse<User>> AddUserAsync(User user)
@@ -101,9 +132,9 @@ namespace NBacklog.DataTypes
                 data => Client.ItemsCache.Delete<User>(data.id)
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region tickets
+#region tickets
         public async Task<BacklogResponse<Ticket[]>> GetTicketsAsync(TicketQuery query = null)
         {
             query = query ?? new TicketQuery();
@@ -176,9 +207,9 @@ namespace NBacklog.DataTypes
                 data => Client.ItemsCache.Delete<Ticket>(data.id)
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region type
+#region type
         public async Task<BacklogResponse<TicketType[]>> GetTicketTypesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/issueTypes").ConfigureAwait(false);
@@ -225,9 +256,9 @@ namespace NBacklog.DataTypes
                 data => Client.ItemsCache.Delete<TicketType>(data.id)
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region category
+#region category
         public async Task<BacklogResponse<Category[]>> GetCategoriesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/categories").ConfigureAwait(false);
@@ -269,9 +300,9 @@ namespace NBacklog.DataTypes
                 data => Client.ItemsCache.Update(data.id, () => new Category(data))
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region milestone
+#region milestone
         public async Task<BacklogResponse<Milestone[]>> GetMilestonesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/versions").ConfigureAwait(false);
@@ -312,9 +343,9 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => Client.ItemsCache.Delete<Milestone>(data.id)).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region custom field
+#region custom field
         public async Task<BacklogResponse<CustomField[]>> GetCustomFieldsAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/customFields").ConfigureAwait(false);
@@ -324,9 +355,9 @@ namespace NBacklog.DataTypes
                 data => data.Select(x => Client.ItemsCache.Update(x.id, () => CustomField.Create(x, this))).ToArray()
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region webhook
+#region webhook
         public async Task<BacklogResponse<Webhook[]>> GetWebhooksAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/webhooks").ConfigureAwait(false);
@@ -369,9 +400,9 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => Client.ItemsCache.Delete<Webhook>(data.id)).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region wikipage
+#region wikipage
         public async Task<BacklogResponse<int>> GetWikipageCountAsync()
         {
             var parameters = new
@@ -456,9 +487,9 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => new Wikipage(data, this)).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region git
+#region git
         public async Task<BacklogResponse<GitRepository[]>> GetGitRepositoriesAsync()
         {
             var response = await Client.GetAsync($"/api/v2/projects/{Id}/git/repositories").ConfigureAwait(false);
@@ -476,9 +507,9 @@ namespace NBacklog.DataTypes
                 HttpStatusCode.OK,
                 data => new GitRepository(data, this)).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
-        #region team
+#region team
         public async Task<BacklogResponse<Team[]>> GetTeamsAsync(TeamQuery query = null)
         {
             query = query ?? new TeamQuery();
@@ -536,7 +567,7 @@ namespace NBacklog.DataTypes
                 data => Client.ItemsCache.Delete<Team>(data.id)
                 ).ConfigureAwait(false);
         }
-        #endregion
+#endregion
 
         public async Task<BacklogResponse<SharedFile[]>> GetSharedFilesAsync(string directory = "", SharedFileQuery query = null)
         {
