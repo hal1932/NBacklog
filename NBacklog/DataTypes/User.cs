@@ -38,6 +38,21 @@ namespace NBacklog.DataTypes
         }
     }
 
+    public class NulabAccount : BacklogItem
+    {
+        public string NulabId { get; }
+        public string Name { get; }
+        public string UniqueId { get; }
+
+        internal NulabAccount(_NulabAccount data)
+            : base(data.nulabId.GetHashCode())
+        {
+            NulabId = data.nulabId;
+            Name = data.name;
+            UniqueId = data.uniqueId;
+        }
+    }
+
     public class User : CachableBacklogItem
     {
         public string UserId { get; }
@@ -45,6 +60,7 @@ namespace NBacklog.DataTypes
         public UserRole Role { get; set; }
         public string Language { get; }
         public string MailAddress { get; set; }
+        public NulabAccount NulabAccount { get; }
 
         public User(int id)
             : base(id)
@@ -67,6 +83,12 @@ namespace NBacklog.DataTypes
             Role = (UserRole)data.roleType;
             Language = data.lang;
             MailAddress = data.mailAddress;
+
+            if (data.nulabAccount != null)
+            {
+                NulabAccount = new NulabAccount(data.nulabAccount);
+            }
+
             _client = client;
         }
 

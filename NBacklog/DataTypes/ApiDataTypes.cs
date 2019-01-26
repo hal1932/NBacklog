@@ -303,6 +303,13 @@ namespace NBacklog.DataTypes
         public int git { get; set; }
     }
 
+    class _NulabAccount
+    {
+        public string nulabId { get; set; }
+        public string name { get; set; }
+        public string uniqueId { get; set; }
+    }
+
     class _User
     {
         public int id { get; set; }
@@ -311,6 +318,7 @@ namespace NBacklog.DataTypes
         public int roleType { get; set; }
         public string lang { get; set; }
         public string mailAddress { get; set; }
+        public _NulabAccount nulabAccount { get; set; }
     }
 
     class _CustomFieldInitialDate
