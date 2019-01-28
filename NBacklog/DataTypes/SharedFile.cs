@@ -40,8 +40,8 @@ namespace NBacklog.DataTypes
             Name = data.name;
             Size = data.size;
             Creator = (data.createdUser != null) ? new UserSummary(data.createdUser) : null;
-            Created = data.created ?? default;
-            LastUpdated = data.updated ?? default;
+            Created = data.created;
+            LastUpdated = data.updated;
             LastUpdater = (data.updatedUser != null) ? new UserSummary(data.updatedUser) : null;
         }
     }
@@ -53,15 +53,11 @@ namespace NBacklog.DataTypes
         public string TypeName { get; }
         public string Dir { get; }
         public string Name { get; }
-        public long Size { get; }
+        public long? Size { get; }
         public User Creator { get; }
         public DateTime Created { get; }
         public User LastUpdater { get; }
-        public DateTime LastUpdated { get; }
-
-        public SharedFile(int id)
-            : base(id)
-        { }
+        public DateTime? LastUpdated { get; }
 
         internal SharedFile(_SharedFile data, Wikipage wikipage)
             : this(data, wikipage.Project)
@@ -85,10 +81,10 @@ namespace NBacklog.DataTypes
 
             Dir = data.dir;
             Name = data.name;
-            Size = data.size ?? default;
+            Size = data.size;
             Creator = project.Client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, project.Client));
-            Created = data.created ?? default;
-            LastUpdated = data.updated ?? default;
+            Created = data.created;
+            LastUpdated = data.updated;
             LastUpdater = project.Client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
         }
 

@@ -74,12 +74,12 @@ namespace NBacklog.DataTypes
             TicketId = data.issue.id;
             BaseCommit = data.baseCommit;
             BranchCommit = data.branchCommit;
-            Closed = data.closeAt ?? null;
-            Merged = data.mergeAt ?? null;
+            Closed = data.closeAt;
+            Merged = data.mergeAt;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
             Updater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            Updated = data.updated ?? null;
+            Updated = data.updated;
             Attachments = data.attachments.Select(x => new Attachment(x, this)).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
         }

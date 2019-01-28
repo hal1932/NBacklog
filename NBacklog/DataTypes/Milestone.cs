@@ -6,16 +6,16 @@ namespace NBacklog.DataTypes
     {
         public string Name { get; }
         public string Description { get; }
-        public DateTime StartDate { get; }
-        public DateTime DueDate { get; }
+        public DateTime? StartDate { get; }
+        public DateTime? DueDate { get; }
 
         internal MilestoneSummary(_MilestoneSummary data)
             : base(data.id)
         {
             Name = data.name;
             Description = data.description;
-            StartDate = data?.startDate ?? default;
-            DueDate = data?.releaseDueDate ?? default;
+            StartDate = data.startDate;
+            DueDate = data.releaseDueDate;
         }
     }
 
@@ -47,8 +47,8 @@ namespace NBacklog.DataTypes
             Project = project;
             Name = data.name;
             Description = data.description;
-            StartDate = data.startDate?.Date ?? null;
-            DueDate = data.releaseDueDate?.Date ?? null;
+            StartDate = data.startDate?.Date;
+            DueDate = data.releaseDueDate?.Date;
             IsArchived = data.archived;
             DisplayOrder = data.displayOrder;
         }

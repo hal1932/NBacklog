@@ -30,7 +30,7 @@ namespace NBacklog.DataTypes
             Name = data.name;
             Size = data.size;
             Creator = (data.createdUser != null) ? new UserSummary(data.createdUser) : null;
-            Created = data.created ?? default;
+            Created = data.created;
         }
     }
 
@@ -71,7 +71,7 @@ namespace NBacklog.DataTypes
             Name = data.name;
             Size = data.size;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
             _client = client;
         }
 

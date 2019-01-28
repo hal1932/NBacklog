@@ -60,7 +60,7 @@ namespace NBacklog.DataTypes
         public ActivityEvent Type { get; }
         public ActivityContent Content { get; }
         public User Creator { get; }
-        public DateTime Created { get; }
+        public DateTime? Created { get; }
 
         internal Activity(_Activity data, BacklogClient client)
             : base(data.id)
@@ -68,7 +68,7 @@ namespace NBacklog.DataTypes
             Project = client.ItemsCache.Update(data.project.id, () => new Project(data.project, client));
             Type = (ActivityEvent)data.type;
             Creator = client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
 
             var contentData = data.content;
 

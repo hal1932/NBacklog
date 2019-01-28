@@ -58,9 +58,9 @@ namespace NBacklog.DataTypes
             SharedFiles = data.sharedFiles.Select(x => client.ItemsCache.Update(x.id, () => new SharedFile(x, this))).ToArray();
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
             LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
-            LastUpdated = data.updated ?? null;
+            LastUpdated = data.updated;
 
             Project = project;
         }

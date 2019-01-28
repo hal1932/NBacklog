@@ -65,8 +65,8 @@ namespace NBacklog.DataTypes
             Content = data.content;
             ChangeLogs = data.changeLog.Select(x => new ChangeLog(x)).ToArray();
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
-            LastUpdated = data.updated ?? null;
+            Created = data.created;
+            LastUpdated = data.updated;
             Stars = data.stars.Select(x => new Star(x, client)).ToArray();
             Notifications = data.notifications.Select(x => new Notification(x, client)).ToArray();
 

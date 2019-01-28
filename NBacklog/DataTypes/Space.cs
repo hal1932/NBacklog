@@ -76,8 +76,8 @@ namespace NBacklog.DataTypes
             TimeZone = data.timezone;
             ReportSendTime = data.reportSendTime;
             TextFormattingRule = data.textFormattingRule;
-            Created = data.created ?? default;
-            Updated = data.updated ?? null;
+            Created = data.created;
+            Updated = data.updated;
         }
 
         public async Task<BacklogResponse<SpaceNotification>> GetNotificationAsync()

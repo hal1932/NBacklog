@@ -19,7 +19,7 @@ namespace NBacklog.DataTypes
             Url = data.url;
             Title = data.title;
             Creator = client.ItemsCache.Update(data.presenter?.id, () => new User(data.presenter, client));
-            Created = data.created ?? default;
+            Created = data.created;
         }
 
         internal static async Task<BacklogResponse<Star>> AddTo(object parameters, BacklogClient client)

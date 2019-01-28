@@ -37,6 +37,10 @@ namespace NBacklog.DataTypes
     {
         public string Name { get; set; }
 
+        public Resolution(int id)
+            : base(id)
+        { }
+
         internal Resolution(_Resolution data)
             : base(data.id)
         {
@@ -68,9 +72,9 @@ namespace NBacklog.DataTypes
         public Priority Priority { get; set; }
         public Status Status { get; set; }
         public User Assignee { get; set; }
-        public Category[] Categories { get; set; }
-        public Milestone[] Versions { get; set; }
-        public Milestone[] Milestones { get; set; }
+        public Category[] Categories { get; set; } = Array.Empty<Category>();
+        public Milestone[] Versions { get; set; } = Array.Empty<Milestone>();
+        public Milestone[] Milestones { get; set; } = Array.Empty<Milestone>();
         public DateTime? StartDate { get; set; }
         public DateTime? DueDate { get; set; }
         public double? EstimatedHours { get; set; }
@@ -81,9 +85,9 @@ namespace NBacklog.DataTypes
         public User LastUpdater { get; }
         public DateTime? LastUpdated { get; }
         public CustomFieldValue[] CustomFields { get; set; }
-        public Attachment[] Attachments { get; set; }
-        public SharedFile[] SharedFiles { get; private set; }
-        public Star[] Stars { get; }
+        public Attachment[] Attachments { get; set; } = Array.Empty<Attachment>();
+        public SharedFile[] SharedFiles { get; private set; } = Array.Empty<SharedFile>();
+        public Star[] Stars { get; } = Array.Empty<Star>();
 
         public Ticket(int id)
             : base(id)
@@ -119,13 +123,13 @@ namespace NBacklog.DataTypes
             Categories = data.category.Select(x => client.ItemsCache.Update(x.id, () => new Category(x))).ToArray();
             Versions = data.versions.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
             Milestones = data.milestone.Select(x => client.ItemsCache.Update(x.id, () => new Milestone(x, project))).ToArray();
-            StartDate = data.startDate?.Date ?? null;
-            DueDate = data.dueDate?.Date ?? null;
+            StartDate = data.startDate?.Date;
+            DueDate = data.dueDate?.Date;
             EstimatedHours = data.estimatedHours;
             ActualHours = data.actualHours;
             ParentTicketId = data.parentIssueId;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
             LastUpdater = client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, client));
             LastUpdated = data.updated;
             CustomFields = data.customFields.Select(x => new CustomFieldValue(x)).ToArray();
@@ -293,34 +297,28 @@ namespace NBacklog.DataTypes
         internal QueryParameters ToApiParameters(bool toCreate)
         {
             var parameters = new QueryParameters();
-            
+
             parameters.Add("summary", Summary, toCreate);
-            parameters.Add("issueTypeId", Type?.Id, toCreate);
-            parameters.Add("priorityId", Priority?.Id, toCreate);
+            parameters.Add("issueTypeId", Type.Id, toCreate);
+            parameters.Add("priorityId", Priority.Id, toCreate);
 
             parameters.Add("description", Description ?? "");
-            parameters.Add("statusId", Status?.Id.ToString() ?? "");
-            parameters.Add("resolutionId", Resolution?.Id.ToString() ?? "");
+            parameters.Add("dueDate", DueDate?.ToString("yyyy-MM-dd") ?? "");
+            parameters.Add("startDate", StartDate?.ToString("yyyy-MM-dd") ?? "");
+            parameters.AddRange("categoryId[]", Categories.Select(x => x.Id));
+            parameters.AddRange("versionId[]", Versions.Select(x => x.Id));
+            parameters.AddRange("milestoneId[]", Milestones.Select(x => x.Id));
+            parameters.AddRange("attachmentId[]", Attachments.Select(x => x.Id));
+            parameters.Add("parentIssueId", ParentTicketId?.ToString() ?? "");
+            parameters.Add("estimatedHours", EstimatedHours?.ToString() ?? "");
+            parameters.Add("actualHours", ActualHours?.ToString() ?? "");
             parameters.Add("assigneeId", Assignee?.Id.ToString() ?? "");
 
-            parameters.Add("startDate", StartDate != default ? StartDate.Value.ToString("yyyy-MM-dd") : "");
-            parameters.Add("dueDate", DueDate != default ? DueDate.Value.ToString("yyyy-MM-dd") : "");
-
-            parameters.Add("parentIssueId", ParentTicketId != default ? ParentTicketId.ToString() : "");
-            parameters.Add("estimatedHours", EstimatedHours != default ? EstimatedHours.ToString() : "");
-            parameters.Add("actualHours", ActualHours != default ? ActualHours.ToString() : "");
-
-            void SetParamArray<T>(string key, T[] values)
-                where T : BacklogItem
+            if (!toCreate)
             {
-                if (values.Any()) parameters.AddRange(key, values.Select(x => x.Id));
-                else parameters.Add(key, 0);
+                parameters.Add("statusId", Status?.Id.ToString() ?? "");
+                parameters.Add("resolutionId", Resolution?.Id.ToString() ?? "");
             }
-
-            if (Categories != null) SetParamArray("categoryId[]", Categories);
-            if (Versions != null) SetParamArray("versionId[]", Versions);
-            if (Milestones != null) SetParamArray("milestoneId[]", Milestones);
-            if (Attachments != null) SetParamArray("attachmentId[]", Attachments);
 
             if (CustomFields != null)
             {

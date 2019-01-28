@@ -10,7 +10,7 @@ namespace NBacklog.DataTypes
         {
             if (throwOnDefaultValue && value == default)
             {
-                throw new ArgumentException($"{key} must not be {value}");
+                throw new ArgumentNullException(key);
             }
             return AddParameter(key, value);
         }

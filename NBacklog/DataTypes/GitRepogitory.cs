@@ -50,11 +50,11 @@ namespace NBacklog.DataTypes
             HttpUrl = data.httpUrl;
             SshUrl = data.sshUrl;
             DisplayOrder = data.displayOrder;
-            Pushed = data.pushedAt ?? null;
+            Pushed = data.pushedAt;
             Creator = client.ItemsCache.Update(data.createdUser?.id, () => new User(data.createdUser, client));
-            Created = data.created ?? default;
+            Created = data.created;
             Updater = client.ItemsCache.Update(data.updater?.id, () => new User(data.updater, client));
-            Updated = data.updated ?? null;
+            Updated = data.updated;
 
             Project = project;
         }

@@ -36,11 +36,11 @@ namespace NBacklog.DataTypes
             Description = data.description;
             HookUrl = data.hookUrl;
             Creator = project.Client.ItemsCache.Update(data.createdUser.id, () => new User(data.createdUser, project.Client));
-            Created = data.created ?? default;
+            Created = data.created;
             LastUpdater = project.Client.ItemsCache.Update(data.updatedUser?.id, () => new User(data.updatedUser, project.Client));
-            LastUpdated = data.updated ?? null;
+            LastUpdated = data.updated;
 
-            HookedActivities = (data.allEvent) ? null : data.activityTypeIds.Select(x => (ActivityEvent)x).ToArray();
+            HookedActivities = data.allEvent ? null : data.activityTypeIds.Select(x => (ActivityEvent)x).ToArray();
         }
 
         internal QueryParameters ToApiParameters(bool toCreate)
@@ -63,7 +63,7 @@ namespace NBacklog.DataTypes
 
         public bool Contains(ActivityEvent activity)
         {
-            return (IsAllActivitiesHooked) ? true : HookedActivities.Contains(activity);
+            return IsAllActivitiesHooked ? true : HookedActivities.Contains(activity);
         }
     }
 }
